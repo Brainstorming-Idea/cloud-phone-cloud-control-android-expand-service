@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tv_city"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/selector_switch_proxy_city_button_bg"
+        android:ellipsize="end"
+        android:gravity="center"
+        android:maxEms="5"
+        android:padding="@dimen/dp_8"
+        android:singleLine="true"
+        android:text="北京市"
+        android:textColor="@color/c_333333"
+        android:textSize="@dimen/sp_14" />
+
+</LinearLayout>

@@ -1,0 +1,783 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<link rel="stylesheet" href="css/map.css">
+	<title>虚拟定位</title>
+	<style>
+		body, html, div, ul, li, input {
+			margin: 0;
+			padding: 0;
+		}
+	</style>
+	<script type="text/javascript" src="http://api.map.baidu.com/getscript?v=3.0&ak=UEdK38RLfA12oybjMlgKbe4LtbOp9wgF"></script>
+</head>
+
+<body>
+	<div class="contact-map-wrapper">
+		<div id="allmap" class="contact-map"></div>
+		<div id="r-result">
+			<div class="input-container">
+				<span class="icon-search"></span>
+				<input type="text" id="suggestId" maxlength="200" value="" placeholder="请输入定位地址" />
+				<span class="icon-close"></span>
+			</div>
+			<div id="searchResultAll"></div>
+		</div>
+		<div id="searchResultPanel" style="border:1px solid #C0C0C0;width:150px;height:auto; display:none;margin-top: 5px;">
+		</div>
+	</div>
+	<script type="text/javascript" src="js/jquery-1.11.1.min.js"></script>
+	<script type="text/javascript" src="js/qwebchannel.js"></script>
+	<script type="text/javascript">
+		// px换算成rem
+		+ function () {
+			remLayout();
+
+			function remLayout() {
+				var w = document.documentElement.clientWidth;
+				w = w > 768 ? 768 : w;
+				w = w <= 320 ? 320 : w;
+				document.documentElement.style.fontSize = w / 750 * 100 + 'px';
+			}
+			window.addEventListener('resize', function () {
+				remLayout();
+			}, false);
+		}();
+		// 模拟数据 设置GPS
+		// var data = '{"type": "setGps","data":{"longitude":"","latitude":39.990157,"ip":"113.57.121.104"}}';
+		var data = {"type": "setGps","data":{"longitude":114.06468218071693,"latitude":22.548460142460144,"ip":""}};
+
+		var GPS, cityip;
+		var myIcon = new BMap.Icon("img/dingwei_icon.png", new BMap.Size(32, 32), {
+			anchor: new BMap.Size(14, 42),
+			imageSize: new BMap.Size(32, 32)
+		});
+
+		setJingWeiToJs(data);
+
+		// 清空按钮
+		$("#suggestId").focus(function () {
+			if ($(this).val() == '') {
+				return;
+			}
+			$(this).parent().children(".icon-close").show();
+		});
+		$("#suggestId").change(function (e) {
+			if (!!e.target.value) {
+				$(this).parent().children(".icon-close").show();
+			}
+		})
+		$("#suggestId").blur(function () {
+			if ($(this).val() == '') {
+				$(this).parent().children(".icon-close").hide();
+			}
+		});
+		$(".icon-close").click(function () {
+			$(this).parent().find('#suggestId').val('').focus();
+			$(this).hide();
+		});
+
+		// 传入js
+		function setJingWeiToJs(data) {
+			cityip = data
+			console.log(data)
+			var jsonon = data
+
+			if (jsonon.data.longitude) {
+				longcity(jsonon)
+			} else {
+				getipaddress()
+
+				function getipaddress() {
+					var url = "http://api.map.baidu.com/location/ip";
+					var data = {
+						ip: jsonon.data.ip,
+						ak: "UEdK38RLfA12oybjMlgKbe4LtbOp9wgF",
+						coor: "bd09ll",
+						callback: 'mycallback'
+					};
+					//组合url
+					var buffer = [];
+					for (var key in data) {
+						buffer.push(key + '=' + encodeURIComponent(data[key]));
+					}
+					var fullpath = url + '?' + buffer.join('&');
+					CreateScript(fullpath);
+					//生成script
+					function CreateScript(src) {
+						var el = document.createElement('script');
+						el.src = src;
+						el.async = false;
+						el.defer = false;
+						document.body.appendChild(el);
+					}
+				}
+			}
+		}
+
+		function longcity(data) {
+			GPS = {
+				"type": "setGps",
+				"data": {
+					"longitude": data.data.longitude,
+					"latitude": data.data.latitude,
+					"city": "是是是"
+				}
+			}
+			var map = new BMap.Map("allmap");
+			var posty;
+			var turesw = 1;
+			var point = new BMap.Point(GPS.data.longitude, GPS.data.latitude); //地图中心点
+
+			// 百度地图API功能
+			function mapFun() {
+				map.centerAndZoom(point, 15); // 初始化地图,设置中心点坐标和地图级别。
+				map.enableScrollWheelZoom(true); //启用滚轮放大缩小
+
+				var geolocation = new BMap.Geolocation();
+				var pt = new BMap.Point(GPS.data.longitude, GPS.data.latitude);
+				posty = pt;
+				// 创建标注
+				var marker2 = new BMap.Marker(pt, {
+					icon: myIcon
+				});
+				map.addOverlay(marker2); // 将标注添加到地图中
+				var longitudes = posty == undefined ? GPS.data.longitude : posty.lng
+				var latitudes = posty == undefined ? GPS.data.latitude : posty.lat
+				var pt = new BMap.Point(longitudes, latitudes);
+				var geoc = new BMap.Geocoder();
+				geoc.getLocation(pt, function (rs) {
+					var addComp = rs.address;
+					$("#suggestId").val(addComp);
+					$(".icon-close").hide();
+				});
+			}
+			mapFun();
+
+			var myValue;
+			var resultPos = [];
+			var resultAddress = [];
+
+			// input搜索地址
+			// $('#searchIcon').click(function (e) {
+			// 	var value = document.getElementById('suggestId').value;
+			// 	var local = new BMap.LocalSearch(map, {
+			// 		pageCapacity: 30
+			// 	});
+			// 	local.search(value);
+			// 	//检索结束后的回调方法
+			// 	local.setSearchCompleteCallback(function (results) {
+			// 		// 判断状态是否正确
+			// 		if (local.getStatus() === BMAP_STATUS_SUCCESS) {
+			// 			resultPos = []
+			// 			resultAddress = []
+			// 			var str = '<ul id="searchResultUl">';
+			// 			for (var i = 0; i < results.getCurrentNumPois(); i++) {
+			// 				var poi = results.getPoi(i);
+			// 				resultPos.push(poi.point)
+			// 				var address = poi.title == poi.address ? poi.address : (poi.title + (poi.address ? ('-' + poi
+			// 					.address) : ''));
+			// 				address = address.replace(/\s/g, '')
+			// 				resultAddress.push(poi.title)
+			// 				str += '<li class="">';
+			// 				str += '<img src="./img/position.png" class="img-position"/>';
+			// 				str += '<span style="vertical-align:middle;" title=' + address + '>' + address + '</span>';
+			// 				str += '</li>';
+			// 			}
+			// 			str += '</ul>';
+			// 			$('#searchResultAll').html(str)
+			// 			$('#searchResultAll').css("display", "block");
+			// 			$("ul#searchResultUl").on("click", "li", function () {
+			// 				const index = $(this).index()
+			// 				handleSelectPos(index)
+			// 			})
+			// 		} else {
+			// 			$('#searchResultAll').css("display", "none");
+			// 			new QWebChannel(qt.webChannelTransport, function (channel) {
+			// 				window.JsIntrS = channel.objects.JsIntrS;
+			// 				JsIntrS.showErrorTip()
+			// 			})
+			// 		}
+			// 	});
+			// })
+
+			// 给选中的搜索结果添加标注
+			function handleSelectPos(index) {
+				posty = resultPos[index];
+				map.clearOverlays();
+				$("#suggestId").val(resultAddress[index])
+				$('#searchResultAll').css("display", "none");
+				map.centerAndZoom(posty, 18);
+				map.addOverlay(new BMap.Marker(posty, {
+					icon: myIcon
+				}));
+				android.onClickWebView(posty.lng, posty.lat, posty.city);
+			}
+
+			// enter键搜索地址事件
+			$('#suggestId').keydown(function (e) {
+				var event = e || window.event || arguments.callee.caller.arguments[0]; //兼容IE、FF、Google
+				var value = event.target.value
+				if (event.keyCode == 13 && !!value) {
+					$('#searchResultAll') && $('#searchResultAll').css("display", "none");
+					map.clearOverlays(); //清除地图上所有覆盖物
+					// function myFun() {
+					// 	if (local.getStatus() === BMAP_STATUS_SUCCESS) {
+					// 		var pp = local.getResults().getPoi(0).point; //获取第一个智能搜索的结果 
+					// 		posty = pp
+					// 		map.centerAndZoom(pp, 18);
+					// 		map.addOverlay(new BMap.Marker(pp, {
+					// 			icon: myIcon
+					// 		})); //添加标注
+					// 	} else {
+					// 		new QWebChannel(qt.webChannelTransport, function (channel) {
+					// 			window.JsIntrS = channel.objects.JsIntrS;
+					// 			JsIntrS.showErrorTip()
+					// 		})
+					// 	}
+					// }
+					// var local = new BMap.LocalSearch(map, { //智能搜索
+					// 	onSearchComplete: myFun
+					// });
+					// local.search(value);
+					var value = document.getElementById('suggestId').value;
+					$('#suggestId').blur();
+					$('.icon-close').hide();
+					var local = new BMap.LocalSearch(map, {
+						pageCapacity: 30
+					});
+					local.search(value);
+					//检索结束后的回调方法
+					local.setSearchCompleteCallback(function (results) {
+						// 判断状态是否正确
+						if (local.getStatus() === BMAP_STATUS_SUCCESS) {
+							resultPos = [];
+							resultAddress = [];
+							var str = '<ul id="searchResultUl">';
+							for (var i = 0; i < results.getCurrentNumPois(); i++) {
+								var poi = results.getPoi(i);
+								resultPos.push(Object.assign(poi.point, {city: results.city}));
+								var address = poi.title == poi.address ? poi.address : (poi.title + (poi.address ? ('-' + poi
+									.address) : ''));
+								address = address.replace(/\s/g, '')
+								resultAddress.push(poi.title)
+								str += '<li class="">';
+								str += '<img src="./img/position.png" class="img-position"/>';
+								str += '<span style="vertical-align:middle;" title=' + address + '>' + address + '</span>';
+								str += '</li>';
+							}
+							str += '</ul>';
+							$('#searchResultAll').html(str)
+							$('#searchResultAll').css("display", "block");
+							$("ul#searchResultUl").on("click", "li", function () {
+								const index = $(this).index();
+							})
+						} else {
+							$('#searchResultAll').css("display", "none");
+							// new QWebChannel(qt.webChannelTransport, function (channel) {
+							// 	window.JsIntrS = channel.objects.JsIntrS;
+							// 	JsIntrS.showErrorTip()
+							// })
+							Android.setMessage('未搜索到结果');
+						}
+					});
+				}
+			})
+
+			function setPlace() {
+				map.clearOverlays(); //清除地图上所有覆盖物
+				function myFun() {
+					var pp = local.getResults().getPoi(0).point; //获取第一个智能搜索的结果 
+					posty = pp
+
+					map.centerAndZoom(pp, 18);
+					map.addOverlay(new BMap.Marker(pp)); //添加标注
+				}
+				var local = new BMap.LocalSearch(map, { //智能搜索
+					onSearchComplete: myFun
+				});
+				local.search(myValue);
+			}
+
+			//给地图添加点击事件
+			map.addEventListener("click", function (e) {
+				map.clearOverlays();
+				var lng = e.point.lng;
+				var lat = e.point.lat;
+				//创建标注位置
+				var pt = new BMap.Point(lng, lat);
+				var marker2 = new BMap.Marker(pt, {
+					icon: myIcon
+				}); // 创建标注
+				map.addOverlay(marker2); // 将标注添加到地图中
+				posty = e.point
+				turesw = 1
+				var geoc = new BMap.Geocoder();
+				geoc.getLocation(pt, function (rs) {
+					var addComp = rs.address;
+					android.onClickWebView(rs.point.lng, rs.point.lat, rs.addressComponents.city); // 传给安卓的参数:longitude, latitude, city
+					$("#suggestId").val(addComp);
+					$('#searchResultAll') && $('#searchResultAll').css("display", "none");
+				});
+			});
+
+			//执行按钮等业务
+			//监听事件
+			//driftRange漂移范围，totalTime漂移时间，interval间隔时间
+			var istrue = 1
+			var isRandom = false
+			var isDrift = true
+			var driftSpeed = 0 // 0 1 2 3
+
+			var driftRange = ''; //漂移范围
+			var totalTime = ''; //漂移时间
+			var interval = ''; //间隔时间
+
+			$('.radoweew').on('click', function () {
+				istrue = $(this).val()
+				if ($(this).val() == 1) {
+					$("#driftRange").removeAttr("readonly")
+					$("#totalTime").removeAttr("readonly")
+					$("#interval").removeAttr("readonly")
+				} else {
+					$("#driftRange").attr("readonly", "readonly")
+					$("#totalTime").attr("readonly", "readonly")
+					$("#interval").attr("readonly", "readonly")
+
+				}
+			})
+			$("#driftRange").bind("input propertychange", function (event) {
+				driftRange = $("#driftRange").val()
+				commse()
+			});
+			$("#totalTime").bind("input propertychange", function (event) {
+				totalTime = $("#totalTime").val()
+				commse()
+			});
+			$("#interval").bind("input propertychange", function (event) {
+				interval = $("#interval").val()
+				commse()
+			});
+
+			function startDrift() {
+				JsObj.StartDrift("ss");
+			}
+
+			function commse() {
+				if ($("#driftRange").val() != '' || $("#totalTime").val() != "" || $("#interval").val() != "") {
+					$('.bt-left-no').removeClass('bt-left-no').addClass('bt-left')
+				} else {
+					$('.bt-left').removeClass('bt-left').addClass('bt-left-no')
+				}
+				if ($("#driftRange").val() != '' && $("#totalTime").val() != "" && $("#interval").val() != "") {
+					$('.bt-right-no').removeClass('bt-right-no').addClass('bt-right')
+				} else {
+					$('.bt-right').removeClass('bt-right').addClass('bt-right-no')
+				}
+			}
+
+			//重置
+			$(document).on('click', '.bt-left', function () {
+				$("#driftRange").val('')
+				$("#totalTime").val('')
+				$("#interval").val('')
+				$('.bt-left').removeClass('bt-left').addClass('bt-left-no')
+				$('.bt-right').removeClass('bt-right').addClass('bt-right-no')
+			})
+
+			$('.a-radio').on('click', function () {
+				driftSpeed = $(this).val()
+			})
+
+
+			$(".buise").on("click", function () {
+				var city
+				var geoc = new BMap.Geocoder();
+				var longitudes = posty == undefined ? GPS.data.longitude : posty.lng
+				var latitudes = posty == undefined ? GPS.data.latitude : posty.lat
+				var pt = new BMap.Point(longitudes, latitudes);
+				geoc.getLocation(pt, function (rs) {
+					city = rs.addressComponents.city
+					// 回传给c++
+					if ($("#suggestId").val() == "") {
+						var JSONS = {
+							"type": "startDrift",
+							"isFirst": false,
+							"data": {
+								"longitude": "",
+								"latitude": "",
+								"city": ""
+							}
+						}
+					} else {
+						var longitude = posty == undefined ? GPS.data.longitude : posty.lng
+						var latitude = posty == undefined ? GPS.data.latitude : posty.lat
+						longitude = longitude.toString()
+						latitude = latitude.toString()
+						var JSONS = {
+							"type": "startDrift",
+							"isFirst": false,
+							"data": {
+								"longitude": longitude,
+								"latitude": latitude,
+								"city": city
+							}
+						}
+					}
+
+					// new QWebChannel(qt.webChannelTransport, function (channel) {
+					// 	window.JsIntrS = channel.objects.JsIntrS;
+					// 	JsIntrS.getJingWeiFormJs(JSONS)
+					// })
+				});
+
+			})
+
+		}
+
+		// 获取ip
+		function mycallback(result) {
+			var city = result['content']['address_detail']['city'];
+			GPS = {
+				"type": "setGps",
+				"data": {
+					"longitude": result.content.point.x,
+					"latitude": result.content.point.y,
+					"city": result.content.address_detail.city
+				}
+			}
+			let lon = result.content.point.x
+			let lat = result.content.point.y
+
+			if (!!lon && !!lat) {
+				lon = lon.toString()
+				lat = lat.toString()
+				let req = {
+					"type": "startDrift",
+					"isFirst": true,
+					"data": {
+						"longitude": lon,
+						"latitude": lat,
+						"city": result.content.address_detail.city
+					}
+				}
+				// new QWebChannel(qt.webChannelTransport, function (channel) {
+				// 	window.JsIntrS = channel.objects.JsIntrS;
+				// 	JsIntrS.getJingWeiFormJs(req)
+				// })
+			}
+
+			var map = new BMap.Map("allmap");
+			var posty
+			var turesw = 1
+			var point = new BMap.Point(GPS.data.longitude, GPS.data.latitude); //地图中心点
+			// 百度地图API功能
+			function mapFun() {
+				map.centerAndZoom(point, 15); // 初始化地图,设置中心点坐标和地图级别。
+				map.enableScrollWheelZoom(true); //启用滚轮放大缩小
+
+				var geolocation = new BMap.Geolocation();
+				var pt = new BMap.Point(GPS.data.longitude, GPS.data.latitude);
+				posty = pt
+				var marker2 = new BMap.Marker(pt, {
+					icon: myIcon
+				}); // 创建标注
+				map.addOverlay(marker2); // 将标注添加到地图中
+				var longitudes = posty == undefined ? GPS.data.longitude : posty.lng
+				var latitudes = posty == undefined ? GPS.data.latitude : posty.lat
+				var pt = new BMap.Point(longitudes, latitudes);
+				var geoc = new BMap.Geocoder();
+
+				geoc.getLocation(pt, function (rs) {
+					var addComp = rs.address;
+					$("#suggestId").val(addComp);
+					$(".icon-close").hide();
+				});
+			}
+			mapFun();
+
+			var myValue;
+			var resultPos = []
+			var resultAddress = []
+			// $('#searchIcon').click(function (e) {
+			// 	var value = document.getElementById('suggestId').value
+			// 	var local = new BMap.LocalSearch(map, {
+			// 		pageCapacity: 30
+			// 	});
+			// 	local.search(value);
+			// 	//检索结束后的回调方法
+			// 	local.setSearchCompleteCallback(function (results) {
+			// 		// 判断状态是否正确
+			// 		if (local.getStatus() === BMAP_STATUS_SUCCESS) {
+			// 			resultPos = []
+			// 			resultAddress = []
+			// 			var str = '<ul id="searchResultUl">';
+			// 			for (var i = 0; i < results.getCurrentNumPois(); i++) {
+			// 				var poi = results.getPoi(i);
+			// 				resultPos.push(poi.point)
+			// 				var address = poi.title == poi.address ? poi.address : (poi.title + (poi.address ? ('-' + poi
+			// 					.address) : ''));
+			// 				address = address.replace(/\s/g, '')
+			// 				resultAddress.push(poi.title)
+			// 				str += '<li class="">';
+			// 				str += '<img src="./img/position.png" class="img-position"/>';
+			// 				str += '<span style="vertical-align:middle;" title=' + address + '>' + address + '</span>';
+			// 				str += '</li>';
+			// 			}
+			// 			str += '</ul>';
+			// 			$('#searchResultAll').html(str)
+			// 			$('#searchResultAll').css("display", "block");
+			// 			$("ul#searchResultUl").on("click", "li", function () {
+			// 				const index = $(this).index();
+			// 				handleSelectPos(index);
+			// 			})
+			// 		} else {
+			// 			$('#searchResultAll').css("display", "none");
+			// 			new QWebChannel(qt.webChannelTransport, function (channel) {
+			// 				window.JsIntrS = channel.objects.JsIntrS;
+			// 				JsIntrS.showErrorTip()
+			// 			})
+			// 		}
+			// 	});
+			// })
+
+			function handleSelectPos(index) {
+				posty = resultPos[index];
+				map.clearOverlays();
+				$("#suggestId").val(resultAddress[index]);
+				$('#searchResultAll').css("display", "none");
+				map.centerAndZoom(posty, 18);
+				map.addOverlay(new BMap.Marker(posty, {
+					icon: myIcon
+				})); //添加标注
+				android.onClickWebView(posty.lng, posty.lat, posty.city);
+			}
+
+			// 回车查找
+			$('#suggestId').keydown(function (e) {
+				var event = e || window.event || arguments.callee.caller.arguments[0]; //兼容IE、FF、Google
+				var value = event.target.value;
+				if (event.keyCode == 13 && !!value) {
+					$('#searchResultAll') && $('#searchResultAll').css("display", "none");
+					map.clearOverlays(); //清除地图上所有覆盖物
+					// function myFun() {
+					// 	if (local.getStatus() === BMAP_STATUS_SUCCESS) {
+					// 		var pp = local.getResults().getPoi(0).point; //获取第一个智能搜索的结果 
+					// 		posty = pp;
+					// 		map.centerAndZoom(pp, 18);
+					// 		map.addOverlay(new BMap.Marker(pp, {
+					// 			icon: myIcon
+					// 		})); //添加标注
+					// 	} else {
+					// 		new QWebChannel(qt.webChannelTransport, function (channel) {
+					// 			window.JsIntrS = channel.objects.JsIntrS;
+					// 			JsIntrS.showErrorTip()
+					// 		})
+					// 	}
+					// }
+					// var local = new BMap.LocalSearch(map, { //智能搜索
+					// 	onSearchComplete: myFun
+					// });
+					// local.search(value);
+					var value = document.getElementById('suggestId').value;
+					$('#suggestId').blur();
+					$('.icon-close').hide();
+					var local = new BMap.LocalSearch(map, {
+						pageCapacity: 30
+					});
+					local.search(value);
+					//检索结束后的回调方法
+					local.setSearchCompleteCallback(function (results) {
+						// 判断状态是否正确
+						if (local.getStatus() === BMAP_STATUS_SUCCESS) {
+							resultPos = []
+							resultAddress = []
+							var str = '<ul id="searchResultUl">';
+							for (var i = 0; i < results.getCurrentNumPois(); i++) {
+								var poi = results.getPoi(i);
+								resultPos.push(Object.assign(poi.point, {city: results.city}))
+								var address = poi.title == poi.address ? poi.address : (poi.title + (poi.address ? ('-' + poi
+									.address) : ''));
+								address = address.replace(/\s/g, '')
+								resultAddress.push(poi.title)
+								str += '<li class="">';
+								str += '<img src="./img/position.png" class="img-position"/>';
+								str += '<span style="vertical-align:middle;" title=' + address + '>' + address + '</span>';
+								str += '</li>';
+							}
+							str += '</ul>';
+							$('#searchResultAll').html(str)
+							$('#searchResultAll').css("display", "block");
+							$("ul#searchResultUl").on("click", "li", function () {
+								const index = $(this).index()
+								handleSelectPos(index)
+							})
+						} else {
+							$('#searchResultAll').css("display", "none");
+							// new QWebChannel(qt.webChannelTransport, function (channel) {
+							// 	window.JsIntrS = channel.objects.JsIntrS;
+							// 	JsIntrS.showErrorTip()
+							// })
+							Android.setMessage('未搜索到结果');
+						}
+					});
+				}
+			})
+
+			function setPlace() {
+				map.clearOverlays(); //清除地图上所有覆盖物
+				function myFun() {
+					var pp = local.getResults().getPoi(0).point; //获取第一个智能搜索的结果 
+					posty = pp
+					map.centerAndZoom(pp, 18);
+					map.addOverlay(new BMap.Marker(pp)); //添加标注
+				}
+				var local = new BMap.LocalSearch(map, { //智能搜索
+					onSearchComplete: myFun
+				});
+				local.search(myValue);
+			}
+
+			map.addEventListener("click", function (e) { //给地图添加点击事件
+				map.clearOverlays();
+				var lng = e.point.lng;
+				var lat = e.point.lat;
+				//创建标注位置
+				var pt = new BMap.Point(lng, lat);
+				var marker2 = new BMap.Marker(pt, {
+					icon: myIcon
+				}); // 创建标注
+				map.addOverlay(marker2); // 将标注添加到地图中
+				posty = e.point
+				turesw = 1
+				var geoc = new BMap.Geocoder();
+				geoc.getLocation(pt, function (rs) {
+					var addComp = rs.address;
+					android.onClickWebView(rs.point.lng, rs.point.lat, rs.addressComponents.city); // 传给安卓的参数:longitude, latitude, city
+					$("#suggestId").val(addComp)
+					$('#searchResultAll') && $('#searchResultAll').css("display", "none");
+				});
+			});
+
+			//执行按钮等业务
+			//监听事件
+			//driftRange漂移范围，totalTime漂移时间，interval间隔时间
+			var istrue = 1
+			var isRandom = false
+			var isDrift = true
+			var driftSpeed = 0 // 0 1 2 3
+
+			var driftRange = ''; //漂移范围
+			var totalTime = ''; //漂移时间
+			var interval = ''; //间隔时间
+
+			$('.radoweew').on('click', function () {
+				istrue = $(this).val()
+				if ($(this).val() == 1) {
+					$("#driftRange").removeAttr("readonly")
+					$("#totalTime").removeAttr("readonly")
+					$("#interval").removeAttr("readonly")
+				} else {
+					$("#driftRange").attr("readonly", "readonly")
+					$("#totalTime").attr("readonly", "readonly")
+					$("#interval").attr("readonly", "readonly")
+
+				}
+			})
+
+			$("#driftRange").bind("input propertychange", function (event) {
+				driftRange = $("#driftRange").val()
+				commse()
+
+			});
+			$("#totalTime").bind("input propertychange", function (event) {
+				totalTime = $("#totalTime").val()
+				commse()
+
+			});
+			$("#interval").bind("input propertychange", function (event) {
+				interval = $("#interval").val()
+				commse()
+			});
+
+			function startDrift() {
+				JsObj.StartDrift("ss");
+			}
+
+			function commse() {
+				if ($("#driftRange").val() != '' || $("#totalTime").val() != "" || $("#interval").val() != "") {
+					$('.bt-left-no').removeClass('bt-left-no').addClass('bt-left')
+				} else {
+					$('.bt-left').removeClass('bt-left').addClass('bt-left-no')
+				}
+
+				if ($("#driftRange").val() != '' && $("#totalTime").val() != "" && $("#interval").val() != "") {
+					$('.bt-right-no').removeClass('bt-right-no').addClass('bt-right')
+				} else {
+					$('.bt-right').removeClass('bt-right').addClass('bt-right-no')
+				}
+			}
+			//重置
+			$(document).on('click', '.bt-left', function () {
+				$("#driftRange").val('')
+				$("#totalTime").val('')
+				$("#interval").val('')
+				$('.bt-left').removeClass('bt-left').addClass('bt-left-no')
+				$('.bt-right').removeClass('bt-right').addClass('bt-right-no')
+			})
+
+			$('.a-radio').on('click', function () {
+				driftSpeed = $(this).val()
+			})
+
+			$(".buise").on("click", function () {
+				var city
+				var geoc = new BMap.Geocoder();
+				var longitudes = posty == undefined ? GPS.data.longitude : posty.lng
+				var latitudes = posty == undefined ? GPS.data.latitude : posty.lat
+				var pt = new BMap.Point(longitudes, latitudes);
+
+				geoc.getLocation(pt, function (rs) {
+					var addComp = rs.address;
+					city = rs.addressComponents.city
+					// 回传给c++
+					if ($("#suggestId").val() == "") {
+						var JSONS = {
+							"type": "startDrift",
+							"isFirst": false,
+							"data": {
+								"longitude": "",
+								"latitude": "",
+								"city": ""
+							}
+						}
+					} else {
+						var longitude = posty == undefined ? GPS.data.longitude : posty.lng
+						var latitude = posty == undefined ? GPS.data.latitude : posty.lat
+						longitude = longitude.toString()
+						latitude = latitude.toString()
+						var JSONS = {
+							"type": "startDrift",
+							"isFirst": false,
+							"data": {
+								"longitude": longitude,
+								"latitude": latitude,
+								"city": city
+							}
+						}
+					}
+
+					// new QWebChannel(qt.webChannelTransport, function (channel) {
+					// 	window.JsIntrS = channel.objects.JsIntrS;
+					// 	JsIntrS.getJingWeiFormJs(JSONS)
+					// })
+				});
+			})
+		}
+	</script>
+</body>
+
+</html>

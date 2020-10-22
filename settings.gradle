@@ -1,0 +1,2 @@
+include ':app', ':RecyclerViewHelper'
+rootProject.name='cloud-phone-cloud-control-android-expand-service'

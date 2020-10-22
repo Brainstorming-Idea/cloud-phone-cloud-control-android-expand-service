@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/c_ffffff"
+    android:orientation="vertical"
+    tools:context=".home.list.ExpandServiceListActivity">
+
+    <include layout="@layout/layout_toolbar" />
+
+    <!-- android:overScrollMode="never"就是不显示边界阴影效果 -->
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_expand_service_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:overScrollMode="never" />
+
+    <include layout="@layout/layout_common_empty" />
+
+</LinearLayout>
