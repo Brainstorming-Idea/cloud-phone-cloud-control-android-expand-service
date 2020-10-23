@@ -343,7 +343,6 @@ public class RetrofitServiceManager {
      */
     public static Observable<PhoneModelInfoEntity> getPhoneModifyInfo(ModelInfoEntity selectModelInfoEntity) {
         String mobileType = selectModelInfoEntity.getModel();
-        KLog.e("mobileType " + mobileType);
         return mRetrofitService.getPhoneModifyInfo(ExpandServiceApplication.getInstance().getCardSn(), mobileType)
                 .subscribeOn(Schedulers.io())
                 .unsubscribeOn(Schedulers.io())

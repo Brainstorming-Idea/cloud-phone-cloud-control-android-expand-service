@@ -58,7 +58,7 @@ public class ChangeMachinePresenter implements IBasePresenter, IChangeMachine {
 
                     @Override
                     public void onNext(final PhoneBrandModelEntity brandModelEntity) {
-                        KLog.e("getPhoneBrandModel onNext" + brandModelEntity.toString());
+                        KLog.e("getPhoneBrandModel onNext " + brandModelEntity.toString());
                         modelBindBrandList.clear();
                         //后台数据源放入本地机型集合
                         for (int i = 0; i < brandModelEntity.getData().size(); i++) {

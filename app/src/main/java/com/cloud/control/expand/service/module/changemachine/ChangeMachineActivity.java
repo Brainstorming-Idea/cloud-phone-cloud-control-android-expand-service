@@ -24,7 +24,6 @@ import com.cloud.control.expand.service.home.ExpandServiceApplication;
 import com.cloud.control.expand.service.injector.components.DaggerChangeMachineComponent;
 import com.cloud.control.expand.service.injector.modules.ChangeMachineModule;
 import com.cloud.control.expand.service.interfaces.MenuCallback;
-import com.cloud.control.expand.service.log.KLog;
 import com.cloud.control.expand.service.utils.EditTextUtils;
 import com.cloud.control.expand.service.utils.RegexUtils;
 import com.cloud.control.expand.service.utils.StringUtils;
@@ -127,8 +126,6 @@ public class ChangeMachineActivity extends BaseActivity<ChangeMachinePresenter> 
 
     @Override
     public void loadData(ModelInfoEntity modelInfoEntity, ChangeMachineStatusEntity statusEntity, PhoneBrandModelEntity brandModelEntity, PhoneModelInfoEntity.DataBean dataBean) {
-        KLog.e("modelInfoEntity = " + modelInfoEntity.toString());
-        KLog.e("dataBean = " + dataBean.toString());
         if (brandModelEntity != null) {
             mDefaultBrandModelEntity = brandModelEntity;
         }
@@ -288,7 +285,6 @@ public class ChangeMachineActivity extends BaseActivity<ChangeMachinePresenter> 
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 imeiFocus = hasFocus;
-                //失去焦点
                 if (!hasFocus) {
                     if (!TextUtils.isEmpty(etImei.getText().toString()) && RegexUtils.checkNumbersAndLetter(etImei.getText().toString()) && etImei.getText().toString().length() != 15)
                         etImei.setText(StringUtils.getRandomImei());
@@ -332,7 +328,6 @@ public class ChangeMachineActivity extends BaseActivity<ChangeMachinePresenter> 
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 snFocus = hasFocus;
-                //失去焦点
                 if (!hasFocus) {
                     if (!TextUtils.isEmpty(etSn.getText().toString()) && RegexUtils.checkNumbersAndLetter(etSn.getText().toString()) && etSn.getText().toString().length() != 16)
                         etSn.setText(StringUtils.getRandomSysSerialNo());
@@ -376,7 +371,6 @@ public class ChangeMachineActivity extends BaseActivity<ChangeMachinePresenter> 
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 psnFocus = hasFocus;
-                //失去焦点
                 if (!hasFocus) {
                     if (!TextUtils.isEmpty(etPsn.getText().toString()) && RegexUtils.checkNumbersAndLetter(etPsn.getText().toString()) && etPsn.getText().toString().length() != 16)
                         etPsn.setText(StringUtils.getRandomSysSerialNo());
@@ -420,7 +414,6 @@ public class ChangeMachineActivity extends BaseActivity<ChangeMachinePresenter> 
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 bluetoothMacFocus = hasFocus;
-                //失去焦点
                 if (!hasFocus) {
                     if (!TextUtils.isEmpty(etBluetoothMac.getText().toString()) && !RegexUtils.checkMacFormat(etBluetoothMac.getText().toString()))
                         etBluetoothMac.setText(StringUtils.getRandomMacAddress());
@@ -464,7 +457,6 @@ public class ChangeMachineActivity extends BaseActivity<ChangeMachinePresenter> 
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 wifiMacFocus = hasFocus;
-                //失去焦点
                 if (!hasFocus) {
                     ivWifiMacDelete.setVisibility(View.GONE);
                     if (!TextUtils.isEmpty(etWifiMac.getText().toString()) && !RegexUtils.checkMacFormat(etWifiMac.getText().toString()))

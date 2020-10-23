@@ -36,7 +36,6 @@ public class SwitchProxyCityListAdapter extends BaseQuickAdapter<SelectCityStatu
     @Override
     protected void convert(BaseViewHolder holder, final SelectCityStatusEntity item) {
         final TextView city = (TextView) holder.getView(R.id.tv_city);
-        KLog.e("item = " + item.getCity() + " status " + item.isStatus());
         city.setText(item.getCity());
         //选中状态
         city.setSelected(item.isStatus());

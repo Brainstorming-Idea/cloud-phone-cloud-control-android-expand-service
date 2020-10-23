@@ -80,7 +80,7 @@ public class ExpandServiceListPresenter implements IBasePresenter, IExpandServic
 
                     @Override
                     public void onNext(ExpandServiceRecordEntity recordEntity) {
-                        KLog.e("getExtendServiceRecord recordEntity " + recordEntity.toString());
+                        KLog.e("getExtendServiceRecord onNext " + recordEntity.toString());
                         mView.jumpPage(dataBean, recordEntity);
                     }
                 });
