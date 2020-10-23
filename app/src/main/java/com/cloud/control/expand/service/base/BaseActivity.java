@@ -98,9 +98,9 @@ public abstract class BaseActivity<T extends IBasePresenter> extends RxAppCompat
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(attachLayoutRes());
         weakReference = new WeakReference<>(this);
         mContext = weakReference.get();
+        setContentView(attachLayoutRes());
         ButterKnife.bind(this);
         initInjector();
         initViews();

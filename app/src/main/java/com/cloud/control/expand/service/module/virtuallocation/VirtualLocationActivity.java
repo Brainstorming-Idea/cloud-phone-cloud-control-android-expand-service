@@ -22,6 +22,7 @@ import com.cloud.control.expand.service.entity.LocationInfoEntity;
 import com.cloud.control.expand.service.entity.VirtualLocationInfoEntity;
 import com.cloud.control.expand.service.injector.components.DaggerVirtualLocationComponent;
 import com.cloud.control.expand.service.injector.modules.VirtualLocationModule;
+import com.cloud.control.expand.service.log.KLog;
 import com.google.gson.Gson;
 
 import java.util.HashMap;
@@ -75,18 +76,23 @@ public class VirtualLocationActivity extends BaseActivity<VirtualLocationPresent
 
     @Override
     public void loadData(VirtualLocationInfoEntity virtualLocationInfoEntity) {
-        //更新默认数据
-        mInfoEntity.setLongitude(virtualLocationInfoEntity.getData().getLongitude());
-        mInfoEntity.setLatitude(virtualLocationInfoEntity.getData().getLatitude());
-        mInfoEntity.setIp(virtualLocationInfoEntity.getData().getIp().toString());
-        HashMap<String, Object> map = new HashMap<>();
-        Map<String, String> objectHashMap = new HashMap<>();
-        objectHashMap.put("longitude", virtualLocationInfoEntity.getData().getLongitude() == null ? "" : virtualLocationInfoEntity.getData().getLongitude());
-        objectHashMap.put("latitude", virtualLocationInfoEntity.getData().getLatitude() == null ? "" : virtualLocationInfoEntity.getData().getLatitude());
-        objectHashMap.put("ip", virtualLocationInfoEntity.getData().getIp().toString() == null ? "" : virtualLocationInfoEntity.getData().getIp().toString());
-        map.put("type", "setGps");
-        map.put("data", objectHashMap);
-        wbVirtualLocation.loadUrl("javascript:setJingWeiToJs('" + new Gson().toJson(map) + "')");
+        try {
+            //更新默认数据
+            mInfoEntity.setLongitude(virtualLocationInfoEntity.getData().getLongitude());
+            mInfoEntity.setLatitude(virtualLocationInfoEntity.getData().getLatitude());
+            mInfoEntity.setIp((String) virtualLocationInfoEntity.getData().getIp());
+            HashMap<String, Object> map = new HashMap<>();
+            Map<String, String> objectHashMap = new HashMap<>();
+            objectHashMap.put("longitude", TextUtils.isEmpty(virtualLocationInfoEntity.getData().getLongitude()) ? "" : virtualLocationInfoEntity.getData().getLongitude());
+            objectHashMap.put("latitude", TextUtils.isEmpty(virtualLocationInfoEntity.getData().getLatitude()) ? "" : virtualLocationInfoEntity.getData().getLatitude());
+            objectHashMap.put("ip", TextUtils.isEmpty((String) virtualLocationInfoEntity.getData().getIp()) ? "" : (String) virtualLocationInfoEntity.getData().getIp());
+            map.put("type", "setGps");
+            map.put("data", objectHashMap);
+            KLog.e("loadUrl data " + new Gson().toJson(map));
+            wbVirtualLocation.loadUrl("javascript:setJingWeiToJs('" + new Gson().toJson(map) + "')");
+        } catch (Exception e) {
+            KLog.e("e " + e.getMessage());
+        }
     }
 
     @Override

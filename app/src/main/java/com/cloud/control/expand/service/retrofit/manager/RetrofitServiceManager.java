@@ -250,7 +250,8 @@ public class RetrofitServiceManager {
      */
     public static Observable<ResponseEntity> closeProxy() {
         Map<String, Object> map = new HashMap<>();
-        map.put("sn", ExpandServiceApplication.getInstance().getCardSn());
+        String[] snArray = new String[]{ExpandServiceApplication.getInstance().getCardSn()};
+        map.put("snList", snArray);
         KLog.e("closeProxy json " + new Gson().toJson(map));
         RequestBody body = FormBody.create(MediaType.parse("application/json; charset=utf-8"), new Gson().toJson(map));
         return mRetrofitService.closeProxy(body)

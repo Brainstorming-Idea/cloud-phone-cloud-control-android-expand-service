@@ -572,7 +572,7 @@ public class ChangeMachineActivity extends BaseActivity<ChangeMachinePresenter> 
         mobileVosBean.setAndroid_version(etSystemVersion.getText().toString());
         mobileVosBean.setBluetooth_mac(etBluetoothMac.getText().toString());
         mobileVosBean.setDevice_imei(etImei.getText().toString());
-        mobileVosBean.setMemory(tvPhoneMemory.getText().toString().substring(1));
+        mobileVosBean.setMemory(tvPhoneMemory.getText().toString().substring(0, 1));
         mobileVosBean.setMobileType(tvPhoneModel.getText().toString());
         mobileVosBean.setProduct_serial_no(etPsn.getText().toString());
         mobileVosBean.setSn(ExpandServiceApplication.getInstance().getCardSn());
