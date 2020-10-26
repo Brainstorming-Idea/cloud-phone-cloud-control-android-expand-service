@@ -48,7 +48,8 @@
 		}();
 		// 模拟数据 设置GPS
 		// var data = '{"type": "setGps","data":{"longitude":"","latitude":39.990157,"ip":"113.57.121.104"}}';
-		var data = {"type": "setGps","data":{"longitude":114.06468218071693,"latitude":22.548460142460144,"ip":""}};
+		// var data = {"type": "setGps","data":{"longitude":114.06468218071693,"latitude":22.548460142460144,"ip":""}};
+		// var data = '{"type":"setGps","data":{"ip":"","latitude":"22.554041453269377","longitude":"114.04418549493587"}}'
 
 		var GPS, cityip;
 		var myIcon = new BMap.Icon("img/dingwei_icon.png", new BMap.Size(32, 32), {
@@ -56,7 +57,7 @@
 			imageSize: new BMap.Size(32, 32)
 		});
 
-		setJingWeiToJs(data);
+		// setJingWeiToJs(data);
 
 		// 清空按钮
 		$("#suggestId").focus(function () {
@@ -83,8 +84,7 @@
 		// 传入js
 		function setJingWeiToJs(data) {
 			cityip = data
-			console.log(data)
-			var jsonon = data
+			var jsonon = JSON.parse(data)
 
 			if (jsonon.data.longitude) {
 				longcity(jsonon)
@@ -274,6 +274,7 @@
 							$('#searchResultAll').css("display", "block");
 							$("ul#searchResultUl").on("click", "li", function () {
 								const index = $(this).index();
+								handleSelectPos(index)
 							})
 						} else {
 							$('#searchResultAll').css("display", "none");

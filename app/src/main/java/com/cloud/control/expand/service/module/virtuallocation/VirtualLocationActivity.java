@@ -146,8 +146,6 @@ public class VirtualLocationActivity extends BaseActivity<VirtualLocationPresent
         public void onPageStarted(WebView view, String url, Bitmap favicon) {
             super.onPageStarted(view, url, favicon);
             isOnReceivedError = false;
-            //加载页面前请求数据给到H5
-            mPresenter.getData();
         }
 
         @Override
@@ -163,6 +161,8 @@ public class VirtualLocationActivity extends BaseActivity<VirtualLocationPresent
         @Override
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
+            //页面加载完成请求数据给到H5
+            mPresenter.getData();
         }
 
         @Override
@@ -197,9 +197,11 @@ public class VirtualLocationActivity extends BaseActivity<VirtualLocationPresent
          */
         @JavascriptInterface
         public void onClickWebView(String longitude, String latitude, String city) {
+            KLog.e("onClickWebView : " + "longitude : " + longitude + ", latitude : " + latitude + ", city : " + city);
             mInfoEntity.setLongitude(longitude);
             mInfoEntity.setLatitude(latitude);
-            mInfoEntity.setCity(city);
+            if(!TextUtils.isEmpty(city) && city.length() > 1 && city.contains("市"))
+            mInfoEntity.setCity(city.substring(0, city.length() - 1));
         }
 
         /**
