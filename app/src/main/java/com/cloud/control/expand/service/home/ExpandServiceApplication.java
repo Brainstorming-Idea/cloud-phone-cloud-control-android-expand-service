@@ -3,10 +3,12 @@ package com.cloud.control.expand.service.home;
 import android.app.Application;
 import android.content.Context;
 import android.os.Build;
+import android.text.TextUtils;
 
 import com.cloud.control.expand.service.BuildConfig;
 import com.cloud.control.expand.service.log.KLog;
 import com.cloud.control.expand.service.retrofit.manager.RetrofitServiceManager;
+import com.cloud.control.expand.service.utils.XMLParser;
 import com.vclusters.system.VclustersPSystem;
 
 import java.lang.reflect.Constructor;
@@ -29,8 +31,15 @@ public class ExpandServiceApplication extends Application {
         super.onCreate();
         //日志初始化
         KLog.init(BuildConfig.IS_DEBUG);
+        //获取配网工具服务器地址，动态配置服务器
+        String hostUrl = XMLParser.parseXMLForConfigFile("data/data/com.cloud.phone.control.agent/shared_prefs/DB_CONFIG_1.xml");
+        String host = "";
+        if(!TextUtils.isEmpty(hostUrl) && hostUrl.contains("ws") && hostUrl.length() > 2) {
+            host = "http" + hostUrl.substring(2, hostUrl.length() - 2);
+            KLog.e("host = " + host);
+        }
         //网络请求初始化
-        RetrofitServiceManager.init();
+        RetrofitServiceManager.init(host);
         sContext = getContext();
         sApplication = this;
         hookWebView();

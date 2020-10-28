@@ -2,7 +2,6 @@ package com.cloud.control.expand.service.retrofit.manager;
 
 import android.support.annotation.NonNull;
 
-import com.cloud.control.expand.service.BuildConfig;
 import com.cloud.control.expand.service.entity.ChangeMachineStatusEntity;
 import com.cloud.control.expand.service.entity.CityListEntity;
 import com.cloud.control.expand.service.entity.CloseProxyEntity;
@@ -61,8 +60,10 @@ public class RetrofitServiceManager {
 
     /**
      * 初始化网络通信服务
+     *
+     * @param host
      */
-    public static void init() {
+    public static void init(String host) {
         // 指定缓存路径,缓存大小100Mb
 //        Cache cache = new Cache(new File(ExpandServiceApplication.getInstance().getApplicationContext().getCacheDir(), "HttpCache"),
 //                1024 * 1024 * 100);
@@ -79,7 +80,7 @@ public class RetrofitServiceManager {
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                .baseUrl(BuildConfig.APP_HOST)
+                .baseUrl(host)
                 .build();
 
         mRetrofitService = retrofit.create(IUrls.class);
