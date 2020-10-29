@@ -47,9 +47,9 @@
 			}, false);
 		}();
 		// 模拟数据 设置GPS
-		// var data = '{"type": "setGps","data":{"longitude":"","latitude":39.990157,"ip":"113.57.121.104"}}';
+		// var data = '{"type": "setGps","data":{"longitude":"","latitude":39.990157,"ip":"113.57.121.104"}}'
 		// var data = {"type": "setGps","data":{"longitude":114.06468218071693,"latitude":22.548460142460144,"ip":""}};
-		// var data = '{"type":"setGps","data":{"ip":"","latitude":"22.554041453269377","longitude":"114.04418549493587"}}'
+		// var data = '{"type":"setGps","data":{"ip":"","latitude":"22.554184289496558","longitude":"114.02298781388512"}}'
 
 		var GPS, cityip;
 		var myIcon = new BMap.Icon("img/dingwei_icon.png", new BMap.Size(32, 32), {
@@ -153,6 +153,7 @@
 					var addComp = rs.address;
 					$("#suggestId").val(addComp);
 					$(".icon-close").hide();
+					android.onClickWebView(rs.point.lng,rs.point.lat,rs.addressComponents.city);
 				});
 			}
 			mapFun();
@@ -496,6 +497,7 @@
 					var addComp = rs.address;
 					$("#suggestId").val(addComp);
 					$(".icon-close").hide();
+					android.onClickWebView(rs.point.lng,rs.point.lat,rs.addressComponents.city);
 				});
 			}
 			mapFun();
