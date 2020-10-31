@@ -175,6 +175,10 @@ public class SwitchProxyActivity extends BaseActivity<SwitchProxyPresenter> impl
                     toastMessage("请先设置IP切换方式");
                     return;
                 }
+                if(mSelectCity.size() <= 0){
+                    toastMessage("请先选择地区");
+                    return;
+                }
                 String[] selectArray = new String[mSelectCity.size()];
                 for (int i = 0; i < mSelectCity.size(); i++) {
                     selectArray[i] = mSelectCity.get(i);
