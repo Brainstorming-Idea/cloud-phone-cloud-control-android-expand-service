@@ -33,7 +33,8 @@ public class ExpandServiceApplication extends Application {
         KLog.init(BuildConfig.IS_DEBUG);
         //获取配网工具服务器地址，动态配置服务器
         String hostUrl = XMLParser.parseXMLForConfigFile("data/data/com.cloud.phone.control.agent/shared_prefs/DB_CONFIG_1.xml");
-        String host = "";
+        //默认服务器地址，没有配网时使用
+        String host = "http://14.215.128.98:8011/";
         if(!TextUtils.isEmpty(hostUrl) && hostUrl.contains("ws") && hostUrl.length() > 2) {
             host = "http" + hostUrl.substring(2, hostUrl.length() - 2);
             KLog.e("host = " + host);
