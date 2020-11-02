@@ -123,6 +123,7 @@ public class SwitchProxyActivity extends BaseActivity<SwitchProxyPresenter> impl
         //显示城市列表
         if (cityListEntity != null) {
             selectCityStatusEntityList.clear();
+            mSelectCity.clear();
             for (int i = 0; i < cityListEntity.getData().getCityList().size(); i++) {
                 SelectCityStatusEntity entity = new SelectCityStatusEntity();
                 entity.setCity(cityListEntity.getData().getCityList().get(i));
@@ -134,7 +135,10 @@ public class SwitchProxyActivity extends BaseActivity<SwitchProxyPresenter> impl
                         SelectCityStatusEntity replaceEntity = new SelectCityStatusEntity();
                         replaceEntity.setCity(cityListEntity.getData().getCityList().get(i));
                         replaceEntity.setStatus(true);
+                        //每个item城市的选中状态
                         selectCityStatusEntityList.set(i, replaceEntity);
+                        //上次选中的城市
+                        mSelectCity.add(cityListEntity.getData().getCityList().get(i));
                     }
                 }
             }
@@ -175,9 +179,12 @@ public class SwitchProxyActivity extends BaseActivity<SwitchProxyPresenter> impl
                     toastMessage("请先设置IP切换方式");
                     return;
                 }
-                if(mSelectCity.size() <= 0){
-                    toastMessage("请先选择地区");
-                    return;
+                //指定城市，判断是否选中城市
+                if (mIpChangeType == 1) {
+                    if (mSelectCity.size() <= 0) {
+                        toastMessage("请先选择地区");
+                        return;
+                    }
                 }
                 String[] selectArray = new String[mSelectCity.size()];
                 for (int i = 0; i < mSelectCity.size(); i++) {
