@@ -26,7 +26,7 @@ import rx.Observable;
  */
 public interface IUrls {
 
-    //获取扩展服务列表
+    //获取扩展服务列表 （已弃用）
     @GET("api/public/v2.0/extendService/getAllExtendServiceAndroid")
     Observable<ExpandServiceListEntity> getExtendServiceList();
 

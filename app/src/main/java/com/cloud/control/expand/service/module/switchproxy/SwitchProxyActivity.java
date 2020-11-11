@@ -9,7 +9,7 @@ import android.widget.TextView;
 import com.cloud.control.expand.service.R;
 import com.cloud.control.expand.service.adapter.SwitchProxyCityListAdapter;
 import com.cloud.control.expand.service.base.BaseActivity;
-import com.cloud.control.expand.service.dialog.CloseProxyDialog;
+import com.cloud.control.expand.service.dialog.CommonHintDialog;
 import com.cloud.control.expand.service.entity.CityListEntity;
 import com.cloud.control.expand.service.entity.ResponseEntity;
 import com.cloud.control.expand.service.entity.SelectCityStatusEntity;
@@ -193,7 +193,7 @@ public class SwitchProxyActivity extends BaseActivity<SwitchProxyPresenter> impl
                 mPresenter.startProxy(selectArray, mIpChangeType);
                 break;
             case R.id.tv_close_proxy:
-                CloseProxyDialog.show(mContext, "确认关闭IP代理吗？", "取消", "确定", new MenuCallback() {
+                CommonHintDialog.show(mContext, "关闭IP代理", "确认关闭已选择设备的IP代理吗？", "取消", "确定", new MenuCallback() {
                     @Override
                     public void onLeftButtonClick(Object value) {
 

@@ -84,7 +84,6 @@ public class CloseProxyDialog extends Dialog implements View.OnClickListener {
      * 显示俩个按钮
      *
      * @param context
-     * @param title
      * @param content
      * @param leftStr
      * @param rightStr

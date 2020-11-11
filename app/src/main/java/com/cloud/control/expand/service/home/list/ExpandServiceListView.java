@@ -17,14 +17,6 @@ public interface ExpandServiceListView extends IBaseView {
      *
      * @param listEntity
      */
-    void loadData(List<ExpandServiceListEntity.DataBean> listEntity);
-
-    /**
-     * 跳转页面
-     *
-     * @param dataBean
-     * @param recordEntity
-     */
-    void jumpPage(ExpandServiceListEntity.DataBean dataBean, ExpandServiceRecordEntity recordEntity);
+    void loadData(List<ExpandServiceRecordEntity.DataBean> listEntity);
 
 }

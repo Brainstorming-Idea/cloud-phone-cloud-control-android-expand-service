@@ -8,7 +8,6 @@ import android.view.View;
 import com.cloud.control.expand.service.R;
 import com.cloud.control.expand.service.base.BaseActivity;
 import com.cloud.control.expand.service.dialog.CommonHintDialog;
-import com.cloud.control.expand.service.entity.ExpandServiceListEntity;
 import com.cloud.control.expand.service.entity.ExpandServiceRecordEntity;
 import com.cloud.control.expand.service.injector.components.DaggerExpandServiceListComponent;
 import com.cloud.control.expand.service.injector.modules.ExpandServiceListModule;
@@ -42,7 +41,7 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
     BaseQuickAdapter mExpandServiceMainListAdapter;
 
     //扩展服务列表数据
-    List<ExpandServiceListEntity.DataBean> dataBeanList;
+    List<ExpandServiceRecordEntity.DataBean> dataBeanList;
     private long firstPressedTime; //退出应用按下时间
 
     @Override
@@ -68,7 +67,17 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
                 if (NoFastClickUtils.isFastClick()) {
                     return;
                 }
-                mPresenter.lookExpiredStatus(dataBeanList.get(position));
+                if (dataBeanList.get(position).getStatus() == 1) {
+                    if (dataBeanList.get(position).getTypeName().equals("IP代理")) {
+                        startActivity(new Intent(mContext, SwitchProxyActivity.class));
+                    } else if (dataBeanList.get(position).getTypeName().equals("虚拟定位")) {
+                        startActivity(new Intent(mContext, VirtualLocationActivity.class));
+                    } else if (dataBeanList.get(position).getTypeName().equals("一键新机")) {
+                        startActivity(new Intent(mContext, ChangeMachineActivity.class));
+                    }
+                } else {
+                    showOperationLimitedDialog(dataBeanList.get(position).getMobileName(), dataBeanList.get(position).getTypeName());
+                }
             }
         });
     }
@@ -79,39 +88,9 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
     }
 
     @Override
-    public void loadData(List<ExpandServiceListEntity.DataBean> listEntity) {
+    public void loadData(List<ExpandServiceRecordEntity.DataBean> listEntity) {
         dataBeanList = listEntity;
         mExpandServiceMainListAdapter.updateItems(listEntity);
-    }
-
-    @Override
-    public void jumpPage(ExpandServiceListEntity.DataBean dataBean, ExpandServiceRecordEntity recordEntity) {
-        //当前点击的服务名称
-        String currentPositionService = dataBean.getServiceName();
-        for (int i = 0; i < recordEntity.getData().size(); i++) {
-            //已有服务并且有界面
-            if (currentPositionService.equals(recordEntity.getData().get(i).getTypeName())) {
-                if (recordEntity.getData().get(i).getTypeName().equals("IP代理")) {
-                    if (recordEntity.getData().get(i).getStatus() == 1) {
-                        startActivity(new Intent(mContext, SwitchProxyActivity.class));
-                    } else {
-                        showOperationLimitedDialog(recordEntity.getData().get(i).getMobileName(), recordEntity.getData().get(i).getTypeName());
-                    }
-                } else if (recordEntity.getData().get(i).getTypeName().equals("虚拟定位")) {
-                    if (recordEntity.getData().get(i).getStatus() == 1) {
-                        startActivity(new Intent(mContext, VirtualLocationActivity.class));
-                    } else {
-                        showOperationLimitedDialog(recordEntity.getData().get(i).getMobileName(), recordEntity.getData().get(i).getTypeName());
-                    }
-                } else if (recordEntity.getData().get(i).getTypeName().equals("一键新机")) {
-                    if (recordEntity.getData().get(i).getStatus() == 1) {
-                        startActivity(new Intent(mContext, ChangeMachineActivity.class));
-                    } else {
-                        showOperationLimitedDialog(recordEntity.getData().get(i).getMobileName(), recordEntity.getData().get(i).getTypeName());
-                    }
-                }
-            }
-        }
     }
 
     /**

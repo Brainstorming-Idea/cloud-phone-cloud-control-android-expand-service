@@ -9,10 +9,11 @@ import java.util.List;
  */
 public class ExpandServiceRecordEntity {
 
+
     /**
      * status : 0
      * msg :
-     * data : [{"typeId":1,"typeName":"IP代理","dueTimeStr":"2020-10-25T06:48:13.000+0000","mobileName":"mxw0tJvF","status":1},{"typeId":2,"typeName":"虚拟定位","dueTimeStr":"2020-10-16T06:48:13.000+0000","mobileName":"mxw0tJvF","status":1},{"typeId":3,"typeName":"一键新机","dueTimeStr":null,"mobileName":"mxw0tJvF","status":2}]
+     * data : [{"typeId":1,"typeName":"IP代理","dueTimeStr":"2020-11-30T07:49:35.000+0000","mobileName":"rsiZ30GO","status":1,"currentTime":"2020-11-10T09:00:44.380+0000","serviceImgUrl":"group1/M00/00/9D/rBABDF-fe0mAQL1oAACSH2XZjmw246.png","serviceExplain":"IP"},{"typeId":2,"typeName":"虚拟定位","dueTimeStr":"2020-11-06T07:49:35.000+0000","mobileName":"rsiZ30GO","status":1,"currentTime":"2020-11-10T09:00:44.382+0000","serviceImgUrl":"group1/M00/00/9D/rBABDF-fe1-AP-IYAABMJZu-x0k301.png","serviceExplain":"虚拟"},{"typeId":3,"typeName":"一键新机","dueTimeStr":null,"mobileName":"rsiZ30GO","status":2,"currentTime":"2020-11-10T09:00:44.387+0000","serviceImgUrl":"group1/M00/00/9D/rBABDV-fe5OAe1Q4AAB-MnF2D-g837.png","serviceExplain":"一键新机"}]
      */
 
     private int status;
@@ -47,9 +48,12 @@ public class ExpandServiceRecordEntity {
         /**
          * typeId : 1
          * typeName : IP代理
-         * dueTimeStr : 2020-10-25T06:48:13.000+0000
-         * mobileName : mxw0tJvF
+         * dueTimeStr : 2020-11-30T07:49:35.000+0000
+         * mobileName : rsiZ30GO
          * status : 1
+         * currentTime : 2020-11-10T09:00:44.380+0000
+         * serviceImgUrl : group1/M00/00/9D/rBABDF-fe0mAQL1oAACSH2XZjmw246.png
+         * serviceExplain : IP
          */
 
         private int typeId;
@@ -57,6 +61,9 @@ public class ExpandServiceRecordEntity {
         private String dueTimeStr;
         private String mobileName;
         private int status;
+        private String currentTime;
+        private String serviceImgUrl;
+        private String serviceExplain;
 
         public int getTypeId() {
             return typeId;
@@ -98,6 +105,30 @@ public class ExpandServiceRecordEntity {
             this.status = status;
         }
 
+        public String getCurrentTime() {
+            return currentTime;
+        }
+
+        public void setCurrentTime(String currentTime) {
+            this.currentTime = currentTime;
+        }
+
+        public String getServiceImgUrl() {
+            return serviceImgUrl;
+        }
+
+        public void setServiceImgUrl(String serviceImgUrl) {
+            this.serviceImgUrl = serviceImgUrl;
+        }
+
+        public String getServiceExplain() {
+            return serviceExplain;
+        }
+
+        public void setServiceExplain(String serviceExplain) {
+            this.serviceExplain = serviceExplain;
+        }
+
         @Override
         public String toString() {
             return "DataBean{" +
@@ -106,6 +137,9 @@ public class ExpandServiceRecordEntity {
                     ", dueTimeStr='" + dueTimeStr + '\'' +
                     ", mobileName='" + mobileName + '\'' +
                     ", status=" + status +
+                    ", currentTime='" + currentTime + '\'' +
+                    ", serviceImgUrl='" + serviceImgUrl + '\'' +
+                    ", serviceExplain='" + serviceExplain + '\'' +
                     '}';
         }
     }

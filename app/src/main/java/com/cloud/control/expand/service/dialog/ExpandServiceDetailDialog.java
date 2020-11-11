@@ -3,13 +3,9 @@ package com.cloud.control.expand.service.dialog;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Base64;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -20,8 +16,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cloud.control.expand.service.R;
-import com.cloud.control.expand.service.entity.ExpandServiceListEntity;
+import com.cloud.control.expand.service.entity.ExpandServiceRecordEntity;
+import com.cloud.control.expand.service.home.ExpandServiceApplication;
 import com.cloud.control.expand.service.interfaces.MenuCallback;
+import com.cloud.control.expand.service.utils.ConstantsUtils;
+import com.cloud.control.expand.service.utils.ImageLoader;
 
 
 /**
@@ -67,14 +66,10 @@ public class ExpandServiceDetailDialog extends Dialog implements View.OnClickLis
      * @param dataBean
      * @param rightStr
      */
-    private void setStyle(ExpandServiceListEntity.DataBean dataBean, String rightStr) {
-        if (!TextUtils.isEmpty(dataBean.getBase64())) {
-            byte[] decodedString = Base64.decode(dataBean.getBase64(), Base64.DEFAULT);
-            Bitmap decodedByte = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
-            ((ImageView) findViewById(R.id.iv_dialog_detail_icon)).setImageBitmap(decodedByte);
-        }
+    private void setStyle(ExpandServiceRecordEntity.DataBean dataBean, String rightStr) {
+        ImageLoader.loadCenterCrop(getContext(), ExpandServiceApplication.getInstance().getBuildConfigHost() + ConstantsUtils.IMAGE_MIDDLE_URL + dataBean.getServiceImgUrl(), (ImageView) findViewById(R.id.iv_dialog_detail_icon), R.drawable.ic_expand_service_default);
         ((TextView) findViewById(R.id.tv_dialog_detail_content)).setText(dataBean.getServiceExplain());
-        ((TextView) findViewById(R.id.tv_dialog_detail_title)).setText(dataBean.getServiceName());
+        ((TextView) findViewById(R.id.tv_dialog_detail_title)).setText(dataBean.getTypeName());
         ((Button) findViewById(R.id.btn_dialog_close)).setText(rightStr);
     }
 
@@ -86,7 +81,7 @@ public class ExpandServiceDetailDialog extends Dialog implements View.OnClickLis
      * @param rightStr
      * @param callback
      */
-    public static void show(Context context, ExpandServiceListEntity.DataBean dataBean, String rightStr,
+    public static void show(Context context, ExpandServiceRecordEntity.DataBean dataBean, String rightStr,
                             MenuCallback callback) {
         ExpandServiceDetailDialog dialog = new ExpandServiceDetailDialog(context,
                 R.style.dialog_style);
