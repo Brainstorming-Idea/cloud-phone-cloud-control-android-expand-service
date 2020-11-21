@@ -74,7 +74,7 @@
         android:id="@+id/ll_tail_space"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_10"
-        android:background="@color/c_ffffff"
+        android:background="@color/c_f5f6fa"
         android:orientation="horizontal" />
 
 </LinearLayout>
