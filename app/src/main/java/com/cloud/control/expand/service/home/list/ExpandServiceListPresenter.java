@@ -13,7 +13,7 @@ import rx.functions.Action0;
  * Date：2020/9/27
  * Description：扩展服务列表Presenter
  */
-public class ExpandServiceListPresenter implements IBasePresenter {
+public class ExpandServiceListPresenter implements IBasePresenter, IExpandServiceList {
 
     private final ExpandServiceListView mView;
 
@@ -52,6 +52,37 @@ public class ExpandServiceListPresenter implements IBasePresenter {
                             mView.loadData(recordEntity.getData());
                         } else {
                             mView.showNoData("还没有扩展服务哦～敬请期待");
+                        }
+                    }
+                });
+    }
+
+    @Override
+    public void examineServiceStatus(final int position) {
+        //同步后台数据状态，避免上次界面停留后数据未实时刷新，再次购买的服务不可使用的现象
+        RetrofitServiceManager.getExtendServiceRecord()
+                .doOnSubscribe(new Action0() {
+                    @Override
+                    public void call() {
+                    }
+                })
+                .compose(mView.<ExpandServiceRecordEntity>bindToLife())
+                .subscribe(new Subscriber<ExpandServiceRecordEntity>() {
+                    @Override
+                    public void onCompleted() {
+                        KLog.e("getExtendServiceRecord onCompleted");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        KLog.e("getExtendServiceRecord onError");
+                    }
+
+                    @Override
+                    public void onNext(ExpandServiceRecordEntity recordEntity) {
+                        KLog.e("getExtendServiceRecord onNext " + recordEntity.toString());
+                        if (recordEntity != null && recordEntity.getData() != null && recordEntity.getData().size() > 0) {
+                            mView.jumpPage(recordEntity.getData().get(position));
                         }
                     }
                 });

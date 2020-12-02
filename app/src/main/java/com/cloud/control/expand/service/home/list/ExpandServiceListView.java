@@ -1,7 +1,6 @@
 package com.cloud.control.expand.service.home.list;
 
 import com.cloud.control.expand.service.base.IBaseView;
-import com.cloud.control.expand.service.entity.ExpandServiceListEntity;
 import com.cloud.control.expand.service.entity.ExpandServiceRecordEntity;
 
 import java.util.List;
@@ -18,5 +17,12 @@ public interface ExpandServiceListView extends IBaseView {
      * @param listEntity
      */
     void loadData(List<ExpandServiceRecordEntity.DataBean> listEntity);
+
+    /**
+     * 跳转界面
+     *
+     * @param dataBean
+     */
+    void jumpPage(ExpandServiceRecordEntity.DataBean dataBean);
 
 }

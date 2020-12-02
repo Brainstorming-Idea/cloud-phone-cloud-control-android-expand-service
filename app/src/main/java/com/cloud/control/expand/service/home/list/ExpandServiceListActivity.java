@@ -40,8 +40,6 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
     @Inject
     BaseQuickAdapter mExpandServiceMainListAdapter;
 
-    //扩展服务列表数据
-    List<ExpandServiceRecordEntity.DataBean> dataBeanList;
     private long firstPressedTime; //退出应用按下时间
 
     @Override
@@ -67,17 +65,7 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
                 if (NoFastClickUtils.isFastClick()) {
                     return;
                 }
-                if (dataBeanList.get(position).getStatus() == 1) {
-                    if (dataBeanList.get(position).getTypeName().equals("IP代理")) {
-                        startActivity(new Intent(mContext, SwitchProxyActivity.class));
-                    } else if (dataBeanList.get(position).getTypeName().equals("虚拟定位")) {
-                        startActivity(new Intent(mContext, VirtualLocationActivity.class));
-                    } else if (dataBeanList.get(position).getTypeName().equals("一键新机")) {
-                        startActivity(new Intent(mContext, ChangeMachineActivity.class));
-                    }
-                } else {
-                    showOperationLimitedDialog(dataBeanList.get(position).getMobileName(), dataBeanList.get(position).getTypeName());
-                }
+                mPresenter.examineServiceStatus(position);
             }
         });
     }
@@ -89,8 +77,22 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
 
     @Override
     public void loadData(List<ExpandServiceRecordEntity.DataBean> listEntity) {
-        dataBeanList = listEntity;
         mExpandServiceMainListAdapter.updateItems(listEntity);
+    }
+
+    @Override
+    public void jumpPage(ExpandServiceRecordEntity.DataBean dataBean) {
+        if (dataBean.getStatus() == 1) {
+            if (dataBean.getTypeName().equals("IP代理")) {
+                startActivity(new Intent(mContext, SwitchProxyActivity.class));
+            } else if (dataBean.getTypeName().equals("虚拟定位")) {
+                startActivity(new Intent(mContext, VirtualLocationActivity.class));
+            } else if (dataBean.getTypeName().equals("一键新机")) {
+                startActivity(new Intent(mContext, ChangeMachineActivity.class));
+            }
+        } else {
+            showOperationLimitedDialog(dataBean.getMobileName(), dataBean.getTypeName());
+        }
     }
 
     /**
