@@ -39,7 +39,7 @@ public interface IUrls {
     Observable<SwitchProxyTypeEntity> getChangeIpType(@Query("sn") String sn);
 
     //获取城市列表
-    @GET("api/wsi/v1/cardChangeIp/getCityList")
+    @GET("api/wsi/v1/cardChangeIp/getCityListAuto")
     Observable<CityListEntity> getCityList(@Query("sn") String sn);
 
     //获取城市IP
