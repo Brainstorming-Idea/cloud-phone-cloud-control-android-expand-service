@@ -486,6 +486,10 @@ public class ChangeMachineActivity extends BaseActivity<ChangeMachinePresenter> 
         }
         //显示品牌数据
         brandOrModelList.clear();
+        if(mDefaultBrandModelEntity == null || mDefaultBrandModelEntity.getData() == null || mDefaultBrandModelEntity.getData().size() <= 0){
+            toastMessage("数据获取失败");
+            return;
+        }
         if (type == TYPE_BRAND) {
             for (int i = 0; i < mDefaultBrandModelEntity.getData().size(); i++) {
                 ItemBrandModelEntity itemBrandModelEntity = new ItemBrandModelEntity();
