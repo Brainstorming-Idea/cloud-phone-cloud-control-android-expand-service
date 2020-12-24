@@ -193,7 +193,7 @@ public class SwitchProxyActivity extends BaseActivity<SwitchProxyPresenter> impl
                 mPresenter.startProxy(selectArray, mIpChangeType);
                 break;
             case R.id.tv_close_proxy:
-                CommonHintDialog.show(mContext, "关闭IP代理", "确认关闭IP代理吗？", "取消", "确定", new MenuCallback() {
+                CommonHintDialog.show(mContext, "关闭IP代理", "确认关闭IP代理吗？", "取消", "确认", new MenuCallback() {
                     @Override
                     public void onLeftButtonClick(Object value) {
 
