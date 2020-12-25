@@ -67,7 +67,7 @@ public interface IUrls {
     Observable<CloseProxyEntity> getCardIp(@Query("sn") String sn);
 
     //获取手机的型号
-    @GET("api/user/v1/modelSn/getBySns")
+    @GET("api/user/v1/modelSn/getBySnsAndroid")
     Observable<ChangeMachineStatusEntity> getPhoneModel(@Query("sns") String sn);
 
     //获取手机品牌和手机类型
