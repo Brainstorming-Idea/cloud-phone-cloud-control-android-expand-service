@@ -151,6 +151,21 @@ public class SwitchProxyActivity extends BaseActivity<SwitchProxyPresenter> impl
         toastMessage(message);
     }
 
+    @Override
+    public void dialog(String title, String content, String leftStr, String rightStr) {
+        showExpireDialog(title, content, leftStr, rightStr, new MenuCallback() {
+            @Override
+            public void onLeftButtonClick(Object value) {
+
+            }
+
+            @Override
+            public void onRightButtonClick(Object value) {
+                finish();
+            }
+        });
+    }
+
     /**
      * 设置列表间距
      *
@@ -224,6 +239,7 @@ public class SwitchProxyActivity extends BaseActivity<SwitchProxyPresenter> impl
                 tvRandomSwitch.setTextColor(getResources().getColor(R.color.c_999999));
                 tvSelectRegion.setVisibility(View.VISIBLE);
                 mRvSwitchProxyCity.setVisibility(View.VISIBLE);
+                mPresenter.refreshCityList();
                 break;
 
             case R.id.iv_switch_proxy_back:

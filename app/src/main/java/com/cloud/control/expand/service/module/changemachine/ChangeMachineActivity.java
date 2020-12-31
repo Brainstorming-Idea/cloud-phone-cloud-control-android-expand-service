@@ -167,6 +167,21 @@ public class ChangeMachineActivity extends BaseActivity<ChangeMachinePresenter> 
         toastMessage(message);
     }
 
+    @Override
+    public void dialog(String title, String content, String leftStr, String rightStr) {
+        showExpireDialog(title, content, leftStr, rightStr, new MenuCallback() {
+            @Override
+            public void onLeftButtonClick(Object value) {
+
+            }
+
+            @Override
+            public void onRightButtonClick(Object value) {
+                finish();
+            }
+        });
+    }
+
     @OnClick({R.id.tv_change_machine_start, R.id.rl_phone_brand, R.id.rl_phone_model, R.id.iv_change_machine_back, R.id.iv_system_version_delete, R.id.iv_imei_delete, R.id.iv_sn_delete, R.id.iv_psn_delete, R.id.iv_bluetooth_mac_delete, R.id.iv_wifi_mac_delete, R.id.tv_change_machine_reset})
     public void onClick(View view) {
         switch (view.getId()) {

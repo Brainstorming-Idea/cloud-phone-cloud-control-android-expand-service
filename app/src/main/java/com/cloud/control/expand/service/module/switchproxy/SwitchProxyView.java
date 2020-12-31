@@ -21,11 +21,4 @@ public interface SwitchProxyView extends IBaseView {
      */
     void loadData(ResponseEntity ip, SwitchProxyTypeEntity ipChangeType, CityListEntity cityListEntity);
 
-    /**
-     * 提示信息
-     *
-     * @param message
-     */
-    void toast(String message);
-
 }

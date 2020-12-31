@@ -30,6 +30,18 @@ public interface IBaseView {
     void showNoData(String message);
 
     /**
+     * 提示消息
+     *
+     * @param message
+     */
+    void toast(String message);
+
+    /**
+     * 弹框提示
+     */
+    void dialog(String title, String content, String leftStr, String rightStr);
+
+    /**
      * 绑定生命周期
      *
      * @param <T>

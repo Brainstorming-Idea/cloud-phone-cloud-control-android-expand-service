@@ -9,6 +9,7 @@ import com.cloud.control.expand.service.entity.PhoneBrandModelEntity;
 import com.cloud.control.expand.service.entity.PhoneModelInfoEntity;
 import com.cloud.control.expand.service.entity.ResponseEntity;
 import com.cloud.control.expand.service.entity.SwitchProxyTypeEntity;
+import com.cloud.control.expand.service.entity.TimeInfoEntity;
 import com.cloud.control.expand.service.entity.VirtualLocationEntity;
 import com.cloud.control.expand.service.entity.VirtualLocationInfoEntity;
 
@@ -81,5 +82,9 @@ public interface IUrls {
     //修改手机的配置参数
     @POST("api/wsi/v1/instruct/modifyCardAndroid")
     Observable<ResponseEntity> modifyCard(@Body RequestBody body);
+
+    //获取系统当前时间
+    @GET("api/user/v2.3/time/list")
+    Observable<TimeInfoEntity> getCurrentTime();
 
 }

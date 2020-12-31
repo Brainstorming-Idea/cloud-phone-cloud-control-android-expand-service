@@ -165,6 +165,10 @@ public class ChangeMachinePresenter implements IBasePresenter, IChangeMachine {
                     @Override
                     public void onNext(final ResponseEntity responseEntity) {
                         KLog.e("modifyCard onNext " + responseEntity.toString());
+                        if(responseEntity.getMsg().equals("未购买一键新机服务")){
+                            mView.dialog("提示", "该扩展服务已过期", "", "确认");
+                            return;
+                        }
                         mView.toast(responseEntity.getMsg());
                     }
                 });

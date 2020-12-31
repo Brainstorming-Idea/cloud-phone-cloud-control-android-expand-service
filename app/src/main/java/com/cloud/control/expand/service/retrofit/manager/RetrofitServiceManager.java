@@ -12,6 +12,7 @@ import com.cloud.control.expand.service.entity.PhoneBrandModelEntity;
 import com.cloud.control.expand.service.entity.PhoneModelInfoEntity;
 import com.cloud.control.expand.service.entity.ResponseEntity;
 import com.cloud.control.expand.service.entity.SwitchProxyTypeEntity;
+import com.cloud.control.expand.service.entity.TimeInfoEntity;
 import com.cloud.control.expand.service.entity.UpdatePhoneConfigEntity;
 import com.cloud.control.expand.service.entity.VirtualLocationEntity;
 import com.cloud.control.expand.service.entity.VirtualLocationInfoEntity;
@@ -362,6 +363,19 @@ public class RetrofitServiceManager {
         KLog.e("modifyCard json " + new Gson().toJson(configEntity));
         RequestBody body = FormBody.create(MediaType.parse("application/json; charset=utf-8"), new Gson().toJson(configEntity));
         return mRetrofitService.modifyCard(body)
+                .subscribeOn(Schedulers.io())
+                .unsubscribeOn(Schedulers.io())
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    /**
+     * 获取系统当前时间
+     *
+     * @return
+     */
+    public static Observable<TimeInfoEntity> getCurrentTime() {
+        return mRetrofitService.getCurrentTime()
                 .subscribeOn(Schedulers.io())
                 .unsubscribeOn(Schedulers.io())
                 .subscribeOn(AndroidSchedulers.mainThread())

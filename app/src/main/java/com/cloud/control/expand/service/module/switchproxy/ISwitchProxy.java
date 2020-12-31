@@ -18,4 +18,9 @@ public interface ISwitchProxy {
      * 关闭代理
      */
     void closeProxy();
+
+    /**
+     * 刷新城市列表
+     */
+    void refreshCityList();
 }

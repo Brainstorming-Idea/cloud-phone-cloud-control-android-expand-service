@@ -22,6 +22,7 @@ import com.cloud.control.expand.service.entity.LocationInfoEntity;
 import com.cloud.control.expand.service.entity.VirtualLocationInfoEntity;
 import com.cloud.control.expand.service.injector.components.DaggerVirtualLocationComponent;
 import com.cloud.control.expand.service.injector.modules.VirtualLocationModule;
+import com.cloud.control.expand.service.interfaces.MenuCallback;
 import com.cloud.control.expand.service.log.KLog;
 import com.google.gson.Gson;
 
@@ -98,6 +99,21 @@ public class VirtualLocationActivity extends BaseActivity<VirtualLocationPresent
     @Override
     public void toast(String message) {
         toastMessage(message);
+    }
+
+    @Override
+    public void dialog(String title, String content, String leftStr, String rightStr) {
+        showExpireDialog(title, content, leftStr, rightStr, new MenuCallback() {
+            @Override
+            public void onLeftButtonClick(Object value) {
+
+            }
+
+            @Override
+            public void onRightButtonClick(Object value) {
+                finish();
+            }
+        });
     }
 
     @OnClick({R.id.tv_save_location, R.id.iv_virtual_location_back})

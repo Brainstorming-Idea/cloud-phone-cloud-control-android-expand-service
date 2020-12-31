@@ -17,11 +17,4 @@ public interface VirtualLocationView extends IBaseView {
      */
     void loadData(VirtualLocationInfoEntity virtualLocationInfoEntity);
 
-    /**
-     * 提示消息
-     *
-     * @param message
-     */
-    void toast(String message);
-
 }

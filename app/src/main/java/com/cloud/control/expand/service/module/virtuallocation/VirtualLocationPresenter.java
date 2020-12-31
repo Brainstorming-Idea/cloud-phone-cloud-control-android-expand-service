@@ -79,6 +79,10 @@ public class VirtualLocationPresenter implements IBasePresenter, IVirtualLocatio
                     @Override
                     public void onNext(VirtualLocationEntity locationEntity) {
                         KLog.e("setGps onNext " + locationEntity.toString());
+                        if(locationEntity.getMsg().equals("未购买GPS定位服务")){
+                            mView.dialog("提示", "该扩展服务已过期", "", "确认");
+                            return;
+                        }
                         mView.toast(locationEntity.getMsg());
                     }
                 });

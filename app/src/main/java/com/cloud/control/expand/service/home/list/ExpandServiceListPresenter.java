@@ -4,6 +4,7 @@ import com.cloud.control.expand.service.base.IBasePresenter;
 import com.cloud.control.expand.service.entity.ExpandServiceRecordEntity;
 import com.cloud.control.expand.service.log.KLog;
 import com.cloud.control.expand.service.retrofit.manager.RetrofitServiceManager;
+import com.cloud.control.expand.service.utils.DateUtils;
 
 import rx.Subscriber;
 import rx.functions.Action0;
@@ -51,6 +52,7 @@ public class ExpandServiceListPresenter implements IBasePresenter, IExpandServic
                         if (recordEntity.getData() != null && recordEntity.getData().size() > 0) {
                             mView.loadData(recordEntity.getData());
                         } else {
+                            mView.hideListView();
                             mView.showNoData("还没有扩展服务哦～敬请期待");
                         }
                     }
@@ -82,7 +84,13 @@ public class ExpandServiceListPresenter implements IBasePresenter, IExpandServic
                     public void onNext(ExpandServiceRecordEntity recordEntity) {
                         KLog.e("getExtendServiceRecord onNext " + recordEntity.toString());
                         if (recordEntity != null && recordEntity.getData() != null && recordEntity.getData().size() > 0) {
-                            mView.jumpPage(recordEntity.getData().get(position));
+                            if(DateUtils.isExpire(recordEntity.getData().get(position).getCurrentTime(), recordEntity.getData().get(position).getDueTimeStr())){
+                                mView.dialog("提示", "该扩展服务已过期", "", "确认");
+                            }else {
+                                mView.jumpPage(recordEntity.getData().get(position));
+                            }
+                        }else{
+                            mView.dialog("提示", "该扩展服务已过期", "", "确认");
                         }
                     }
                 });

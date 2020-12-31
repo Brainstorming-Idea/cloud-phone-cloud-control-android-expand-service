@@ -128,7 +128,41 @@ public class SwitchProxyPresenter implements IBasePresenter, ISwitchProxy {
                     @Override
                     public void onNext(ResponseEntity responseEntity) {
                         KLog.e("changeCityIp onNext " + responseEntity.toString());
+                        if(responseEntity.getMsg().equals("未购买IP代理扩展服务")){
+                            mView.dialog("提示", "该扩展服务已过期", "", "确认");
+                            return;
+                        }
                         mView.toast(responseEntity.getMsg());
+                    }
+                });
+    }
+
+    @Override
+    public void refreshCityList() {
+        RetrofitServiceManager.getCityList()
+                .doOnSubscribe(new Action0() {
+                    @Override
+                    public void call() {
+                    }
+                })
+                .compose(mView.<CityListEntity>bindToLife())
+                .subscribe(new Subscriber<CityListEntity>() {
+                    @Override
+                    public void onCompleted() {
+                        mView.hideLoading();
+                        KLog.e("getCityList onCompleted");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        mView.hideLoading();
+                        KLog.e("getCityList onError");
+                    }
+
+                    @Override
+                    public void onNext(CityListEntity cityListEntity) {
+                        KLog.e("getCityList onNext " + cityListEntity.toString());
+                        mView.loadData(null, null, cityListEntity);
                     }
                 });
     }

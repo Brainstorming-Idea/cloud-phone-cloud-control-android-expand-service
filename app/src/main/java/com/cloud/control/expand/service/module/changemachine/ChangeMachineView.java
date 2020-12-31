@@ -23,11 +23,4 @@ public interface ChangeMachineView extends IBaseView {
      */
     void loadData(ModelInfoEntity modelInfoEntity, ChangeMachineStatusEntity statusEntity, PhoneBrandModelEntity brandModelEntity, PhoneModelInfoEntity.DataBean dataBean);
 
-    /**
-     * 提示信息
-     *
-     * @param message
-     */
-    void toast(String message);
-
 }

@@ -14,7 +14,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.cloud.control.expand.service.R;
+import com.cloud.control.expand.service.dialog.CommonHintDialog;
 import com.cloud.control.expand.service.dialog.LoadDialog;
+import com.cloud.control.expand.service.interfaces.MenuCallback;
 import com.cloud.control.expand.service.log.KLog;
 import com.cloud.control.expand.service.widget.EmptyLayout;
 import com.trello.rxlifecycle.LifecycleTransformer;
@@ -259,6 +261,13 @@ public abstract class BaseActivity<T extends IBasePresenter> extends RxAppCompat
 
         }
 
+    }
+
+    /**
+     * 扩展服务已过期弹框
+     */
+    public void showExpireDialog(String title, String content, String leftStr, String rightStr, MenuCallback callback) {
+        CommonHintDialog.show(mContext, title, content, leftStr, rightStr, callback);
     }
 
     @Override
