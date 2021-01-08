@@ -148,7 +148,7 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
                     if(mRvExpandServiceList != null) {
                         mRvExpandServiceList.setVisibility(View.GONE);
                     }
-                    showNoData("还没有扩展服务哦～敬请期待");
+                    showNoData("还没有可用扩展服务哦~");
                 }
             }
         });

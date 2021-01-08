@@ -53,7 +53,7 @@ public class ExpandServiceListPresenter implements IBasePresenter, IExpandServic
                             mView.loadData(recordEntity.getData());
                         } else {
                             mView.hideListView();
-                            mView.showNoData("还没有扩展服务哦～敬请期待");
+                            mView.showNoData("还没有可用扩展服务哦~");
                         }
                     }
                 });
