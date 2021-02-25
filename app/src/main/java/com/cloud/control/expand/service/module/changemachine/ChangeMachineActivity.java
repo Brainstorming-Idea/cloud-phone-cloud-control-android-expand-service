@@ -544,7 +544,7 @@ public class ChangeMachineActivity extends BaseActivity<ChangeMachinePresenter> 
      * 启动新机弹框
      */
     private void showStartChangeMachineDialog() {
-        CommonHintDialog.show(mContext, "确认要启用新机吗？", "确认后将重启云手机，并更改云手机信息。", "取消", "确认", new MenuCallback() {
+        CommonHintDialog.show(mContext, "启用新机", "确认要启用新机吗？", "取消", "确认", new MenuCallback() {
             @Override
             public void onLeftButtonClick(Object value) {
 
