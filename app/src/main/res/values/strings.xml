@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ExpandService</string>
+    <string name="expand_service_deadline">this expandService is deadline</string>
+    <string name="ocr_desc">script develop</string>
 </resources>
