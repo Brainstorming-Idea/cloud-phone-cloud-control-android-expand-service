@@ -1,10 +1,10 @@
-// OnLoadModelListener.aidl
-package com.cloud.control.expand.service;
+// InitModelListener.aidl
+package com.cloud.control.expand.service.module.ocr;
 
 // Declare any non-default types here with import statements
 
-interface onLoadModelListener {
+interface InitModelListener {
    void onLoadSuccess();
 
-   void onLoadFailed();
+   void onLoadFailed(String msg);
 }

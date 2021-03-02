@@ -2,10 +2,12 @@ package com.cloud.control.expand.service.module.ocr;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.os.IBinder;
+import android.os.Parcel;
 import android.os.RemoteException;
 import android.util.Log;
 import android.widget.Toast;
@@ -92,6 +94,25 @@ public class OcrService extends Service {
 
     private IOCRService.Stub binder = new IOCRService.Stub() {
         @Override
+        public boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
+            /*检查客户端是否申请了此权限*/
+            int check = checkCallingPermission("com.cloud.control.expand.service.aidl.permission.OCR_SERVICE");
+            if (check == PackageManager.PERMISSION_DENIED){
+                return false;
+            }
+//            String packageName = null;
+//            String[] packages = getPackageManager().getPackagesForUid(getCallingUid());
+//            if(packages != null && packages.length > 0){
+//                packageName = packages[0];
+//            }else {
+//                return false;
+//            }
+//            if(packageName != null && !packageName.startsWith("com.muse.ocrdemo")){
+//                return false;
+//            }
+            return super.onTransact(code, data, reply, flags);
+        }
+
         @Override
         public void initModel(InitModelListener initModelListener) throws RemoteException{
             setInitModelListener(initModelListener);
@@ -133,8 +154,20 @@ public class OcrService extends Service {
         this.targetImg = targetImg;
     }
 
+    private void setConfidence(float confidence){
+        if (this.confidence != confidence){
+            this.confidence = confidence;
+            this.customSetting = true;
+            ocrParams.setScoreThreshold(confidence);
+        }
+    }
+
     private void setOnResultListener(OnResultListener onResultListener) {
         this.onResultListener = onResultListener;
+    }
+
+    public void setInitModelListener(InitModelListener initModelListener) {
+        this.initModelListener = initModelListener;
     }
 
     /**
@@ -161,15 +194,26 @@ public class OcrService extends Service {
                                 if (dataBean.getTypeId() == ExpandService.OCR.getTypeId()){
                                     if(DateUtils.isExpire(dataBean.getCurrentTime(), dataBean.getDueTimeStr())){
                                         isDeadline = true;
+                                        Log.e(TAG, "服务已过期");
                                         try {
                                             onResultListener.onFailed(ExpandServiceApplication.getContext().getString(R.string.expand_service_deadline));
                                         } catch (RemoteException e) {
                                             e.printStackTrace();
                                         }
                                     }else {
+                                        Log.d(TAG, "服务有效");
                                         isDeadline = false;
                                         //未到期则开始识别
                                         runModel();
+//                                        if (ocrParams != null) {
+//                                            loadModel(ocrParams);
+//                                        }else {
+//                                            try {
+//                                                throw new RemoteException("ocrParams is null!");
+//                                            } catch (RemoteException e) {
+//                                                e.printStackTrace();
+//                                            }
+//                                        }
                                     }
                                     break;
                                 }
@@ -219,6 +263,8 @@ public class OcrService extends Service {
      * 开始运行模型，识别图片
      */
     public void runModel() {
+        isRecognizing = true;
+        Log.d(TAG, "正在运行模型");
         if (targetImg != null && predictor.isLoaded()) {
             predictor.setInputImage(targetImg.getTarget());
         }else {
@@ -227,6 +273,7 @@ public class OcrService extends Service {
         Disposable disposable = Single.create(new SingleOnSubscribe<Boolean>() {
             @Override
             public void subscribe(SingleEmitter<Boolean> emitter) throws Exception {
+                Log.d(TAG, "发送了onRunModel事件");
                 emitter.onSuccess(onRunModel());
             }
         })
@@ -236,6 +283,7 @@ public class OcrService extends Service {
                     @Override
                     public void accept(Boolean onRunModel) throws Exception {
                         Log.d(TAG, "模型运行结果：" + onRunModel);
+                        isRecognizing = false;
                         if (onRunModel) {
                             onRunModelSuccess();
                         }else {
@@ -269,10 +317,28 @@ public class OcrService extends Service {
     public void onLoadModelSuccessed() {
         // Load test image from path and run model
         Log.d(TAG, "模型加载成功");
+        if (initModelListener != null){
+            try {
+                initModelListener.onLoadSuccess();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
+        /*使用自定义配置后重新运行模型*/
+        if (customSetting){
+            customSetting = false;
+            runModel();
+        }
     }
 
     public void onLoadModelFailed() {
-        //TODO 模型加载失败处理
+        if (initModelListener != null){
+            try {
+                initModelListener.onLoadFailed("模型加载失败");
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     public void onRunModelSuccess() throws RemoteException {
@@ -297,7 +363,7 @@ public class OcrService extends Service {
                     jsonArray.add(jsonObject);
                 }
             }
-            onResultListener.onSuccess(new Gson().toJson(jsonArray));
+            onResultListener.onSuccess(new Gson().toJson(jsonArray), predictor.inferenceTime);
         }
     }
 

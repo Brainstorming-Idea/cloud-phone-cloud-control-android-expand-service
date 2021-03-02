@@ -6,6 +6,7 @@ package com.cloud.control.expand.service.entity;
  * @date :2021/2/26
  */
 public enum ExpandService {
+    /*IP代理；虚拟定位；一键新机；虚拟行为场景；多窗口推流；文字识别；日志调试*/
     IP_PROXY(1),VIRTUAL_LOCATION(2),CHANGE_MACHINE(3),VIRTUAL_SCENE(4),MUL_WINDOW(5),OCR(6),LOG_DEBUG(7);
 
     private int typeId;

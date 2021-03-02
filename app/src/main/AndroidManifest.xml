@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!--自定义service访问权限-->
+    <permission android:name="com.cloud.control.expand.service.aidl.permission.OCR_SERVICE"/>
 
     <application
         android:name=".home.ExpandServiceApplication"
@@ -20,7 +22,8 @@
             android:name=".module.ocr.OcrService"
             android:enabled="true"
             android:exported="true"
-            android:process=":remote"></service>
+            android:process=":remote"
+            android:permission="com.cloud.control.expand.service.aidl.permission.OCR_SERVICE"/>
         <!-- android:persistent="true" -->
         <activity android:name=".home.list.ExpandServiceListActivity">
             <intent-filter>
