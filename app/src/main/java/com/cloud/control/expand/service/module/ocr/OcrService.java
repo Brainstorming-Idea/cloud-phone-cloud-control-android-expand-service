@@ -65,10 +65,17 @@ public class OcrService extends Service {
     protected Predictor predictor = new Predictor();
     protected OcrParams ocrParams = null;
     protected TargetImg targetImg = null;
+    protected float confidence = 0.1f;
     protected List<Disposable> mDisposables = new ArrayList<>();
     private OnResultListener onResultListener = null;
+    private InitModelListener initModelListener = null;
+
     /**扩展服务是否到期*/
     private boolean isDeadline = false;
+    /**是否启用了自定义设置*/
+    private boolean customSetting = false;
+    /**是否正在识别*/
+    private boolean isRecognizing = false;
 
     public OcrService() {
     }
@@ -76,8 +83,6 @@ public class OcrService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        //1. 加载模型
-        loadModel(getDefOcrParams());
     }
 
     @Override
@@ -87,13 +92,40 @@ public class OcrService extends Service {
 
     private IOCRService.Stub binder = new IOCRService.Stub() {
         @Override
-        public void inputImg(TargetImg targetImg, String imgFlag, float confidence, int moduleId, OnResultListener onResultListener) throws RemoteException {
+        @Override
+        public void initModel(InitModelListener initModelListener) throws RemoteException{
+            setInitModelListener(initModelListener);
+            //初始化模型
+            Log.d(TAG,"正在初始化模型");
+            loadModel(getDefOcrParams());
+        }
+        @Override
+        public void inputImg(TargetImg targetImg, OnResultListener onResultListener) throws RemoteException {
             setOnResultListener(onResultListener);
             setImage(targetImg);
-
             //检查扩展服务到期时间
             checkDeadline();
-//            onResultListener.onSuccess("进程间通信成功");
+//            runModel();
+        }
+
+        @Override
+        public void advancedSetup(float confidence, int cpuThreadNum, String cpuPowerMode) throws RemoteException {
+            if (isRecognizing && onResultListener != null){
+                onResultListener.onFailed("正在识别中，无法设置参数！");
+            }
+            if (targetImg == null && onResultListener != null){
+                Log.e(TAG, "请先传入需要识别的图像！");
+                onResultListener.onFailed("请先传入需要识别的图像！");
+                return;
+            }else if (onResultListener == null){
+                Log.e(TAG, "OnResultListener is null!");
+                return;
+            }
+            customSetting = true;
+            ocrParams.setScoreThreshold(confidence);
+            ocrParams.setCpuThreadNum(cpuThreadNum);
+            ocrParams.setCpuPowerMode(cpuPowerMode);
+            loadModel(ocrParams);
         }
     };
 
