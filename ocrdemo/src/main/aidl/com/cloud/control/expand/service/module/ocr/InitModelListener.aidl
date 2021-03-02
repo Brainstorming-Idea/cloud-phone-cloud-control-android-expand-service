@@ -1,5 +1,5 @@
 // InitModelListener.aidl
-package com.cloud.control.expand.service;
+package com.cloud.control.expand.service.module.ocr;
 
 // Declare any non-default types here with import statements
 

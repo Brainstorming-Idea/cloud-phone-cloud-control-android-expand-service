@@ -4,6 +4,7 @@ package com.cloud.control.expand.service.module.ocr;
 // Declare any non-default types here with import statements
 import com.cloud.control.expand.service.aidl.TargetImg;
 import com.cloud.control.expand.service.module.ocr.OnResultListener;
+import com.cloud.control.expand.service.module.ocr.InitModelListener;
 
 interface IOCRService {
     /**
@@ -12,8 +13,10 @@ interface IOCRService {
      */
 //    void basicTypes(int anInt, long aLong, boolean aBoolean, float aFloat,
 //            double aDouble, String aString);
-    //识别的目标图片，置信度（0.0 ~ 1.0） 模型ID（）
-    boolean inputImg(in TargetImg targetImg, String imgFlag, float confidence, int moduleId, OnResultListener onResultListener);
-//    识别结果的回调方法
-//    void onRecogResult(String result);
+    //初始化模型
+    void initModel(InitModelListener initModelListener);
+    //识别的目标图片
+    void inputImg(in TargetImg targetImg, OnResultListener onResultListener);
+    //高级设置 置信度（0.00 ~ 1.00）
+    void advancedSetup(float confidence, int cpuThreadNum, String cpuPowerMode);
 }
