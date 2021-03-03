@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.cloud.control.expand.service"
-    android:sharedUserId="android.uid.system"> <!--android:sharedUserId="android.uid.system"-->
+    android:sharedUserId="android.uid.system">
 
+    <!-- android:sharedUserId="android.uid.system" -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <!--自定义service访问权限-->
+    <permission android:name="com.cloud.control.expand.service.aidl.permission.OCR_SERVICE"/>
 
     <application
         android:name=".home.ExpandServiceApplication"
@@ -14,7 +17,14 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/HomeTheme"> <!--android:persistent="true"-->
+        android:theme="@style/HomeTheme">
+        <service
+            android:name=".module.ocr.OcrService"
+            android:enabled="true"
+            android:exported="true"
+            android:process=":remote"
+            android:permission="com.cloud.control.expand.service.aidl.permission.OCR_SERVICE"/>
+        <!-- android:persistent="true" -->
         <activity android:name=".home.list.ExpandServiceListActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

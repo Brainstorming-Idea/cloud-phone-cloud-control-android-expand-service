@@ -8,6 +8,7 @@ import android.view.View;
 import com.cloud.control.expand.service.R;
 import com.cloud.control.expand.service.base.BaseActivity;
 import com.cloud.control.expand.service.dialog.CommonHintDialog;
+import com.cloud.control.expand.service.entity.ExpandService;
 import com.cloud.control.expand.service.entity.ExpandServiceRecordEntity;
 import com.cloud.control.expand.service.injector.components.DaggerExpandServiceListComponent;
 import com.cloud.control.expand.service.injector.modules.ExpandServiceListModule;
@@ -113,15 +114,32 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
 
     @Override
     public void jumpPage(ExpandServiceRecordEntity.DataBean dataBean) {
-            if (dataBean.getTypeName().equals("IP代理")) {
+        ExpandService targetService = ExpandService.getExpandService(dataBean.getTypeId());
+        switch (targetService){
+            case IP_PROXY:
                 startActivity(new Intent(mContext, SwitchProxyActivity.class));
-            } else if (dataBean.getTypeName().equals("虚拟定位")) {
+                break;
+            case VIRTUAL_LOCATION:
                 startActivity(new Intent(mContext, VirtualLocationActivity.class));
-            } else if (dataBean.getTypeName().equals("一键新机")) {
+                break;
+            case CHANGE_MACHINE:
                 startActivity(new Intent(mContext, ChangeMachineActivity.class));
-            }else{
+                break;
+            case VIRTUAL_SCENE:
+                //TODO
+                break;
+            case OCR:
+                toastMessage(getString(R.string.ocr_desc));
+                break;
+            case MUL_WINDOW:
+                //TODO
+                break;
+            case LOG_DEBUG:
+                //TODO
+                break;
+            default:
                 toastMessage("暂未开放");
-            }
+        }
     }
 
     @Override
