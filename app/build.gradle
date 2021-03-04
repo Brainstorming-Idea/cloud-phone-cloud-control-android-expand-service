@@ -48,6 +48,17 @@ android {
         }
     }
 
+    //自定义apk输出路径和文件名，as3.0需要修改为一下写法
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            // 自定义输出路径
+            variant.getPackageApplication().outputDirectory = new File(project.rootDir.absolutePath + "/app/" + variant.buildType.name)
+            // 自定义文件名{示例：AppName-Flavor-debug-v1.0.0_201807301409}
+            //outputFileName = "AppName-${variant.flavorName}-${variant.buildType.name}-v${variant.versionName}_${time()}.apk"
+            outputFileName = "AndroidExpandService.apk"
+        }
+    }
+
 }
 
 dependencies {

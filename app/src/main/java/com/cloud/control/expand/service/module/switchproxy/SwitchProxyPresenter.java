@@ -18,6 +18,7 @@ import rx.functions.Action0;
 public class SwitchProxyPresenter implements IBasePresenter, ISwitchProxy {
 
     private final SwitchProxyView mView;
+    private CityListEntity mCityListEntity;
 
     public SwitchProxyPresenter(SwitchProxyView view) {
         mView = view;
@@ -97,6 +98,7 @@ public class SwitchProxyPresenter implements IBasePresenter, ISwitchProxy {
                     @Override
                     public void onNext(CityListEntity cityListEntity) {
                         KLog.e("getCityList onNext " + cityListEntity.toString());
+                        mCityListEntity = cityListEntity;
                         mView.loadData(null, null, cityListEntity);
                     }
                 });
@@ -139,6 +141,10 @@ public class SwitchProxyPresenter implements IBasePresenter, ISwitchProxy {
 
     @Override
     public void refreshCityList() {
+        if(mCityListEntity != null){
+            mView.loadData(null, null, mCityListEntity);
+            return;
+        }
         RetrofitServiceManager.getCityList()
                 .doOnSubscribe(new Action0() {
                     @Override

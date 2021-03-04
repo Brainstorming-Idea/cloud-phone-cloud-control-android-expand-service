@@ -17,11 +17,13 @@ import com.cloud.control.expand.service.entity.SwitchProxyTypeEntity;
 import com.cloud.control.expand.service.injector.components.DaggerSwitchProxyComponent;
 import com.cloud.control.expand.service.injector.modules.SwitchProxyModule;
 import com.cloud.control.expand.service.interfaces.MenuCallback;
+import com.cloud.control.expand.service.utils.ConstantsUtils;
 import com.cloud.control.expand.service.utils.NoFastClickUtils;
 import com.cloud.control.expand.service.widget.RecyclerViewSpacesItemDecoration;
 import com.dl7.recycler.adapter.BaseQuickAdapter;
 import com.dl7.recycler.helper.RecyclerViewHelper;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,10 +48,14 @@ public class SwitchProxyActivity extends BaseActivity<SwitchProxyPresenter> impl
     BaseQuickAdapter mSwitchProxyCityListAdapter;
     @BindView(R.id.tv_current_ip)
     TextView tvCurrentIp;
-    @BindView(R.id.tv_random_switch)
-    TextView tvRandomSwitch;
-    @BindView(R.id.tv_assign_switch)
-    TextView tvAssignSwitch;
+    @BindView(R.id.tv_random_switch_short)
+    TextView tvRandomSwitchShort;
+    @BindView(R.id.tv_assign_switch_short)
+    TextView tvAssignSwitchShort;
+    @BindView(R.id.tv_random_switch_long)
+    TextView tvRandomSwitchLong;
+    @BindView(R.id.tv_assign_switch_long)
+    TextView tvAssignSwitchLong;
     @BindView(R.id.tv_select_region)
     TextView tvSelectRegion;
     @BindView(R.id.tv_close_proxy)
@@ -58,7 +64,7 @@ public class SwitchProxyActivity extends BaseActivity<SwitchProxyPresenter> impl
     TextView tvStartProxy;
 
     private List<SelectCityStatusEntity> selectCityStatusEntityList;
-    private int mIpChangeType = -1; //切换方式，默认未选中 0:全国随机切换ip;1:指定城市切换ip
+    private int mIpChangeType = -1; //切换方式，默认未选中 0:短效全国随机;1:短效指定城市;2:长效全国随机;3:长效指定城市
     private List<String> mSelectCity = new ArrayList<>(); //最后选中的城市，用来传参
 
     @Override
@@ -98,25 +104,21 @@ public class SwitchProxyActivity extends BaseActivity<SwitchProxyPresenter> impl
         if (ipChangeType != null) {
             if (ipChangeType.getData() == 0) {
                 mIpChangeType = 0;
-                tvRandomSwitch.setSelected(true);
-                tvAssignSwitch.setSelected(false);
-                tvRandomSwitch.setSelected(true);
-                tvRandomSwitch.setTextColor(getResources().getColor(R.color.c_ffffff));
-                tvAssignSwitch.setTextColor(getResources().getColor(R.color.c_999999));
-                tvSelectRegion.setVisibility(View.GONE);
-                mRvSwitchProxyCity.setVisibility(View.GONE);
+                showIpChangeTypeView(ConstantsUtils.IpChangeType.RANDOM_SWITCH_SHORT);
             } else if (ipChangeType.getData() == 1) {
                 mIpChangeType = 1;
-                tvRandomSwitch.setSelected(false);
-                tvAssignSwitch.setSelected(true);
-                tvAssignSwitch.setSelected(true);
-                tvAssignSwitch.setTextColor(getResources().getColor(R.color.c_ffffff));
-                tvRandomSwitch.setTextColor(getResources().getColor(R.color.c_999999));
-                tvSelectRegion.setVisibility(View.VISIBLE);
-                mRvSwitchProxyCity.setVisibility(View.VISIBLE);
+                showIpChangeTypeView(ConstantsUtils.IpChangeType.ASSIGN_SWITCH_SHORT);
+            } else if (ipChangeType.getData() == 2) {
+                mIpChangeType = 2;
+                showIpChangeTypeView(ConstantsUtils.IpChangeType.RANDOM_SWITCH_LONG);
+            } else if (ipChangeType.getData() == 3) {
+                mIpChangeType = 3;
+                showIpChangeTypeView(ConstantsUtils.IpChangeType.ASSIGN_SWITCH_LONG);
             } else {
-                tvRandomSwitch.setEnabled(false);
-                tvAssignSwitch.setEnabled(false);
+                tvRandomSwitchShort.setEnabled(false);
+                tvAssignSwitchShort.setEnabled(false);
+                tvRandomSwitchLong.setEnabled(false);
+                tvAssignSwitchLong.setEnabled(false);
                 mIpChangeType = -1;
             }
         }
@@ -124,26 +126,93 @@ public class SwitchProxyActivity extends BaseActivity<SwitchProxyPresenter> impl
         if (cityListEntity != null) {
             selectCityStatusEntityList.clear();
             mSelectCity.clear();
-            for (int i = 0; i < cityListEntity.getData().getCityList().size(); i++) {
+            List<String> cityList = new ArrayList<>();
+            //短效城市
+            if(mIpChangeType == ConstantsUtils.IpChangeType.ASSIGN_SWITCH_SHORT){
+                cityList.addAll(cityListEntity.getData().getCityList());
+            }else if(mIpChangeType == ConstantsUtils.IpChangeType.ASSIGN_SWITCH_LONG){ //长效城市
+                cityList.addAll(cityListEntity.getData().getLongCityList());
+            }
+            for (int i = 0; i < cityList.size(); i++) {
                 SelectCityStatusEntity entity = new SelectCityStatusEntity();
-                entity.setCity(cityListEntity.getData().getCityList().get(i));
+                entity.setCity(cityList.get(i));
                 entity.setStatus(false);
                 selectCityStatusEntityList.add(entity);
                 for (int j = 0; j < cityListEntity.getData().getSelectedCity().size(); j++) {
                     //替换选中状态的城市
-                    if (cityListEntity.getData().getCityList().get(i).equals(cityListEntity.getData().getSelectedCity().get(j))) {
+                    if (cityList.get(i).equals(cityListEntity.getData().getSelectedCity().get(j))) {
                         SelectCityStatusEntity replaceEntity = new SelectCityStatusEntity();
-                        replaceEntity.setCity(cityListEntity.getData().getCityList().get(i));
+                        replaceEntity.setCity(cityList.get(i));
                         replaceEntity.setStatus(true);
                         //每个item城市的选中状态
                         selectCityStatusEntityList.set(i, replaceEntity);
                         //上次选中的城市
-                        mSelectCity.add(cityListEntity.getData().getCityList().get(i));
+                        mSelectCity.add(cityList.get(i));
                     }
                 }
             }
             mSwitchProxyCityListAdapter.updateItems(selectCityStatusEntityList);
         }
+    }
+
+    /**
+     * 显示切换IP不同类型的视图
+     */
+    private void showIpChangeTypeView(int type){
+        switch (type){
+            case ConstantsUtils.IpChangeType.RANDOM_SWITCH_SHORT:
+                tvRandomSwitchShort.setSelected(true);
+                tvRandomSwitchLong.setSelected(false);
+                tvAssignSwitchShort.setSelected(false);
+                tvAssignSwitchLong.setSelected(false);
+                tvRandomSwitchShort.setTextColor(getResources().getColor(R.color.c_ffffff));
+                tvRandomSwitchLong.setTextColor(getResources().getColor(R.color.c_999999));
+                tvAssignSwitchShort.setTextColor(getResources().getColor(R.color.c_999999));
+                tvAssignSwitchLong.setTextColor(getResources().getColor(R.color.c_999999));
+                tvSelectRegion.setVisibility(View.GONE);
+                mRvSwitchProxyCity.setVisibility(View.GONE);
+                break;
+
+            case ConstantsUtils.IpChangeType.ASSIGN_SWITCH_SHORT:
+                tvAssignSwitchShort.setSelected(true);
+                tvAssignSwitchLong.setSelected(false);
+                tvRandomSwitchShort.setSelected(false);
+                tvRandomSwitchLong.setSelected(false);
+                tvAssignSwitchShort.setTextColor(getResources().getColor(R.color.c_ffffff));
+                tvAssignSwitchLong.setTextColor(getResources().getColor(R.color.c_999999));
+                tvRandomSwitchShort.setTextColor(getResources().getColor(R.color.c_999999));
+                tvRandomSwitchLong.setTextColor(getResources().getColor(R.color.c_999999));
+                tvSelectRegion.setVisibility(View.VISIBLE);
+                mRvSwitchProxyCity.setVisibility(View.VISIBLE);
+                break;
+
+            case ConstantsUtils.IpChangeType.RANDOM_SWITCH_LONG:
+                tvRandomSwitchLong.setSelected(true);
+                tvAssignSwitchLong.setSelected(false);
+                tvRandomSwitchShort.setSelected(false);
+                tvAssignSwitchShort.setSelected(false);
+                tvRandomSwitchLong.setTextColor(getResources().getColor(R.color.c_ffffff));
+                tvAssignSwitchLong.setTextColor(getResources().getColor(R.color.c_999999));
+                tvRandomSwitchShort.setTextColor(getResources().getColor(R.color.c_999999));
+                tvAssignSwitchShort.setTextColor(getResources().getColor(R.color.c_999999));
+                tvSelectRegion.setVisibility(View.GONE);
+                mRvSwitchProxyCity.setVisibility(View.GONE);
+                break;
+
+            case ConstantsUtils.IpChangeType.ASSIGN_SWITCH_LONG:
+                tvAssignSwitchLong.setSelected(true);
+                tvAssignSwitchShort.setSelected(false);
+                tvRandomSwitchShort.setSelected(false);
+                tvRandomSwitchLong.setSelected(false);
+                tvAssignSwitchLong.setTextColor(getResources().getColor(R.color.c_ffffff));
+                tvAssignSwitchShort.setTextColor(getResources().getColor(R.color.c_999999));
+                tvRandomSwitchShort.setTextColor(getResources().getColor(R.color.c_999999));
+                tvRandomSwitchLong.setTextColor(getResources().getColor(R.color.c_999999));
+                tvSelectRegion.setVisibility(View.VISIBLE);
+                mRvSwitchProxyCity.setVisibility(View.VISIBLE);
+                break;
+        }
+
     }
 
     @Override
@@ -183,7 +252,7 @@ public class SwitchProxyActivity extends BaseActivity<SwitchProxyPresenter> impl
         mRvSwitchProxyCity.addItemDecoration(new RecyclerViewSpacesItemDecoration(3, stringIntegerHashMap, true));
     }
 
-    @OnClick({R.id.tv_start_proxy, R.id.tv_close_proxy, R.id.iv_switch_proxy_back, R.id.tv_random_switch, R.id.tv_assign_switch})
+    @OnClick({R.id.tv_start_proxy, R.id.tv_close_proxy, R.id.iv_switch_proxy_back, R.id.tv_random_switch_short, R.id.tv_assign_switch_short, R.id.tv_random_switch_long, R.id.tv_assign_switch_long})
     public void onClick(View view) {
         if (NoFastClickUtils.isFastClick()) {
             return;
@@ -195,7 +264,7 @@ public class SwitchProxyActivity extends BaseActivity<SwitchProxyPresenter> impl
                     return;
                 }
                 //指定城市，判断是否选中城市
-                if (mIpChangeType == 1) {
+                if (mIpChangeType == 1 || mIpChangeType == 3) {
                     if (mSelectCity.size() <= 0) {
                         toastMessage("请先选择地区");
                         return;
@@ -221,24 +290,25 @@ public class SwitchProxyActivity extends BaseActivity<SwitchProxyPresenter> impl
                 });
                 break;
 
-            case R.id.tv_random_switch:
+            case R.id.tv_random_switch_short:
                 mIpChangeType = 0;
-                tvRandomSwitch.setSelected(true);
-                tvAssignSwitch.setSelected(false);
-                tvRandomSwitch.setTextColor(getResources().getColor(R.color.c_ffffff));
-                tvAssignSwitch.setTextColor(getResources().getColor(R.color.c_999999));
-                tvSelectRegion.setVisibility(View.GONE);
-                mRvSwitchProxyCity.setVisibility(View.GONE);
+                showIpChangeTypeView(ConstantsUtils.IpChangeType.RANDOM_SWITCH_SHORT);
                 break;
 
-            case R.id.tv_assign_switch:
+            case R.id.tv_assign_switch_short:
                 mIpChangeType = 1;
-                tvRandomSwitch.setSelected(false);
-                tvAssignSwitch.setSelected(true);
-                tvAssignSwitch.setTextColor(getResources().getColor(R.color.c_ffffff));
-                tvRandomSwitch.setTextColor(getResources().getColor(R.color.c_999999));
-                tvSelectRegion.setVisibility(View.VISIBLE);
-                mRvSwitchProxyCity.setVisibility(View.VISIBLE);
+                showIpChangeTypeView(ConstantsUtils.IpChangeType.ASSIGN_SWITCH_SHORT);
+                mPresenter.refreshCityList();
+                break;
+
+            case R.id.tv_random_switch_long:
+                mIpChangeType = 2;
+                showIpChangeTypeView(ConstantsUtils.IpChangeType.RANDOM_SWITCH_LONG);
+                break;
+
+            case R.id.tv_assign_switch_long:
+                mIpChangeType = 3;
+                showIpChangeTypeView(ConstantsUtils.IpChangeType.ASSIGN_SWITCH_LONG);
                 mPresenter.refreshCityList();
                 break;
 
