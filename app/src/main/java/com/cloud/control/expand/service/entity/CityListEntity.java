@@ -82,5 +82,24 @@ public class CityListEntity {
         public void setCityList(List<String> cityList) {
             this.cityList = cityList;
         }
+
+        @Override
+        public String toString() {
+            return "DataBean{" +
+                    "selectedCity=" + selectedCity +
+                    ", longCityList=" + longCityList +
+                    ", cityList=" + cityList +
+                    '}';
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "CityListEntity{" +
+                "status=" + status +
+                ", retCode=" + retCode +
+                ", msg='" + msg + '\'' +
+                ", data=" + data +
+                '}';
     }
 }

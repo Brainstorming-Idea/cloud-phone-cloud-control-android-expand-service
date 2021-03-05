@@ -23,7 +23,6 @@ import com.cloud.control.expand.service.widget.RecyclerViewSpacesItemDecoration;
 import com.dl7.recycler.adapter.BaseQuickAdapter;
 import com.dl7.recycler.helper.RecyclerViewHelper;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -66,6 +65,7 @@ public class SwitchProxyActivity extends BaseActivity<SwitchProxyPresenter> impl
     private List<SelectCityStatusEntity> selectCityStatusEntityList;
     private int mIpChangeType = -1; //切换方式，默认未选中 0:短效全国随机;1:短效指定城市;2:长效全国随机;3:长效指定城市
     private List<String> mSelectCity = new ArrayList<>(); //最后选中的城市，用来传参
+    private CityListEntity mCityListEntity; //后台返回的城市列表数据
 
     @Override
     protected int attachLayoutRes() {
@@ -122,25 +122,37 @@ public class SwitchProxyActivity extends BaseActivity<SwitchProxyPresenter> impl
                 mIpChangeType = -1;
             }
         }
-        //显示城市列表
+        //城市列表
         if (cityListEntity != null) {
+            mCityListEntity = cityListEntity;
+        }
+        //切换方式和城市列表数据同时存在更新列表数据
+        if (mIpChangeType != -1 && mCityListEntity != null) {
             selectCityStatusEntityList.clear();
             mSelectCity.clear();
             List<String> cityList = new ArrayList<>();
             //短效城市
-            if(mIpChangeType == ConstantsUtils.IpChangeType.ASSIGN_SWITCH_SHORT){
-                cityList.addAll(cityListEntity.getData().getCityList());
-            }else if(mIpChangeType == ConstantsUtils.IpChangeType.ASSIGN_SWITCH_LONG){ //长效城市
-                cityList.addAll(cityListEntity.getData().getLongCityList());
+            if (mIpChangeType == ConstantsUtils.IpChangeType.ASSIGN_SWITCH_SHORT) {
+                if(mCityListEntity.getData().getCityList() == null){
+                    mSwitchProxyCityListAdapter.cleanItems();
+                    return;
+                }
+                cityList.addAll(mCityListEntity.getData().getCityList());
+            } else if (mIpChangeType == ConstantsUtils.IpChangeType.ASSIGN_SWITCH_LONG) { //长效城市
+                if(mCityListEntity.getData().getLongCityList() == null){
+                    mSwitchProxyCityListAdapter.cleanItems();
+                    return;
+                }
+                cityList.addAll(mCityListEntity.getData().getLongCityList());
             }
             for (int i = 0; i < cityList.size(); i++) {
                 SelectCityStatusEntity entity = new SelectCityStatusEntity();
                 entity.setCity(cityList.get(i));
                 entity.setStatus(false);
                 selectCityStatusEntityList.add(entity);
-                for (int j = 0; j < cityListEntity.getData().getSelectedCity().size(); j++) {
+                for (int j = 0; j < mCityListEntity.getData().getSelectedCity().size(); j++) {
                     //替换选中状态的城市
-                    if (cityList.get(i).equals(cityListEntity.getData().getSelectedCity().get(j))) {
+                    if (cityList.get(i).equals(mCityListEntity.getData().getSelectedCity().get(j))) {
                         SelectCityStatusEntity replaceEntity = new SelectCityStatusEntity();
                         replaceEntity.setCity(cityList.get(i));
                         replaceEntity.setStatus(true);
@@ -158,8 +170,8 @@ public class SwitchProxyActivity extends BaseActivity<SwitchProxyPresenter> impl
     /**
      * 显示切换IP不同类型的视图
      */
-    private void showIpChangeTypeView(int type){
-        switch (type){
+    private void showIpChangeTypeView(int type) {
+        switch (type) {
             case ConstantsUtils.IpChangeType.RANDOM_SWITCH_SHORT:
                 tvRandomSwitchShort.setSelected(true);
                 tvRandomSwitchLong.setSelected(false);
