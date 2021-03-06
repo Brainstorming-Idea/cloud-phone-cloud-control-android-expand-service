@@ -17,6 +17,7 @@ import rx.functions.Action0;
 public class ExpandServiceListPresenter implements IBasePresenter, IExpandServiceList {
 
     private final ExpandServiceListView mView;
+    private boolean isExpire; //是否到期
 
     public ExpandServiceListPresenter(ExpandServiceListView view) {
         mView = view;
@@ -60,7 +61,7 @@ public class ExpandServiceListPresenter implements IBasePresenter, IExpandServic
     }
 
     @Override
-    public void examineServiceStatus(final int position) {
+    public void examineServiceStatus(final ExpandServiceRecordEntity.DataBean dataBean) {
         //同步后台数据状态，避免上次界面停留后数据未实时刷新，再次购买的服务不可使用的现象
         RetrofitServiceManager.getExtendServiceRecord()
                 .doOnSubscribe(new Action0() {
@@ -84,12 +85,22 @@ public class ExpandServiceListPresenter implements IBasePresenter, IExpandServic
                     public void onNext(ExpandServiceRecordEntity recordEntity) {
                         KLog.e("getExtendServiceRecord onNext " + recordEntity.toString());
                         if (recordEntity != null && recordEntity.getData() != null && recordEntity.getData().size() > 0) {
-                            if(DateUtils.isExpire(recordEntity.getData().get(position).getCurrentTime(), recordEntity.getData().get(position).getDueTimeStr())){
-                                mView.dialog("提示", "该扩展服务已过期", "", "确认");
-                            }else {
-                                mView.jumpPage(recordEntity.getData().get(position));
+                            isExpire = true;
+                            for (int i = 0; i < recordEntity.getData().size(); i++) {
+                                if (dataBean.getTypeId() == recordEntity.getData().get(i).getTypeId()) {
+                                    isExpire = false;
+                                    if (DateUtils.isExpire(recordEntity.getData().get(i).getCurrentTime(), recordEntity.getData().get(i).getDueTimeStr())) {
+                                        mView.dialog("提示", "该扩展服务已过期", "", "确认");
+                                    } else {
+                                        mView.jumpPage(recordEntity.getData().get(i));
+                                    }
+                                }
                             }
-                        }else{
+                            //没有找到对应的扩展服务，显示过期弹框
+                            if (isExpire) {
+                                mView.dialog("提示", "该扩展服务已过期", "", "确认");
+                            }
+                        } else {
                             mView.dialog("提示", "该扩展服务已过期", "", "确认");
                         }
                     }

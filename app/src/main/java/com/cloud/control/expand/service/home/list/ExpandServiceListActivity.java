@@ -7,7 +7,6 @@ import android.view.View;
 
 import com.cloud.control.expand.service.R;
 import com.cloud.control.expand.service.base.BaseActivity;
-import com.cloud.control.expand.service.dialog.CommonHintDialog;
 import com.cloud.control.expand.service.entity.ExpandServiceRecordEntity;
 import com.cloud.control.expand.service.injector.components.DaggerExpandServiceListComponent;
 import com.cloud.control.expand.service.injector.modules.ExpandServiceListModule;
@@ -15,13 +14,12 @@ import com.cloud.control.expand.service.interfaces.MenuCallback;
 import com.cloud.control.expand.service.module.changemachine.ChangeMachineActivity;
 import com.cloud.control.expand.service.module.switchproxy.SwitchProxyActivity;
 import com.cloud.control.expand.service.module.virtuallocation.VirtualLocationActivity;
-import com.cloud.control.expand.service.utils.DateUtils;
+import com.cloud.control.expand.service.utils.ExtendedServicesType;
 import com.cloud.control.expand.service.utils.NoFastClickUtils;
 import com.dl7.recycler.adapter.BaseQuickAdapter;
 import com.dl7.recycler.helper.RecyclerViewHelper;
 import com.dl7.recycler.listener.OnRecyclerViewItemClickListener;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -67,7 +65,7 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
                 if (NoFastClickUtils.isFastClick()) {
                     return;
                 }
-                mPresenter.examineServiceStatus(position);
+                mPresenter.examineServiceStatus(mListEntity.get(position));
             }
         });
     }
@@ -75,7 +73,7 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
     @Override
     protected void onResume() {
         super.onResume();
-        if(mPresenter != null){
+        if (mPresenter != null) {
             mPresenter.getData();
         }
     }
@@ -86,19 +84,15 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
     }
 
     @Override
-    public void refreshData(List<ExpandServiceRecordEntity.DataBean> listEntity) {
-        mListEntity = listEntity;
-    }
-
-    @Override
     public void loadData(List<ExpandServiceRecordEntity.DataBean> listEntity) {
+        mListEntity = listEntity;
         mExpandServiceMainListAdapter.updateItems(listEntity);
-        if(listEntity != null && listEntity.size() > 0){
-            if(mRvExpandServiceList != null) {
+        if (listEntity != null && listEntity.size() > 0) {
+            if (mRvExpandServiceList != null) {
                 mRvExpandServiceList.setVisibility(View.VISIBLE);
             }
-        }else{
-            if(mRvExpandServiceList != null) {
+        } else {
+            if (mRvExpandServiceList != null) {
                 mRvExpandServiceList.setVisibility(View.GONE);
             }
         }
@@ -106,22 +100,22 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
 
     @Override
     public void hideListView() {
-        if(mRvExpandServiceList != null){
+        if (mRvExpandServiceList != null) {
             mRvExpandServiceList.setVisibility(View.GONE);
         }
     }
 
     @Override
     public void jumpPage(ExpandServiceRecordEntity.DataBean dataBean) {
-            if (dataBean.getTypeName().equals("IP代理")) {
-                startActivity(new Intent(mContext, SwitchProxyActivity.class));
-            } else if (dataBean.getTypeName().equals("虚拟定位")) {
-                startActivity(new Intent(mContext, VirtualLocationActivity.class));
-            } else if (dataBean.getTypeName().equals("一键新机")) {
-                startActivity(new Intent(mContext, ChangeMachineActivity.class));
-            }else{
-                toastMessage("暂未开放");
-            }
+        if (dataBean.getTypeId() == ExtendedServicesType.SWITCH_PROXY.getKey()) {
+            startActivity(new Intent(mContext, SwitchProxyActivity.class));
+        } else if (dataBean.getTypeId() == ExtendedServicesType.VIRTUAL_LOCATION.getKey()) {
+            startActivity(new Intent(mContext, VirtualLocationActivity.class));
+        } else if (dataBean.getTypeId() == ExtendedServicesType.CHANGE_MACHINE.getKey()) {
+            startActivity(new Intent(mContext, ChangeMachineActivity.class));
+        } else {
+            toastMessage("暂未开放");
+        }
     }
 
     @Override
@@ -139,16 +133,8 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
 
             @Override
             public void onRightButtonClick(Object value) {
-                if(mListEntity != null && mListEntity.size() > 0){
-                    mExpandServiceMainListAdapter.updateItems(mListEntity);
-                    if(mRvExpandServiceList != null) {
-                        mRvExpandServiceList.setVisibility(View.VISIBLE);
-                    }
-                }else{
-                    if(mRvExpandServiceList != null) {
-                        mRvExpandServiceList.setVisibility(View.GONE);
-                    }
-                    showNoData("还没有可用扩展服务哦~");
+                if(mPresenter != null){
+                    mPresenter.getData();
                 }
             }
         });

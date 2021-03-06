@@ -19,12 +19,6 @@ public interface ExpandServiceListView extends IBaseView {
     void loadData(List<ExpandServiceRecordEntity.DataBean> listEntity);
 
     /**
-     * 刷新数据
-     * @param listEntity
-     */
-    void refreshData(List<ExpandServiceRecordEntity.DataBean> listEntity);
-
-    /**
      * 隐藏列表视图
      */
     void hideListView();
