@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/c_ffffff"
+    android:background="@color/c_f5f6fa"
     android:orientation="vertical"
     tools:context=".module.changemachine.ChangeMachineActivity">
 
@@ -11,6 +11,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_44"
+        android:layout_alignParentTop="true"
         android:background="@color/c_ffffff"
         app:titleTextColor="@color/c_333333">
 
@@ -34,160 +35,101 @@
                 android:textColor="@color/c_333333"
                 android:textSize="@dimen/sp_18" />
 
-            <TextView
-                android:id="@+id/tv_change_machine_start"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="right|center_vertical"
-                android:layout_marginRight="@dimen/dp_15"
-                android:text="启用新机"
-                android:textColor="@color/c_515ff0"
-                android:textSize="@dimen/sp_14" />
-
         </FrameLayout>
     </android.support.v7.widget.Toolbar>
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/toolbar">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <FrameLayout
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/c_f5f6fa">
+                android:layout_marginLeft="@dimen/dp_10"
+                android:layout_marginTop="@dimen/dp_10"
+                android:layout_marginRight="@dimen/dp_10"
+                android:background="@drawable/shape_change_machine_bg"
+                android:orientation="vertical"
+                android:layout_below="@+id/toolbar">
 
-                <TextView
-                    android:id="@+id/tv_change_machine_reset"
+                <RelativeLayout
+                    android:id="@+id/rl_phone_brand"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="@dimen/dp_10"
-                    android:layout_marginBottom="@dimen/dp_10"
-                    android:drawableLeft="@drawable/ic_change_machine_reset"
-                    android:drawablePadding="@dimen/dp_8"
-                    android:text="重置"
-                    android:textColor="@color/c_515ff0"
-                    android:textSize="@dimen/sp_14" />
+                    android:layout_height="wrap_content">
 
-            </FrameLayout>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_marginLeft="@dimen/dp_12"
+                        android:layout_marginTop="@dimen/dp_20"
+                        android:layout_marginBottom="@dimen/dp_20"
+                        android:text="手机品牌"
+                        android:textColor="@color/c_6d6d6d"
+                        android:textSize="@dimen/sp_15" />
 
-            <RelativeLayout
-                android:id="@+id/rl_phone_brand"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/tv_phone_brand"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginTop="@dimen/dp_20"
+                        android:layout_marginRight="@dimen/dp_12"
+                        android:layout_marginBottom="@dimen/dp_20"
+                        android:drawableRight="@drawable/ic_expand_service_right"
+                        android:drawablePadding="@dimen/dp_10"
+                        android:textColor="@color/c_303030"
+                        android:textSize="@dimen/sp_15"
+                        tools:text="OPPO" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_marginLeft="@dimen/dp_15"
-                    android:layout_marginTop="@dimen/dp_20"
-                    android:layout_marginBottom="@dimen/dp_20"
-                    android:text="手机品牌"
-                    android:textColor="@color/c_6d6d6d"
-                    android:textSize="@dimen/sp_15" />
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp_1"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginLeft="@dimen/dp_12"
+                        android:layout_marginRight="@dimen/dp_12"
+                        android:background="@color/c_edeef0" />
 
-                <TextView
-                    android:id="@+id/tv_phone_brand"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginTop="@dimen/dp_20"
-                    android:layout_marginRight="@dimen/dp_15"
-                    android:layout_marginBottom="@dimen/dp_20"
-                    android:drawableRight="@drawable/ic_expand_service_right"
-                    android:drawablePadding="@dimen/dp_10"
-                    android:textColor="@color/c_303030"
-                    android:textSize="@dimen/sp_15"
-                    tools:text="OPPO" />
+                </RelativeLayout>
 
-                <TextView
+                <RelativeLayout
+                    android:id="@+id/rl_phone_model"
                     android:layout_width="match_parent"
-                    android:layout_height="@dimen/dp_1"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginLeft="@dimen/dp_15"
-                    android:layout_marginRight="@dimen/dp_15"
-                    android:background="@color/c_edeef0" />
+                    android:layout_height="wrap_content">
 
-            </RelativeLayout>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentLeft="true"
+                        android:layout_marginLeft="@dimen/dp_12"
+                        android:layout_marginTop="@dimen/dp_20"
+                        android:layout_marginBottom="@dimen/dp_20"
+                        android:text="手机型号"
+                        android:textColor="@color/c_6d6d6d"
+                        android:textSize="@dimen/sp_15" />
 
-            <RelativeLayout
-                android:id="@+id/rl_phone_model"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                    <TextView
+                        android:id="@+id/tv_phone_model"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginTop="@dimen/dp_20"
+                        android:layout_marginRight="@dimen/dp_12"
+                        android:layout_marginBottom="@dimen/dp_20"
+                        android:drawableRight="@drawable/ic_expand_service_right"
+                        android:drawablePadding="@dimen/dp_10"
+                        android:textColor="@color/c_303030"
+                        android:textSize="@dimen/sp_15"
+                        tools:text="OPPO A83" />
+                </RelativeLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_marginLeft="@dimen/dp_15"
-                    android:layout_marginTop="@dimen/dp_20"
-                    android:layout_marginBottom="@dimen/dp_20"
-                    android:text="手机型号"
-                    android:textColor="@color/c_6d6d6d"
-                    android:textSize="@dimen/sp_15" />
-
-                <TextView
-                    android:id="@+id/tv_phone_model"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginTop="@dimen/dp_20"
-                    android:layout_marginRight="@dimen/dp_15"
-                    android:layout_marginBottom="@dimen/dp_20"
-                    android:drawableRight="@drawable/ic_expand_service_right"
-                    android:drawablePadding="@dimen/dp_10"
-                    android:textColor="@color/c_303030"
-                    android:textSize="@dimen/sp_15"
-                    tools:text="OPPO A83" />
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="@dimen/dp_1"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginLeft="@dimen/dp_15"
-                    android:layout_marginRight="@dimen/dp_15"
-                    android:background="@color/c_edeef0" />
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/rl_phone_memory"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_marginLeft="@dimen/dp_15"
-                    android:layout_marginTop="@dimen/dp_20"
-                    android:layout_marginBottom="@dimen/dp_20"
-                    android:text="内存"
-                    android:textColor="@color/c_6d6d6d"
-                    android:textSize="@dimen/sp_15" />
-
-                <TextView
-                    android:id="@+id/tv_phone_memory"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginTop="@dimen/dp_20"
-                    android:layout_marginRight="@dimen/dp_15"
-                    android:layout_marginBottom="@dimen/dp_20"
-                    android:textColor="@color/c_303030"
-                    android:textSize="@dimen/sp_15"
-                    tools:text="4G" />
-            </RelativeLayout>
-
-            <FrameLayout
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_10"
-                android:background="@color/c_f5f6fa" />
+            </LinearLayout>
 
             <!-- 进入界面EditText失去焦点-->
             <LinearLayout
@@ -202,314 +144,286 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_15"
-                android:orientation="horizontal">
+                android:layout_marginLeft="@dimen/dp_10"
+                android:layout_marginTop="@dimen/dp_10"
+                android:layout_marginRight="@dimen/dp_10"
+                android:background="@drawable/shape_change_machine_bg"
+                android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="@dimen/dp_0"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="@dimen/dp_15"
-                    android:layout_weight="1"
-                    android:text="系统版号"
-                    android:textColor="@color/c_6d6d6d"
-                    android:textSize="@dimen/sp_15" />
+                    android:layout_marginTop="@dimen/dp_10"
+                    android:orientation="horizontal">
 
-                <RelativeLayout
-                    android:layout_width="@dimen/dp_0"
-                    android:layout_height="@dimen/dp_40"
-                    android:layout_gravity="right"
-                    android:layout_marginLeft="@dimen/dp_15"
-                    android:layout_marginRight="@dimen/dp_15"
-                    android:layout_weight="3"
-                    android:background="@drawable/shape_input_box_bg">
-
-                    <ImageView
-                        android:id="@+id/iv_system_version_delete"
-                        android:layout_width="wrap_content"
+                    <TextView
+                        android:layout_width="@dimen/dp_0"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginRight="@dimen/dp_11"
-                        android:src="@drawable/ic_edit_text_clear"
-                        android:visibility="gone" />
-
-                    <EditText
-                        android:id="@+id/et_system_version"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="@dimen/dp_10"
-                        android:layout_toLeftOf="@id/iv_system_version_delete"
-                        android:background="@null"
-                        android:hint="请输入系统版本号"
-                        android:textColor="@color/c_333333"
-                        android:digits="0123456789."
-                        android:textColorHint="@color/c_cccccc"
+                        android:layout_alignParentLeft="true"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="@dimen/dp_12"
+                        android:layout_weight="2"
+                        android:text="机器名"
+                        android:textColor="@color/c_6d6d6d"
                         android:textSize="@dimen/sp_15" />
-                </RelativeLayout>
-            </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_15"
-                android:orientation="horizontal">
+                    <RelativeLayout
+                        android:layout_width="@dimen/dp_0"
+                        android:layout_height="@dimen/dp_40"
+                        android:layout_gravity="right"
+                        android:layout_marginLeft="@dimen/dp_15"
+                        android:layout_marginRight="@dimen/dp_10"
+                        android:layout_weight="4"
+                        android:background="@drawable/shape_input_box_bg">
 
-                <TextView
-                    android:layout_width="@dimen/dp_0"
+                        <ImageView
+                            android:id="@+id/iv_device_name_delete"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="@dimen/dp_11"
+                            android:src="@drawable/ic_edit_text_clear"
+                            android:visibility="gone" />
+
+                        <EditText
+                            android:id="@+id/et_device_name"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="@dimen/dp_10"
+                            android:layout_toLeftOf="@id/iv_device_name_delete"
+                            android:background="@null"
+                            android:hint="请输入机器名"
+                            android:textColor="@color/c_333333"
+                            android:textColorHint="@color/c_cccccc"
+                            android:textSize="@dimen/sp_15" />
+                    </RelativeLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="@dimen/dp_15"
-                    android:layout_weight="1"
-                    android:text="IMEI"
-                    android:textColor="@color/c_6d6d6d"
-                    android:textSize="@dimen/sp_15" />
+                    android:layout_marginTop="@dimen/dp_15"
+                    android:orientation="horizontal">
 
-                <RelativeLayout
-                    android:layout_width="@dimen/dp_0"
-                    android:layout_height="@dimen/dp_40"
-                    android:layout_gravity="right"
-                    android:layout_marginLeft="@dimen/dp_15"
-                    android:layout_marginRight="@dimen/dp_15"
-                    android:layout_weight="3"
-                    android:background="@drawable/shape_input_box_bg">
-
-                    <ImageView
-                        android:id="@+id/iv_imei_delete"
-                        android:layout_width="wrap_content"
+                    <TextView
+                        android:layout_width="@dimen/dp_0"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginRight="@dimen/dp_11"
-                        android:src="@drawable/ic_edit_text_clear"
-                        android:visibility="gone" />
-
-                    <EditText
-                        android:id="@+id/et_imei"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="@dimen/dp_10"
-                        android:layout_toLeftOf="@id/iv_imei_delete"
-                        android:background="@null"
-                        android:digits="0123456789"
-                        android:hint="请输入IMEI"
-                        android:textColor="@color/c_333333"
-                        android:textColorHint="@color/c_cccccc"
+                        android:layout_alignParentLeft="true"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="@dimen/dp_12"
+                        android:layout_weight="2"
+                        android:text="机器MAC地址"
+                        android:textColor="@color/c_6d6d6d"
                         android:textSize="@dimen/sp_15" />
-                </RelativeLayout>
-            </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_15"
-                android:orientation="horizontal">
+                    <RelativeLayout
+                        android:layout_width="@dimen/dp_0"
+                        android:layout_height="@dimen/dp_40"
+                        android:layout_gravity="right"
+                        android:layout_marginLeft="@dimen/dp_15"
+                        android:layout_marginRight="@dimen/dp_10"
+                        android:layout_weight="4"
+                        android:background="@drawable/shape_input_box_bg">
 
-                <TextView
-                    android:layout_width="@dimen/dp_0"
+                        <ImageView
+                            android:id="@+id/iv_wifi_mac_delete"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="@dimen/dp_11"
+                            android:src="@drawable/ic_edit_text_clear"
+                            android:visibility="gone" />
+
+                        <EditText
+                            android:id="@+id/et_wifi_mac"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="@dimen/dp_10"
+                            android:layout_toLeftOf="@id/iv_wifi_mac_delete"
+                            android:background="@null"
+                            android:hint="请输入机器MAC地址"
+                            android:textColor="@color/c_333333"
+                            android:textColorHint="@color/c_cccccc"
+                            android:textSize="@dimen/sp_15" />
+                    </RelativeLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="@dimen/dp_15"
-                    android:layout_weight="1"
-                    android:text="SN"
-                    android:textColor="@color/c_6d6d6d"
-                    android:textSize="@dimen/sp_15" />
+                    android:layout_marginTop="@dimen/dp_15"
+                    android:orientation="horizontal">
 
-                <RelativeLayout
-                    android:layout_width="@dimen/dp_0"
-                    android:layout_height="@dimen/dp_40"
-                    android:layout_gravity="right"
-                    android:layout_marginLeft="@dimen/dp_15"
-                    android:layout_marginRight="@dimen/dp_15"
-                    android:layout_weight="3"
-                    android:background="@drawable/shape_input_box_bg">
-
-                    <ImageView
-                        android:id="@+id/iv_sn_delete"
-                        android:layout_width="wrap_content"
+                    <TextView
+                        android:layout_width="@dimen/dp_0"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginRight="@dimen/dp_11"
-                        android:src="@drawable/ic_edit_text_clear"
-                        android:visibility="gone" />
-
-                    <EditText
-                        android:id="@+id/et_sn"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="@dimen/dp_10"
-                        android:layout_toLeftOf="@id/iv_sn_delete"
-                        android:background="@null"
-                        android:hint="请输入SN"
-                        android:textColor="@color/c_333333"
-                        android:textColorHint="@color/c_cccccc"
+                        android:layout_alignParentLeft="true"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="@dimen/dp_12"
+                        android:layout_weight="2"
+                        android:text="蓝牙MAC地址"
+                        android:textColor="@color/c_6d6d6d"
                         android:textSize="@dimen/sp_15" />
-                </RelativeLayout>
-            </LinearLayout>
 
+                    <RelativeLayout
+                        android:layout_width="@dimen/dp_0"
+                        android:layout_height="@dimen/dp_40"
+                        android:layout_gravity="right"
+                        android:layout_marginLeft="@dimen/dp_15"
+                        android:layout_marginRight="@dimen/dp_10"
+                        android:layout_weight="4"
+                        android:background="@drawable/shape_input_box_bg">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_15"
-                android:orientation="horizontal">
+                        <ImageView
+                            android:id="@+id/iv_bluetooth_mac_delete"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="@dimen/dp_11"
+                            android:src="@drawable/ic_edit_text_clear"
+                            android:visibility="gone" />
 
-                <TextView
-                    android:layout_width="@dimen/dp_0"
+                        <EditText
+                            android:id="@+id/et_bluetooth_mac"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="@dimen/dp_10"
+                            android:layout_toLeftOf="@id/iv_bluetooth_mac_delete"
+                            android:background="@null"
+                            android:hint="请输入蓝牙MAC地址"
+                            android:textColor="@color/c_333333"
+                            android:textColorHint="@color/c_cccccc"
+                            android:textSize="@dimen/sp_15" />
+                    </RelativeLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="@dimen/dp_15"
-                    android:layout_weight="1"
-                    android:text="PSN"
-                    android:textColor="@color/c_6d6d6d"
-                    android:textSize="@dimen/sp_15" />
+                    android:layout_marginTop="@dimen/dp_15"
+                    android:orientation="horizontal">
 
-                <RelativeLayout
-                    android:layout_width="@dimen/dp_0"
-                    android:layout_height="@dimen/dp_40"
-                    android:layout_gravity="right"
-                    android:layout_marginLeft="@dimen/dp_15"
-                    android:layout_marginRight="@dimen/dp_15"
-                    android:layout_weight="3"
-                    android:background="@drawable/shape_input_box_bg">
-
-                    <ImageView
-                        android:id="@+id/iv_psn_delete"
-                        android:layout_width="wrap_content"
+                    <TextView
+                        android:layout_width="@dimen/dp_0"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginRight="@dimen/dp_11"
-                        android:src="@drawable/ic_edit_text_clear"
-                        android:visibility="gone" />
-
-                    <EditText
-                        android:id="@+id/et_psn"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="@dimen/dp_10"
-                        android:layout_toLeftOf="@id/iv_psn_delete"
-                        android:background="@null"
-                        android:hint="请输入PSN"
-                        android:textColor="@color/c_333333"
-                        android:textColorHint="@color/c_cccccc"
+                        android:layout_alignParentLeft="true"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="@dimen/dp_12"
+                        android:layout_weight="2"
+                        android:text="IMEI"
+                        android:textColor="@color/c_6d6d6d"
                         android:textSize="@dimen/sp_15" />
-                </RelativeLayout>
-            </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_15"
-                android:orientation="horizontal">
+                    <RelativeLayout
+                        android:layout_width="@dimen/dp_0"
+                        android:layout_height="@dimen/dp_40"
+                        android:layout_gravity="right"
+                        android:layout_marginLeft="@dimen/dp_15"
+                        android:layout_marginRight="@dimen/dp_10"
+                        android:layout_weight="4"
+                        android:background="@drawable/shape_input_box_bg">
 
-                <TextView
-                    android:layout_width="@dimen/dp_0"
+                        <ImageView
+                            android:id="@+id/iv_imei_delete"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="@dimen/dp_11"
+                            android:src="@drawable/ic_edit_text_clear"
+                            android:visibility="gone" />
+
+                        <EditText
+                            android:id="@+id/et_imei"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="@dimen/dp_10"
+                            android:layout_toLeftOf="@id/iv_imei_delete"
+                            android:background="@null"
+                            android:digits="0123456789"
+                            android:hint="请输入IMEI"
+                            android:textColor="@color/c_333333"
+                            android:textColorHint="@color/c_cccccc"
+                            android:textSize="@dimen/sp_15" />
+                    </RelativeLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="@dimen/dp_15"
-                    android:layout_weight="1"
-                    android:text="蓝牙-MAC"
-                    android:textColor="@color/c_6d6d6d"
-                    android:textSize="@dimen/sp_15" />
+                    android:layout_marginTop="@dimen/dp_15"
+                    android:layout_marginBottom="@dimen/dp_27"
+                    android:orientation="horizontal">
 
-                <RelativeLayout
-                    android:layout_width="@dimen/dp_0"
-                    android:layout_height="@dimen/dp_40"
-                    android:layout_gravity="right"
-                    android:layout_marginLeft="@dimen/dp_15"
-                    android:layout_marginRight="@dimen/dp_15"
-                    android:layout_weight="3"
-                    android:background="@drawable/shape_input_box_bg">
-
-                    <ImageView
-                        android:id="@+id/iv_bluetooth_mac_delete"
-                        android:layout_width="wrap_content"
+                    <TextView
+                        android:layout_width="@dimen/dp_0"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginRight="@dimen/dp_11"
-                        android:src="@drawable/ic_edit_text_clear"
-                        android:visibility="gone" />
-
-                    <EditText
-                        android:id="@+id/et_bluetooth_mac"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="@dimen/dp_10"
-                        android:layout_toLeftOf="@id/iv_bluetooth_mac_delete"
-                        android:background="@null"
-                        android:hint="请输入蓝牙-MAC"
-                        android:textColor="@color/c_333333"
-                        android:textColorHint="@color/c_cccccc"
+                        android:layout_alignParentLeft="true"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="@dimen/dp_12"
+                        android:layout_weight="2"
+                        android:text="可用空间"
+                        android:textColor="@color/c_6d6d6d"
                         android:textSize="@dimen/sp_15" />
-                </RelativeLayout>
-            </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/dp_15"
-                android:orientation="horizontal">
+                    <RelativeLayout
+                        android:layout_width="@dimen/dp_0"
+                        android:layout_height="@dimen/dp_40"
+                        android:layout_gravity="right"
+                        android:layout_marginLeft="@dimen/dp_15"
+                        android:layout_marginRight="@dimen/dp_10"
+                        android:layout_weight="4"
+                        android:background="@drawable/shape_input_box_bg">
 
-                <TextView
-                    android:layout_width="@dimen/dp_0"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginLeft="@dimen/dp_15"
-                    android:layout_weight="1"
-                    android:text="WIFI-MAC"
-                    android:textColor="@color/c_6d6d6d"
-                    android:textSize="@dimen/sp_15" />
+                        <EditText
+                            android:id="@+id/et_usable"
+                            android:layout_width="@dimen/dp_105"
+                            android:layout_height="match_parent"
+                            android:layout_alignParentLeft="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="@dimen/dp_12"
+                            android:background="@null"
+                            android:digits="0123456789."
+                            android:hint="请输入可用空间"
+                            android:textColor="@color/c_333333"
+                            android:textColorHint="@color/c_cccccc"
+                            android:textSize="@dimen/sp_15" />
 
-                <RelativeLayout
-                    android:layout_width="@dimen/dp_0"
-                    android:layout_height="@dimen/dp_40"
-                    android:layout_gravity="right"
-                    android:layout_marginLeft="@dimen/dp_15"
-                    android:layout_marginRight="@dimen/dp_15"
-                    android:layout_weight="3"
-                    android:background="@drawable/shape_input_box_bg">
+                        <ImageView
+                            android:id="@+id/iv_usable_delete"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentLeft="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="@dimen/dp_105"
+                            android:src="@drawable/ic_edit_text_clear"
+                            android:visibility="gone" />
 
-                    <ImageView
-                        android:id="@+id/iv_wifi_mac_delete"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:layout_marginRight="@dimen/dp_11"
-                        android:src="@drawable/ic_edit_text_clear"
-                        android:visibility="gone" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="@dimen/dp_12"
+                            android:text="GB"
+                            android:textColor="@color/c_bbbbbb"
+                            android:textSize="@dimen/sp_15" />
+                    </RelativeLayout>
+                </LinearLayout>
 
-                    <EditText
-                        android:id="@+id/et_wifi_mac"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="@dimen/dp_10"
-                        android:layout_toLeftOf="@id/iv_wifi_mac_delete"
-                        android:background="@null"
-                        android:hint="请输入WIFI-MAC"
-                        android:textColor="@color/c_333333"
-                        android:textColorHint="@color/c_cccccc"
-                        android:textSize="@dimen/sp_15" />
-                </RelativeLayout>
             </LinearLayout>
 
         </LinearLayout>
 
     </ScrollView>
 
-</LinearLayout>
+    <include layout="@layout/layout_change_machine_bottom" />
+
+</RelativeLayout>

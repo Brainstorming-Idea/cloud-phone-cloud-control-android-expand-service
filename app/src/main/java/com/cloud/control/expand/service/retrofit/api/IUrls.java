@@ -1,6 +1,5 @@
 package com.cloud.control.expand.service.retrofit.api;
 
-import com.cloud.control.expand.service.entity.ChangeMachineStatusEntity;
 import com.cloud.control.expand.service.entity.CityListEntity;
 import com.cloud.control.expand.service.entity.CloseProxyEntity;
 import com.cloud.control.expand.service.entity.ExpandServiceListEntity;
@@ -67,9 +66,9 @@ public interface IUrls {
     @GET("api/wsi/v1/cardChangeIp/getIPBySnAndroid")
     Observable<CloseProxyEntity> getCardIp(@Query("sn") String sn);
 
-    //获取手机的型号
-    @GET("api/user/v1/modelSn/getBySnsAndroid")
-    Observable<ChangeMachineStatusEntity> getPhoneModel(@Query("sns") String sn);
+//    //获取手机的型号
+//    @GET("api/user/v1/modelSn/getBySnsAndroid")
+//    Observable<ChangeMachineStatusEntity> getPhoneModel(@Query("sns") String sn);
 
     //获取手机品牌和手机类型
     @GET("api/user/v1/brand/brandList")
@@ -77,7 +76,7 @@ public interface IUrls {
 
     //获取手机的配置参数
     @GET("api/wsi/v1/instruct/getModifyInfoAndroid")
-    Observable<PhoneModelInfoEntity> getPhoneModifyInfo(@Query("sns") String sn, @Query("mobileTypes") String mobileType);
+    Observable<PhoneModelInfoEntity> getPhoneModifyInfo(@Query("sns") String sn, @Query("mobileTypeList") String mobileTypeList);
 
     //修改手机的配置参数
     @POST("api/wsi/v1/instruct/modifyCardAndroid")

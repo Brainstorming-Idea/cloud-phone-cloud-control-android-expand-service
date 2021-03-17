@@ -25,7 +25,8 @@
         <activity
             android:name=".module.changemachine.ChangeMachineActivity"
             android:configChanges="orientation|screenSize|screenLayout"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan"/>
         <activity
             android:name=".module.switchproxy.SwitchProxyActivity"
             android:configChanges="orientation|screenSize|screenLayout"

@@ -60,8 +60,6 @@ public class RegexUtils {
         Pattern mPattern = Pattern.compile("([A-Fa-f0-9]{2}:){5}[A-Fa-f0-9]{2}");
         Matcher matcher = mPattern.matcher(source);
         KLog.e("checkMacFormat " + matcher.matches());
-        KLog.e("checkMacFormat " + matcher.matches());
-        KLog.e("checkMacFormat " + matcher.matches());
         return matcher.matches();
     }
 

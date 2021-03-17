@@ -21,75 +21,37 @@ public class UpdatePhoneConfigEntity {
 
     public static class MobileVosBean {
         /**
-         * android_version : 8.1.0
-         * bluetooth_mac : e6:20:4a:e4:50:53
-         * device_imei : 862548419424575
-         * memory : 6
-         * mobileType : 小米8
-         * product_serial_no : HNI303YBGB3MC6UJ
-         * sn : RK3930C2301900163
-         * sys_serial_no : 0K9L9ZS8RKEUD2TT
+         * mobileId : 25
+         * sn : RK3930C2301900152
          * typeId : 3
-         * wifi_mac : 53:03:5f:f9:36:45
+         * id : 17
+         * brandId : 1
+         * brandName : vivo
+         * deviceName : V1829A
+         * deviceMac : 65:03:41:5a:c4:6c
+         * deviceBtMac : 31:f7:71:e8:e2:84
+         * deviceImei : 862548412417972
+         * deviceRomUsableSize : 38201458688
          */
 
-        private String android_version;
-        private String bluetooth_mac;
-        private String device_imei;
-        private String memory;
-        private String mobileType;
-        private String product_serial_no;
+        private int mobileId;
         private String sn;
-        private String sys_serial_no;
         private int typeId;
-        private String wifi_mac;
+        private int id;
+        private int brandId;
+        private String brandName;
+        private String deviceName;
+        private String deviceMac;
+        private String deviceBtMac;
+        private String deviceImei;
+        private String deviceRomUsableSize;
 
-        public String getAndroid_version() {
-            return android_version;
+        public int getMobileId() {
+            return mobileId;
         }
 
-        public void setAndroid_version(String android_version) {
-            this.android_version = android_version;
-        }
-
-        public String getBluetooth_mac() {
-            return bluetooth_mac;
-        }
-
-        public void setBluetooth_mac(String bluetooth_mac) {
-            this.bluetooth_mac = bluetooth_mac;
-        }
-
-        public String getDevice_imei() {
-            return device_imei;
-        }
-
-        public void setDevice_imei(String device_imei) {
-            this.device_imei = device_imei;
-        }
-
-        public String getMemory() {
-            return memory;
-        }
-
-        public void setMemory(String memory) {
-            this.memory = memory;
-        }
-
-        public String getMobileType() {
-            return mobileType;
-        }
-
-        public void setMobileType(String mobileType) {
-            this.mobileType = mobileType;
-        }
-
-        public String getProduct_serial_no() {
-            return product_serial_no;
-        }
-
-        public void setProduct_serial_no(String product_serial_no) {
-            this.product_serial_no = product_serial_no;
+        public void setMobileId(int mobileId) {
+            this.mobileId = mobileId;
         }
 
         public String getSn() {
@@ -100,14 +62,6 @@ public class UpdatePhoneConfigEntity {
             this.sn = sn;
         }
 
-        public String getSys_serial_no() {
-            return sys_serial_no;
-        }
-
-        public void setSys_serial_no(String sys_serial_no) {
-            this.sys_serial_no = sys_serial_no;
-        }
-
         public int getTypeId() {
             return typeId;
         }
@@ -116,27 +70,84 @@ public class UpdatePhoneConfigEntity {
             this.typeId = typeId;
         }
 
-        public String getWifi_mac() {
-            return wifi_mac;
+        public int getId() {
+            return id;
         }
 
-        public void setWifi_mac(String wifi_mac) {
-            this.wifi_mac = wifi_mac;
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public int getBrandId() {
+            return brandId;
+        }
+
+        public void setBrandId(int brandId) {
+            this.brandId = brandId;
+        }
+
+        public String getBrandName() {
+            return brandName;
+        }
+
+        public void setBrandName(String brandName) {
+            this.brandName = brandName;
+        }
+
+        public String getDeviceName() {
+            return deviceName;
+        }
+
+        public void setDeviceName(String deviceName) {
+            this.deviceName = deviceName;
+        }
+
+        public String getDeviceMac() {
+            return deviceMac;
+        }
+
+        public void setDeviceMac(String deviceMac) {
+            this.deviceMac = deviceMac;
+        }
+
+        public String getDeviceBtMac() {
+            return deviceBtMac;
+        }
+
+        public void setDeviceBtMac(String deviceBtMac) {
+            this.deviceBtMac = deviceBtMac;
+        }
+
+        public String getDeviceImei() {
+            return deviceImei;
+        }
+
+        public void setDeviceImei(String deviceImei) {
+            this.deviceImei = deviceImei;
+        }
+
+        public String getDeviceRomUsableSize() {
+            return deviceRomUsableSize;
+        }
+
+        public void setDeviceRomUsableSize(String deviceRomUsableSize) {
+            this.deviceRomUsableSize = deviceRomUsableSize;
         }
 
         @Override
         public String toString() {
             return "MobileVosBean{" +
-                    "android_version='" + android_version + '\'' +
-                    ", bluetooth_mac='" + bluetooth_mac + '\'' +
-                    ", device_imei='" + device_imei + '\'' +
-                    ", memory='" + memory + '\'' +
-                    ", mobileType='" + mobileType + '\'' +
-                    ", product_serial_no='" + product_serial_no + '\'' +
+                    "mobileId=" + mobileId +
                     ", sn='" + sn + '\'' +
-                    ", sys_serial_no='" + sys_serial_no + '\'' +
                     ", typeId=" + typeId +
-                    ", wifi_mac='" + wifi_mac + '\'' +
+                    ", id=" + id +
+                    ", brandId=" + brandId +
+                    ", brandName='" + brandName + '\'' +
+                    ", deviceName='" + deviceName + '\'' +
+                    ", deviceMac='" + deviceMac + '\'' +
+                    ", deviceBtMac='" + deviceBtMac + '\'' +
+                    ", deviceImei='" + deviceImei + '\'' +
+                    ", deviceRomUsableSize='" + deviceRomUsableSize + '\'' +
                     '}';
         }
     }

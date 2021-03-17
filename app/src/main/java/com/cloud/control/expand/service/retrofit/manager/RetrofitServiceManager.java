@@ -2,12 +2,10 @@ package com.cloud.control.expand.service.retrofit.manager;
 
 import android.support.annotation.NonNull;
 
-import com.cloud.control.expand.service.entity.ChangeMachineStatusEntity;
 import com.cloud.control.expand.service.entity.CityListEntity;
 import com.cloud.control.expand.service.entity.CloseProxyEntity;
 import com.cloud.control.expand.service.entity.ExpandServiceListEntity;
 import com.cloud.control.expand.service.entity.ExpandServiceRecordEntity;
-import com.cloud.control.expand.service.entity.ModelInfoEntity;
 import com.cloud.control.expand.service.entity.PhoneBrandModelEntity;
 import com.cloud.control.expand.service.entity.PhoneModelInfoEntity;
 import com.cloud.control.expand.service.entity.ResponseEntity;
@@ -312,18 +310,18 @@ public class RetrofitServiceManager {
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    /**
-     * 获取对应的手机型号
-     *
-     * @return
-     */
-    public static Observable<ChangeMachineStatusEntity> getPhoneModel() {
-        return mRetrofitService.getPhoneModel(ExpandServiceApplication.getInstance().getCardSn())
-                .subscribeOn(Schedulers.io())
-                .unsubscribeOn(Schedulers.io())
-                .subscribeOn(AndroidSchedulers.mainThread())
-                .observeOn(AndroidSchedulers.mainThread());
-    }
+//    /**
+//     * 获取对应的手机型号
+//     *
+//     * @return
+//     */
+//    public static Observable<ChangeMachineStatusEntity> getPhoneModel() {
+//        return mRetrofitService.getPhoneModel(ExpandServiceApplication.getInstance().getCardSn())
+//                .subscribeOn(Schedulers.io())
+//                .unsubscribeOn(Schedulers.io())
+//                .subscribeOn(AndroidSchedulers.mainThread())
+//                .observeOn(AndroidSchedulers.mainThread());
+//    }
 
     /**
      * 获取手机品牌和手机类型
@@ -341,12 +339,11 @@ public class RetrofitServiceManager {
     /**
      * 获取手机的配置参数
      *
-     * @param selectModelInfoEntity
+     * @param mobileTypeList
      * @return
      */
-    public static Observable<PhoneModelInfoEntity> getPhoneModifyInfo(ModelInfoEntity selectModelInfoEntity) {
-        String mobileType = selectModelInfoEntity.getModel();
-        return mRetrofitService.getPhoneModifyInfo(ExpandServiceApplication.getInstance().getCardSn(), mobileType)
+    public static Observable<PhoneModelInfoEntity> getPhoneModifyInfo(String mobileTypeList) {
+        return mRetrofitService.getPhoneModifyInfo(ExpandServiceApplication.getInstance().getCardSn(), mobileTypeList)
                 .subscribeOn(Schedulers.io())
                 .unsubscribeOn(Schedulers.io())
                 .subscribeOn(AndroidSchedulers.mainThread())

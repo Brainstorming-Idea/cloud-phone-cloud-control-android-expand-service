@@ -23,5 +23,5 @@ public interface IChangeMachine {
     /**
      * 刷新选中机型数据
      */
-    void refreshSelectModelData(String brand, String model);
+    void refreshSelectModelData(String mobileTypeList);
 }
