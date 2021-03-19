@@ -1,7 +1,9 @@
 package com.cloud.control.expand.service.retrofit.manager;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
+import com.cloud.control.expand.service.entity.BaseResponse;
 import com.cloud.control.expand.service.entity.ChangeMachineStatusEntity;
 import com.cloud.control.expand.service.entity.CityListEntity;
 import com.cloud.control.expand.service.entity.CloseProxyEntity;
@@ -16,11 +18,16 @@ import com.cloud.control.expand.service.entity.TimeInfoEntity;
 import com.cloud.control.expand.service.entity.UpdatePhoneConfigEntity;
 import com.cloud.control.expand.service.entity.VirtualLocationEntity;
 import com.cloud.control.expand.service.entity.VirtualLocationInfoEntity;
+import com.cloud.control.expand.service.entity.baidumap.AddressParse;
+import com.cloud.control.expand.service.entity.baidumap.MyIp;
+import com.cloud.control.expand.service.entity.baidumap.RoutePlan;
 import com.cloud.control.expand.service.home.ExpandServiceApplication;
 import com.cloud.control.expand.service.log.KLog;
 import com.cloud.control.expand.service.retrofit.api.IUrls;
+import com.cloud.control.expand.service.utils.ConstantsUtils;
 import com.cloud.control.expand.service.utils.NetUtil;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -37,6 +44,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.logging.HttpLoggingInterceptor;
 import okio.Buffer;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
@@ -54,6 +62,7 @@ import rx.schedulers.Schedulers;
 public class RetrofitServiceManager {
 
     private static IUrls mRetrofitService;
+    private static final String LOG_TAG = "okhttp";
 
     private RetrofitServiceManager() {
         throw new AssertionError();
@@ -71,7 +80,9 @@ public class RetrofitServiceManager {
 
         OkHttpClient okHttpClient = new OkHttpClient.Builder()/*.cache(cache)*/
                 .retryOnConnectionFailure(false)
-                .addInterceptor(sLoggingInterceptor)
+//                .addInterceptor(sLoggingInterceptor)
+                .addInterceptor(loggingInterceptor())
+                .addInterceptor(headerInterceptor())
 //                .addInterceptor(sRewriteCacheControlInterceptor)
 //                .addNetworkInterceptor(sRewriteCacheControlInterceptor)
                 .connectTimeout(10, TimeUnit.SECONDS)
@@ -145,6 +156,31 @@ public class RetrofitServiceManager {
             return response;
         }
     };
+
+    /**
+     * 日志拦截器
+     */
+    private static final HttpLoggingInterceptor loggingInterceptor() {
+        return new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
+            @Override
+            public void log(String message) {
+                Log.d(LOG_TAG, message);
+            }
+        }).setLevel(HttpLoggingInterceptor.Level.BODY);//日志打印级别
+    }
+
+    private static Interceptor headerInterceptor(){
+        return  new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                Request request = chain.request()
+                        .newBuilder()
+                        .addHeader("Connection","close")
+                        .build();
+                return chain.proceed(request);
+            }
+        };
+    }
 
     @NonNull
     private static String _parseParams(RequestBody body, Buffer requestBuffer) throws UnsupportedEncodingException {
@@ -379,6 +415,62 @@ public class RetrofitServiceManager {
                 .subscribeOn(Schedulers.io())
                 .unsubscribeOn(Schedulers.io())
                 .subscribeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    /**/
+    public static Observable<AddressParse> getTarLocation(String address, String city) {
+        Map<String, Object> options = new HashMap<>(10);
+        options.put("address", address);
+        options.put("city", city);
+        options.put("ak", ConstantsUtils.BaiDuMap.AK);
+//        options.put("ret_coordtype", ConstantsUtils.BaiDuMap.BD_COORD_TYPE);
+        options.put("output", "json");
+        return mRetrofitService
+                .parseAddress(options)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    /**
+     * 芝麻代理获取手机IP的接口
+     * {"ip":"119.139.198.238","country":"中国","area":"0","province":"广东省","city":"深圳市","isp":"电信","timestamp":1615189282}
+     */
+    public static Observable<MyIp> getMyIp() {
+        return mRetrofitService.getMyIp()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    public static Observable<RoutePlan> getDrivePlan(String origin, String destination){
+        Map<String,Object> map = new HashMap<>(10);
+        map.put("ak",ConstantsUtils.BaiDuMap.AK);
+        map.put("origin", origin);
+        map.put("destination", destination);
+        map.put("tactics", 0);//0：常规路线,1：不走高速2：躲避拥堵3：距离较短
+        return mRetrofitService.getDriveRoute(map)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    public static Observable<RoutePlan> getWalkPlan(String origin, String destination){
+        Map<String,Object> map = new HashMap<>(10);
+        map.put("ak",ConstantsUtils.BaiDuMap.AK);
+        map.put("origin", origin);
+        map.put("destination", destination);
+        return mRetrofitService.getWalkRoute(map)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    public static Observable<BaseResponse<Object>> setVSStatus(int typeId, String sn, int isOpen){
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("serviceTypeId", typeId);
+        jsonObject.addProperty("sn", sn);
+        jsonObject.addProperty("isOpen",isOpen);
+        RequestBody requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"),new Gson().toJson(jsonObject));
+        return mRetrofitService.setVSStatus(requestBody)
+                .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
 

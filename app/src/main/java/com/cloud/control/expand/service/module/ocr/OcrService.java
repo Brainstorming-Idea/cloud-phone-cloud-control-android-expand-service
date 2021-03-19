@@ -174,6 +174,10 @@ public class OcrService extends Service {
      * 检查扩展服务是否到期
      */
     public void checkDeadline(){
+        if (onResultListener == null) {
+            Log.e(TAG, "onResultListener is null");
+            return;
+        }
         RetrofitServiceManager.getExtendServiceRecord()
                 .subscribe(new Subscriber<ExpandServiceRecordEntity>() {
                     @Override
@@ -183,7 +187,13 @@ public class OcrService extends Service {
 
                     @Override
                     public void onError(Throwable e) {
-                        KLog.e("getExtendServiceRecord onError");
+                        KLog.e("getExtendServiceRecord onError:"+e.getMessage());
+                        isDeadline = true;
+                        try {
+                            onResultListener.onFailed("服务器异常："+e.getMessage());
+                        } catch (RemoteException re) {
+                            re.printStackTrace();
+                        }
                     }
 
                     @Override
@@ -196,7 +206,7 @@ public class OcrService extends Service {
                                         isDeadline = true;
                                         Log.e(TAG, "服务已过期");
                                         try {
-                                            onResultListener.onFailed(ExpandServiceApplication.getContext().getString(R.string.expand_service_deadline));
+                                            onResultListener.onFailed(ExpandServiceApplication.getInstance().getString(R.string.expand_service_deadline));
                                         } catch (RemoteException e) {
                                             e.printStackTrace();
                                         }
@@ -221,7 +231,7 @@ public class OcrService extends Service {
                         }else{
                             isDeadline = true;
                             try {
-                                onResultListener.onFailed(ExpandServiceApplication.getContext().getString(R.string.expand_service_deadline));
+                                onResultListener.onFailed(ExpandServiceApplication.getInstance().getString(R.string.expand_service_deadline));
                             } catch (RemoteException e) {
                                 e.printStackTrace();
                             }

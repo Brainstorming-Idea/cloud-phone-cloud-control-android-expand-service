@@ -22,4 +22,19 @@ public class ConstantsUtils {
         String INPUT_STD_DEFAULT = "0.229,0.224,0.225";
         String SCORE_THRESHOLD_DEFAULT = "0.1";
     }
+
+    public interface BaiDuMap{
+        String AK = "KHEvgbAbtRI4l3pT49Nx6GmCm7mwnoO2";
+        String GC_COORD_TYPE = "gcj02ll";//国测局坐标
+        String BD_MC_COORD_TYPE = "bd09mc";//百度墨卡托坐标
+        String BD_COORD_TYPE = "bd09ll";//百度坐标系
+        float UNIT_LAT = 30.9f;//一秒纬度对应的距离，米
+        int ONE_DEGREE_LAT = 111240;//米
+        int RATE = 3;//设置坐标的频率，秒
+        int RE_TRY_MAX = 10;//重试最大次数
+
+    }
+    public interface SpKey{
+        String SP_VS_CONFIG = "vs_config";//虚拟场景的配置数据
+    }
 }

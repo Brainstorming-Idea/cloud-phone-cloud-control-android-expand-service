@@ -2,4 +2,25 @@
     <string name="app_name">ExpandService</string>
     <string name="expand_service_deadline">this expandService is deadline</string>
     <string name="ocr_desc">script develop</string>
+    <string name="virtual_scene">virtual scene</string>
+    <string name="vs_center">virtual center location</string>
+    <string name="vs_center_tip">注：以该位置为虚拟中心位置</string>
+    <string name="vs_move_radius">move radius</string>
+    <string name="vs_unit">KM</string>
+    <string name="vs_input_radius">请输入移动半径（%S）</string>
+    <string name="vs_sit">sit</string>
+    <string name="vs_walk">walk</string>
+    <string name="vs_run">run</string>
+    <string name="vs_drive">drive</string>
+    <string name="vs_choose_center">choose center location</string>
+    <string name="vs_confirm">confirm</string>
+    <string name="vs_start">start</string>
+    <string name="vs_stop">stop</string>
+    <string name="vs_input_right_radius">请输入正确的移动半径</string>
+    <string name="vs_start_scene">启动模拟%s</string>
+    <string name="vs_stop_scene">停止模拟%s</string>
+    <string name="vs_start_confirm_scene">确认启动虚拟%s吗？启动后会改变定位信息</string>
+    <string name="vs_stop_confirm_scene">确认停止虚拟%s吗？</string>
+    <string name="vs_start_failed">启动失败，请稍后再试</string>
+    <string name="vs_stop_failed">停止失败，请稍后再试</string>
 </resources>

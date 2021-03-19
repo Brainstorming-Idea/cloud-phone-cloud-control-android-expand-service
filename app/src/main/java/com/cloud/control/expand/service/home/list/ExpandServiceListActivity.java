@@ -16,6 +16,7 @@ import com.cloud.control.expand.service.interfaces.MenuCallback;
 import com.cloud.control.expand.service.module.changemachine.ChangeMachineActivity;
 import com.cloud.control.expand.service.module.switchproxy.SwitchProxyActivity;
 import com.cloud.control.expand.service.module.virtuallocation.VirtualLocationActivity;
+import com.cloud.control.expand.service.module.virtualscene.VirtualSceneActivity;
 import com.cloud.control.expand.service.utils.DateUtils;
 import com.cloud.control.expand.service.utils.NoFastClickUtils;
 import com.dl7.recycler.adapter.BaseQuickAdapter;
@@ -126,7 +127,7 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
                 startActivity(new Intent(mContext, ChangeMachineActivity.class));
                 break;
             case VIRTUAL_SCENE:
-                //TODO
+                startActivity(new Intent(mContext, VirtualSceneActivity.class));
                 break;
             case OCR:
                 toastMessage(getString(R.string.ocr_desc));
