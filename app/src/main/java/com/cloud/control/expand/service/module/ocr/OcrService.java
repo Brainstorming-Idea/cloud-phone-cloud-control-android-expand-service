@@ -200,16 +200,13 @@ public class OcrService extends Service {
                     public void onNext(ExpandServiceRecordEntity recordEntity) {
                         KLog.d("getExtendServiceRecord onNext " + recordEntity.toString());
                         if (recordEntity.getData() != null && recordEntity.getData().size() > 0) {
+                            List<Integer> typeIds = new ArrayList<>();
                             for (ExpandServiceRecordEntity.DataBean dataBean : recordEntity.getData()){
+                                typeIds.add(dataBean.getTypeId());
                                 if (dataBean.getTypeId() == ExpandService.OCR.getTypeId()){
                                     if(DateUtils.isExpire(dataBean.getCurrentTime(), dataBean.getDueTimeStr())){
-                                        isDeadline = true;
                                         Log.e(TAG, "服务已过期");
-                                        try {
-                                            onResultListener.onFailed(ExpandServiceApplication.getInstance().getString(R.string.expand_service_deadline));
-                                        } catch (RemoteException e) {
-                                            e.printStackTrace();
-                                        }
+                                        deadLine();
                                     }else {
                                         Log.d(TAG, "服务有效");
                                         isDeadline = false;
@@ -228,16 +225,23 @@ public class OcrService extends Service {
                                     break;
                                 }
                             }
-                        }else{
-                            isDeadline = true;
-                            try {
-                                onResultListener.onFailed(ExpandServiceApplication.getInstance().getString(R.string.expand_service_deadline));
-                            } catch (RemoteException e) {
-                                e.printStackTrace();
+                            if (!typeIds.contains(ExpandService.OCR.getTypeId())){
+                                deadLine();
                             }
+                        }else{
+                            deadLine();
                         }
                     }
                 });
+    }
+
+    public void deadLine(){
+        isDeadline = true;
+        try {
+            onResultListener.onFailed(ExpandServiceApplication.getInstance().getString(R.string.expand_service_deadline));
+        } catch (RemoteException e) {
+            e.printStackTrace();
+        }
     }
 
     /**

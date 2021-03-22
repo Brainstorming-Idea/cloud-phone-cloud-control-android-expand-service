@@ -167,12 +167,8 @@ public class MainActivity extends AppCompatActivity {
 //                    " Thread Num: " + Integer.toString(cpuThreadNum) + "\n" + "CPU Power Mode: " + cpuPowerMode);
 //            tvInputSetting.scrollTo(0, 0);
             // Reload model if configure has been changed
-            if (pbRunModel != null && !pbRunModel.isShowing()) {
-                //配置改变后调用远端接口设置一下
-                pbRunModel = ProgressDialog.show(MainActivity.this, "", "正在识别...", false, false);
-            }
-            sendSettingParams();
         }
+        sendSettingParams();
     }
 
     private void recognitionPic(String imagePath) {
@@ -339,6 +335,10 @@ public class MainActivity extends AppCompatActivity {
     private void sendSettingParams() {
         if (isBind) {
             isInit = false;
+            if (pbRunModel != null && !pbRunModel.isShowing()) {
+                //配置改变后调用远端接口设置一下
+                pbRunModel = ProgressDialog.show(MainActivity.this, "", "正在识别...", false, false);
+            }
             try {
                 iocrService.advancedSetup(scoreThreshold, cpuThreadNum, cpuPowerMode);
             } catch (RemoteException e) {
