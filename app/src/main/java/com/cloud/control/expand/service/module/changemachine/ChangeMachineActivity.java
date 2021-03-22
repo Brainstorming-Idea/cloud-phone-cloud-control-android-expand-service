@@ -578,7 +578,7 @@ public class ChangeMachineActivity extends BaseActivity<ChangeMachinePresenter> 
         mobileVosBean.setDeviceImei(etImei.getText().toString());
         mobileVosBean.setDeviceBtMac(etBluetoothMac.getText().toString());
         mobileVosBean.setDeviceMac(etWifiMac.getText().toString());
-        mobileVosBean.setDeviceRomUsableSize(String.valueOf(Float.parseFloat(etUsable.getText().toString()) * (1024 * 1024 * 1024)));
+        mobileVosBean.setDeviceRomUsableSize(BigDecimalUtil.doubleConvertLong(BigDecimalUtil.mul(Double.parseDouble(etUsable.getText().toString()), 1024 * 1024 * 1024L)) + "");
         mobileVosBeanList.add(mobileVosBean);
         configEntity.setMobileVos(mobileVosBeanList);
         mPresenter.startChangeMachine(configEntity);

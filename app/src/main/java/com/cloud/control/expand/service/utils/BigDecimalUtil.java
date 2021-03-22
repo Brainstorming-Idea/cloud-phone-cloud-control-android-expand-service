@@ -110,4 +110,15 @@ public class BigDecimalUtil {
         return bd.setScale(1, BigDecimal.ROUND_HALF_UP);
     }
 
+    /**
+     * double转换long
+     * @param v
+     * @return
+     */
+    public static long doubleConvertLong(double v){
+        double d = Math.round(v * 1L);
+        long l = new Double(d).longValue();
+        return l;
+    }
+
 }
