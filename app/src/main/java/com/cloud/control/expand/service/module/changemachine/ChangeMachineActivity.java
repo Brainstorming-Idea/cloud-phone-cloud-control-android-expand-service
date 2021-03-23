@@ -558,6 +558,10 @@ public class ChangeMachineActivity extends BaseActivity<ChangeMachinePresenter> 
             toastMessage("可用空间不能大于总空间" + romTotalSize + "GB");
             return false;
         }
+        if (BigDecimalUtil.decimalFormat(Float.parseFloat(etUsable.getText().toString())).compareTo(new BigDecimal(1)) < 0) {
+            toastMessage("可用空间不能小于1GB");
+            return false;
+        }
         return true;
     }
 
