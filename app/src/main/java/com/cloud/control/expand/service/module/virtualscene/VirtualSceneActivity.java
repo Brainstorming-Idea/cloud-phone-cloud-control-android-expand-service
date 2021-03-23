@@ -85,10 +85,11 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
     private VirtualSceneService.MyBinder binder;
     private boolean isBind = false;
     private int radius = 0;//输入的半径单位KM
-    private double[] cCoord;
+    private double[] cCoord;//中心点坐标
+    private String cLocation;//中心点位置
     private GridAdapter gridAdapter = null;
     private Intent vsIntent;
-
+    private SharePreferenceHelper spHelper;
     @Override
     protected int attachLayoutRes() {
         return R.layout.activity_virtual_scene;
@@ -105,6 +106,7 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
     @Override
     protected void initViews() {
         initToolBar(toolbar, false, getString(R.string.virtual_scene));
+        spHelper = SharePreferenceHelper.getInstance(ExpandServiceApplication.getInstance());
         vsIntent = new Intent(this, VirtualSceneService.class);
 //        if (isServiceRunning(ExpandServiceApplication.getInstance(), VirtualSceneService.class.getCanonicalName())) {
             bindService(vsIntent, vServiceConnection, Service.BIND_AUTO_CREATE);
@@ -210,6 +212,17 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
                     LocationInfoEntity infoEntity = data.getParcelableExtra("detail_address");
                     String detailAdd = infoEntity.getDetail();
                     location.setText(detailAdd);
+                    /*存储坐标及位置描述*/
+                    SharePreferenceHelper helper = SharePreferenceHelper.getInstance(ExpandServiceApplication.getInstance());
+                    VsConfig vsConfig = helper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG,VsConfig.class);
+                    if (vsConfig == null) {
+                        vsConfig = new VsConfig();
+                    }
+                    vsConfig.setCity(detailAdd);
+                    double[] newCenter = new double[]{Double.parseDouble(infoEntity.getLatitude()),Double.parseDouble(infoEntity.getLongitude())};
+                    vsConfig.setCenterCoords(newCenter);
+                    cCoord = newCenter;//更新中心点坐标
+                    helper.putObject(ConstantsUtils.SpKey.SP_VS_CONFIG, vsConfig);
                 }
                 break;
             default:
@@ -227,6 +240,7 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
             VsConfig vsConfig = helper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG, VsConfig.class);
             if (vsConfig != null) {
                 isStart = vsConfig.isStart();
+                location.setText(vsConfig.getCity());//显示存储的位置信息
                 SceneType sceneType = SceneType.getVirtualScene(vsConfig.getSceneType());
                 if (gridAdapter != null && isStart) {
                     /*确认下路线规划是否在运行，防止出现在虚拟场景运行时重启安卓卡，界面显示在运行而实际没有运行*/
@@ -238,7 +252,6 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
 //                    startVsService(vsConfig);
                     } else {
                         gridAdapter.setSelectedPos(vsConfig.getSceneType());
-                        location.setText(vsConfig.getCity());
                         assert sceneType != null;
                         if (!sceneType.equals(SceneType.SIT)) {
                             radiusContainer.setVisibility(View.VISIBLE);
@@ -248,6 +261,8 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
                         }
                     }
                 }
+            }else {
+                location.setText(cLocation);
             }
         } else {
             isStart = false;
@@ -270,7 +285,7 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
 
     @Override
     public void loadCenterLocDes(String loc) {
-        location.setText(loc);
+        this.cLocation = loc;
     }
 
     @Override
@@ -292,7 +307,7 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
                 vsConfig.setCenterCoords(cCoord);
                 vsConfig.setRadius(radius * 1000);
                 vsConfig.setSceneType(sceneIndex);
-                vsConfig.setCity(mPresenter.getCurrCity());
+                vsConfig.setCity(location.getText().toString());
                 vsConfig.setStart(true);
                 spHelper.putObject(ConstantsUtils.SpKey.SP_VS_CONFIG, vsConfig);
                 startVsService(vsConfig);
