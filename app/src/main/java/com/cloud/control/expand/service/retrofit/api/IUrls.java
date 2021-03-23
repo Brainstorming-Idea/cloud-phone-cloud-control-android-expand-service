@@ -137,4 +137,12 @@ public interface IUrls {
      */
     @POST("api/user/v2.0/extendServiceRecord/updateExtendServiceOpenStatus")
     Observable<BaseResponse<Object>> setVSStatus(@Body RequestBody requestBody);
+
+    /**
+     * 获取虚拟场景的开启状态
+     * @param sn
+     * @return
+     */
+    @GET("api/user/v2.0/extendServiceRecord/getVirtualActionOpenStatusAndroid")
+    Observable<BaseResponse<Integer>> getVsStatus(@Query("sn") String sn);
 }

@@ -32,7 +32,8 @@
                 android:layout_marginEnd="@dimen/dp_15"
                 android:text="@string/vs_choose_center"
                 android:textColor="@color/c_333333"
-                android:textSize="@dimen/sp_18" />
+                android:textSize="@dimen/sp_18"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/tv_cc_confirm"
@@ -46,9 +47,32 @@
 
         </FrameLayout>
     </android.support.v7.widget.Toolbar>
-
-    <WebView
-        android:id="@+id/wb_choose_center"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+        <WebView
+            android:id="@+id/wb_choose_center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_35"
+            android:layout_gravity="bottom"
+            android:layout_marginStart="@dimen/dp_10"
+            android:layout_marginEnd="@dimen/dp_10"
+            android:layout_marginBottom="@dimen/dp_20"
+            android:background="@drawable/white_corner_10_bg"
+            android:drawableStart="@drawable/yellow_warning"
+            android:drawablePadding="@dimen/dp_5"
+            android:gravity="center|start"
+            android:paddingStart="@dimen/dp_12"
+            android:paddingEnd="@dimen/dp_12"
+            android:text="@string/vs_center_tips"
+            android:textColor="@color/c_FFB345"
+            android:textSize="@dimen/sp_11" />
+    </FrameLayout>
+
 </LinearLayout>

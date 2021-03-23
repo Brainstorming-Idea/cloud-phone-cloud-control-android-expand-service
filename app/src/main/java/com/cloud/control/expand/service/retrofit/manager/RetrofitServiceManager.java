@@ -474,4 +474,10 @@ public class RetrofitServiceManager {
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
+    public static Observable<BaseResponse<Integer>> getVsStatus(String sn){
+        return mRetrofitService.getVsStatus(sn)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
 }

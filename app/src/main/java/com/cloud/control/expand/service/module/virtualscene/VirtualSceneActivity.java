@@ -87,6 +87,7 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
     private int radius = 0;//输入的半径单位KM
     private double[] cCoord;
     private GridAdapter gridAdapter = null;
+    private Intent vsIntent;
 
     @Override
     protected int attachLayoutRes() {
@@ -104,8 +105,9 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
     @Override
     protected void initViews() {
         initToolBar(toolbar, false, getString(R.string.virtual_scene));
+        vsIntent = new Intent(this, VirtualSceneService.class);
 //        if (isServiceRunning(ExpandServiceApplication.getInstance(), VirtualSceneService.class.getCanonicalName())) {
-            bindService(new Intent(this, VirtualSceneService.class), vServiceConnection, Service.BIND_AUTO_CREATE);
+            bindService(vsIntent, vServiceConnection, Service.BIND_AUTO_CREATE);
 //        }
         final List<SceneType> sceneTypes = new ArrayList<>(Arrays.asList(SceneType.values()));
         gridAdapter = new GridAdapter(this, sceneTypes);
@@ -217,20 +219,34 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
 
     @Override
     protected void updateViews(boolean isRefresh) {
+        if (!isRefresh) {
+            return;
+        }
         if (isServiceRunning(ExpandServiceApplication.getInstance(), VirtualSceneService.class.getCanonicalName())) {
             SharePreferenceHelper helper = SharePreferenceHelper.getInstance(ExpandServiceApplication.getInstance());
             VsConfig vsConfig = helper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG, VsConfig.class);
-            isStart = vsConfig.isStart();
-            SceneType sceneType = SceneType.getVirtualScene(vsConfig.getSceneType());
-            if (gridAdapter != null && isStart) {
-                gridAdapter.setSelectedPos(vsConfig.getSceneType());
-                location.setText(vsConfig.getCity());
-                assert sceneType != null;
-                if (!sceneType.equals(SceneType.SIT)) {
-                    radiusContainer.setVisibility(View.VISIBLE);
-                    etRadius.setText(String.valueOf(vsConfig.getRadius() / 1000));
-                } else {
-                    radiusContainer.setVisibility(View.GONE);
+            if (vsConfig != null) {
+                isStart = vsConfig.isStart();
+                SceneType sceneType = SceneType.getVirtualScene(vsConfig.getSceneType());
+                if (gridAdapter != null && isStart) {
+                    /*确认下路线规划是否在运行，防止出现在虚拟场景运行时重启安卓卡，界面显示在运行而实际没有运行*/
+                    if (binder != null && !binder.getService().getStatus()) {
+                        Log.e(TAG, "服务运行状态与保存状态不一致，修改保存的状态");
+                        vsConfig.setStart(false);
+                        helper.putObject(ConstantsUtils.SpKey.SP_VS_CONFIG, vsConfig);
+                        isStart = false;
+//                    startVsService(vsConfig);
+                    } else {
+                        gridAdapter.setSelectedPos(vsConfig.getSceneType());
+                        location.setText(vsConfig.getCity());
+                        assert sceneType != null;
+                        if (!sceneType.equals(SceneType.SIT)) {
+                            radiusContainer.setVisibility(View.VISIBLE);
+                            etRadius.setText(String.valueOf(vsConfig.getRadius() / 1000));
+                        } else {
+                            radiusContainer.setVisibility(View.GONE);
+                        }
+                    }
                 }
             }
         } else {
@@ -265,7 +281,6 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
     @Override
     public void updateStatus() {
         //更新按钮状态及启动状态
-        Intent vsIntent = new Intent(this, VirtualSceneService.class);
         SharePreferenceHelper spHelper = SharePreferenceHelper.getInstance(ExpandServiceApplication.getInstance());
         if (!isStart) {
             //先获取一下终点坐标，初始起点为中心点
@@ -280,12 +295,7 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
                 vsConfig.setCity(mPresenter.getCurrCity());
                 vsConfig.setStart(true);
                 spHelper.putObject(ConstantsUtils.SpKey.SP_VS_CONFIG, vsConfig);
-                //启动服务
-                vsIntent.putExtra("scene_type", vsConfig.getSceneType());
-                vsIntent.putExtra("start_loc", vsConfig.getCenterCoords());
-                vsIntent.putExtra("terminal_loc", BdMapUtils.getTerminalPoint(vsConfig.getCenterCoords(), vsConfig.getRadius()));
-                vsIntent.putExtra("radius", vsConfig.getRadius());
-                startService(vsIntent);
+                startVsService(vsConfig);
             }
         } else {
             //停止路线规划
@@ -293,6 +303,15 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
                 binder.getService().stopRoute();
             }
         }
+    }
+
+    private void startVsService(VsConfig vsConfig){
+        //启动服务
+        vsIntent.putExtra("scene_type", vsConfig.getSceneType());
+        vsIntent.putExtra("start_loc", vsConfig.getCenterCoords());
+        vsIntent.putExtra("terminal_loc", BdMapUtils.getTerminalPoint(vsConfig.getCenterCoords(), vsConfig.getRadius()));
+        vsIntent.putExtra("radius", vsConfig.getRadius());
+        startService(vsIntent);
     }
 
     private ServiceConnection vServiceConnection = new ServiceConnection() {

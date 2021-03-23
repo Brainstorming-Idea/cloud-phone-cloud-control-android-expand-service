@@ -1,8 +1,13 @@
 package com.cloud.control.expand.service.module.virtuallocation;
 
+import android.util.Log;
+
+import com.cloud.control.expand.service.R;
 import com.cloud.control.expand.service.base.IBasePresenter;
+import com.cloud.control.expand.service.entity.BaseResponse;
 import com.cloud.control.expand.service.entity.VirtualLocationEntity;
 import com.cloud.control.expand.service.entity.VirtualLocationInfoEntity;
+import com.cloud.control.expand.service.home.ExpandServiceApplication;
 import com.cloud.control.expand.service.log.KLog;
 import com.cloud.control.expand.service.retrofit.manager.RetrofitServiceManager;
 
@@ -83,7 +88,48 @@ public class VirtualLocationPresenter implements IBasePresenter, IVirtualLocatio
                             mView.dialog("提示", "该扩展服务已过期", "", "确认");
                             return;
                         }
-                        mView.toast(locationEntity.getMsg());
+                        checkVs(locationEntity.getMsg());
+                    }
+                });
+    }
+
+    /**
+     * 检测是否开启了虚拟场景
+     * @param msg
+     */
+    public void checkVs(String msg){
+        RetrofitServiceManager.getVsStatus(ExpandServiceApplication.getInstance().getCardSn())
+                .doOnSubscribe(new Action0() {
+                    @Override
+                    public void call() {
+                        mView.showLoading();
+                    }
+                })
+                .subscribe(new Subscriber<BaseResponse<Integer>>() {
+                    @Override
+                    public void onCompleted() {
+                        mView.hideLoading();
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        mView.hideLoading();
+                        KLog.e("getVsStatus:" + e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(BaseResponse<Integer> response) {
+                        if (response != null && response.getStatus() == 0){
+                            if (response.getData() == 1){//开启了虚拟场景
+                                mView.showDialog("提示", ExpandServiceApplication.getInstance().getString(R.string.vl_vs_conflict),
+                                        "","确认",false);
+                                return;
+                            }
+                        }else if (response != null){
+                            KLog.e("getVsStatus:" + response.getMsg());
+                            return;
+                        }
+                        mView.toast(msg);
                     }
                 });
     }

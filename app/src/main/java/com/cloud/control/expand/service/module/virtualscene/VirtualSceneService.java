@@ -63,9 +63,9 @@ public class VirtualSceneService extends Service {
     private VirtualScenePresenter vp = new VirtualScenePresenter();
     private int reTryCount = 0;
     /**
-     * 停止路线规划及定位更新
+     * 是否开启了路线规划，默认停止
      */
-    private volatile AtomicBoolean isStop = new AtomicBoolean(false);
+    private volatile AtomicBoolean isStart = new AtomicBoolean(false);
     //cpu密集型计算，最大线程数为CPU核心数+1，
 //    private ThreadPoolExecutor executor = new ThreadPoolExecutor(1,
 //            Runtime.getRuntime().availableProcessors() + 1, 60, TimeUnit.SECONDS,
@@ -94,7 +94,7 @@ public class VirtualSceneService extends Service {
      * @return 服务是否正在运行
      */
     public boolean getStatus(){
-        return !isStop.get();
+        return isStart.get();
     }
 
     @Override
@@ -123,7 +123,7 @@ public class VirtualSceneService extends Service {
         SceneType sceneType = SceneType.getVirtualScene(type);
         String origin = startLoc[0] + "," + startLoc[1];
         String destination = terminalLoc[0] + "," + terminalLoc[1];
-        isStop.set(false);
+        isStart.set(true);
         //请求百度接口获取路线规划中的坐标点
         assert sceneType != null;
         getRoutePlan(sceneType, origin, destination);
@@ -168,7 +168,8 @@ public class VirtualSceneService extends Service {
                                     executor.execute(new Runnable() {
                                         @Override
                                         public void run() {
-                                            if (isStop.get()){
+                                            if (!isStart.get()){
+                                                Log.d(TAG, "服务已停止");
                                                 return;
                                             }
                                             setGpsLocation(supplyPoints(routePlan, 10),SceneType.WALK);
@@ -208,7 +209,8 @@ public class VirtualSceneService extends Service {
                                     executor.execute(new Runnable() {
                                         @Override
                                         public void run() {
-                                            if (isStop.get()){
+                                            if (!isStart.get()){
+                                                Log.d(TAG, "服务已停止");
                                                 return;
                                             }
                                             setGpsLocation(supplyPoints(routePlan, 20),SceneType.RUN);
@@ -248,7 +250,8 @@ public class VirtualSceneService extends Service {
                                     executor.execute(new Runnable() {
                                         @Override
                                         public void run() {
-                                            if (isStop.get()){
+                                            if (!isStart.get()){
+                                                Log.d(TAG, "服务已停止");
                                                 return;
                                             }
                                             setGpsLocation(supplyPoints(routePlan, 50),SceneType.DRIVE);
@@ -399,7 +402,8 @@ public class VirtualSceneService extends Service {
             }
             int rate = ConstantsUtils.BaiDuMap.RATE;
             for (int i = 0; i < points.size(); i++) {
-                if (isStop.get()){
+                if (!isStart.get()){
+                    Log.d(TAG, "停止更新定位");
                     return;
                 }
                 HardwareUtil.getInstance(ExpandServiceApplication.getInstance())
@@ -574,7 +578,7 @@ public class VirtualSceneService extends Service {
      * 停止路线规划
      */
     public void stopRoute(){
-        isStop.set(true);
+        isStart.set(false);
         //更新下虚拟场景服务的状态
         SharePreferenceHelper spHelper = SharePreferenceHelper.getInstance(ExpandServiceApplication.getInstance());
         VsConfig vsConfig = spHelper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG,VsConfig.class);
@@ -591,7 +595,6 @@ public class VirtualSceneService extends Service {
     public void onDestroy() {
         Log.e(TAG, "虚拟场景服务已停止！");
         stopRoute();
-
         super.onDestroy();
     }
 }
