@@ -8,6 +8,7 @@ import com.cloud.control.expand.service.entity.ResponseEntity;
 import com.cloud.control.expand.service.entity.UpdatePhoneConfigEntity;
 import com.cloud.control.expand.service.log.KLog;
 import com.cloud.control.expand.service.retrofit.manager.RetrofitServiceManager;
+import com.cloud.control.expand.service.utils.ConstantsUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -126,7 +127,7 @@ public class ChangeMachinePresenter implements IBasePresenter, IChangeMachine {
                     @Override
                     public void onNext(final ResponseEntity responseEntity) {
                         KLog.e("modifyCard onNext " + responseEntity.toString());
-                        if (responseEntity.getMsg().equals("未购买一键新机服务")) {
+                        if (responseEntity.getRetCode() == ConstantsUtils.SERVICE_EXPIRED_CODE) {
                             mView.dialog("提示", "该扩展服务已过期", "", "确认");
                             return;
                         }

@@ -6,6 +6,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.cloud.control.expand.service.R;
+import com.cloud.control.expand.service.adapter.ExpandServiceListAdapter;
 import com.cloud.control.expand.service.base.BaseActivity;
 import com.cloud.control.expand.service.entity.ExpandServiceRecordEntity;
 import com.cloud.control.expand.service.injector.components.DaggerExpandServiceListComponent;
@@ -16,13 +17,10 @@ import com.cloud.control.expand.service.module.switchproxy.SwitchProxyActivity;
 import com.cloud.control.expand.service.module.virtuallocation.VirtualLocationActivity;
 import com.cloud.control.expand.service.utils.ExtendedServicesType;
 import com.cloud.control.expand.service.utils.NoFastClickUtils;
-import com.dl7.recycler.adapter.BaseQuickAdapter;
 import com.dl7.recycler.helper.RecyclerViewHelper;
 import com.dl7.recycler.listener.OnRecyclerViewItemClickListener;
 
 import java.util.List;
-
-import javax.inject.Inject;
 
 import butterknife.BindView;
 
@@ -31,14 +29,13 @@ import butterknife.BindView;
  * Date：2020/9/29
  * Description：扩展服务列表
  */
-public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPresenter> implements ExpandServiceListView {
+public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPresenter> implements ExpandServiceListView, ExpandServiceListAdapter.IRootOnClickListener {
 
     @BindView(R.id.toolbar)
     Toolbar mToolbar;
     @BindView(R.id.rv_expand_service_list)
     RecyclerView mRvExpandServiceList;
-    @Inject
-    BaseQuickAdapter mExpandServiceMainListAdapter;
+    ExpandServiceListAdapter mExpandServiceMainListAdapter;
     List<ExpandServiceRecordEntity.DataBean> mListEntity;
     private long firstPressedTime; //退出应用按下时间
 
@@ -58,6 +55,8 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
     @Override
     protected void initViews() {
         initToolBar(mToolbar, false, "扩展服务");
+        mExpandServiceMainListAdapter = new ExpandServiceListAdapter(mContext);
+        mExpandServiceMainListAdapter.setIRootOnClickListener(this);
         RecyclerViewHelper.initRecyclerViewV(this, mRvExpandServiceList, mExpandServiceMainListAdapter);
         mExpandServiceMainListAdapter.setOnItemClickListener(new OnRecyclerViewItemClickListener() {
             @Override
@@ -75,6 +74,13 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
         super.onResume();
         if (mPresenter != null) {
             mPresenter.getData();
+        }
+    }
+
+    @Override
+    public void getRootState(boolean state) {
+        if (mExpandServiceMainListAdapter != null) {
+            mExpandServiceMainListAdapter.setRootState(state);
         }
     }
 
@@ -113,6 +119,8 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
             startActivity(new Intent(mContext, VirtualLocationActivity.class));
         } else if (dataBean.getTypeId() == ExtendedServicesType.CHANGE_MACHINE.getKey()) {
             startActivity(new Intent(mContext, ChangeMachineActivity.class));
+        } else if (dataBean.getTypeId() == ExtendedServicesType.ROOT_PATTERN.getKey()) {
+
         } else {
             toastMessage("暂未开放");
         }
@@ -120,7 +128,7 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
 
     @Override
     public void toast(String message) {
-
+        toastMessage(message);
     }
 
     @Override
@@ -133,7 +141,7 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
 
             @Override
             public void onRightButtonClick(Object value) {
-                if(mPresenter != null){
+                if (mPresenter != null) {
                     mPresenter.getData();
                 }
             }
@@ -150,4 +158,8 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
         }
     }
 
+    @Override
+    public void onClick(boolean isOpen) {
+        mPresenter.setRootState(isOpen);
+    }
 }

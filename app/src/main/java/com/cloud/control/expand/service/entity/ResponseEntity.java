@@ -29,12 +29,18 @@ public class ResponseEntity<T> implements Serializable {
     /**
      * status : 0
      * msg : 接口返回成功
+     * retCode : 30011 未购买扩展服务
      * data :
      */
 
     private int status;
     private String msg;
+    private int retCode;
     private T data;
+
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
 
     public int getStatus() {
         return status;
@@ -52,6 +58,14 @@ public class ResponseEntity<T> implements Serializable {
         this.msg = msg;
     }
 
+    public int getRetCode() {
+        return retCode;
+    }
+
+    public void setRetCode(int retCode) {
+        this.retCode = retCode;
+    }
+
     public T getData() {
         return data;
     }
@@ -65,6 +79,7 @@ public class ResponseEntity<T> implements Serializable {
         return "ResponseEntity{" +
                 "status=" + status +
                 ", msg='" + msg + '\'' +
+                ", retCode=" + retCode +
                 ", data=" + data +
                 '}';
     }

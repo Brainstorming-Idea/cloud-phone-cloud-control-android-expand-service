@@ -2,8 +2,11 @@ package com.cloud.control.expand.service.home.list;
 
 import com.cloud.control.expand.service.base.IBasePresenter;
 import com.cloud.control.expand.service.entity.ExpandServiceRecordEntity;
+import com.cloud.control.expand.service.entity.ResponseEntity;
+import com.cloud.control.expand.service.entity.RootStateEntity;
 import com.cloud.control.expand.service.log.KLog;
 import com.cloud.control.expand.service.retrofit.manager.RetrofitServiceManager;
+import com.cloud.control.expand.service.utils.ConstantsUtils;
 import com.cloud.control.expand.service.utils.DateUtils;
 
 import rx.Subscriber;
@@ -56,6 +59,70 @@ public class ExpandServiceListPresenter implements IBasePresenter, IExpandServic
                             mView.hideListView();
                             mView.showNoData("还没有可用扩展服务哦~");
                         }
+                    }
+                });
+
+        RetrofitServiceManager.getRootStatusNoToken()
+                .doOnSubscribe(new Action0() {
+                    @Override
+                    public void call() {
+                    }
+                })
+                .compose(mView.<RootStateEntity>bindToLife())
+                .subscribe(new Subscriber<RootStateEntity>() {
+                    @Override
+                    public void onCompleted() {
+                        KLog.e("getRootStatusNoToken onCompleted");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        KLog.e("getRootStatusNoToken onError");
+                    }
+
+                    @Override
+                    public void onNext(RootStateEntity rootStateEntity) {
+                        KLog.e("getRootStatusNoToken onNext " + rootStateEntity.toString());
+                        if (rootStateEntity != null && rootStateEntity.getData().getData() != null) {
+                            mView.getRootState(rootStateEntity.getData().getData().isIsOpen());
+                        }
+                    }
+                });
+
+    }
+
+    /**
+     * 设置root模式
+     *
+     * @param isOpen
+     */
+    public void setRootState(boolean isOpen) {
+        RetrofitServiceManager.modifyRootStatusNoToken(isOpen)
+                .doOnSubscribe(new Action0() {
+                    @Override
+                    public void call() {
+                    }
+                })
+                .compose(mView.<ResponseEntity>bindToLife())
+                .subscribe(new Subscriber<ResponseEntity>() {
+                    @Override
+                    public void onCompleted() {
+                        KLog.e("modifyRootStatusNoToken onCompleted");
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        KLog.e("modifyRootStatusNoToken onError");
+                    }
+
+                    @Override
+                    public void onNext(ResponseEntity responseEntity) {
+                        KLog.e("modifyRootStatusNoToken onNext " + responseEntity.toString());
+                        if (responseEntity.getRetCode() == ConstantsUtils.SERVICE_EXPIRED_CODE) {
+                            mView.dialog("提示", "该扩展服务已过期", "", "确认");
+                            return;
+                        }
+                        mView.toast(responseEntity.getMsg());
                     }
                 });
     }

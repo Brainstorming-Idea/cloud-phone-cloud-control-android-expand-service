@@ -1,10 +1,11 @@
 package com.cloud.control.expand.service.module.virtuallocation;
 
 import com.cloud.control.expand.service.base.IBasePresenter;
-import com.cloud.control.expand.service.entity.VirtualLocationEntity;
+import com.cloud.control.expand.service.entity.ResponseEntity;
 import com.cloud.control.expand.service.entity.VirtualLocationInfoEntity;
 import com.cloud.control.expand.service.log.KLog;
 import com.cloud.control.expand.service.retrofit.manager.RetrofitServiceManager;
+import com.cloud.control.expand.service.utils.ConstantsUtils;
 
 import rx.Subscriber;
 import rx.functions.Action0;
@@ -62,8 +63,8 @@ public class VirtualLocationPresenter implements IBasePresenter, IVirtualLocatio
                         mView.showLoading();
                     }
                 })
-                .compose(mView.<VirtualLocationEntity>bindToLife())
-                .subscribe(new Subscriber<VirtualLocationEntity>() {
+                .compose(mView.<ResponseEntity>bindToLife())
+                .subscribe(new Subscriber<ResponseEntity>() {
                     @Override
                     public void onCompleted() {
                         mView.hideLoading();
@@ -77,13 +78,13 @@ public class VirtualLocationPresenter implements IBasePresenter, IVirtualLocatio
                     }
 
                     @Override
-                    public void onNext(VirtualLocationEntity locationEntity) {
-                        KLog.e("setGps onNext " + locationEntity.toString());
-                        if(locationEntity.getMsg().equals("未购买GPS定位服务")){
+                    public void onNext(ResponseEntity responseEntity) {
+                        KLog.e("setGps onNext " + responseEntity.toString());
+                        if (responseEntity.getRetCode() == ConstantsUtils.SERVICE_EXPIRED_CODE) {
                             mView.dialog("提示", "该扩展服务已过期", "", "确认");
                             return;
                         }
-                        mView.toast(locationEntity.getMsg());
+                        mView.toast(responseEntity.getMsg());
                     }
                 });
     }

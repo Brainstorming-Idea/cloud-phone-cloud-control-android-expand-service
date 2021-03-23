@@ -9,10 +9,10 @@ import com.cloud.control.expand.service.entity.ExpandServiceRecordEntity;
 import com.cloud.control.expand.service.entity.PhoneBrandModelEntity;
 import com.cloud.control.expand.service.entity.PhoneModelInfoEntity;
 import com.cloud.control.expand.service.entity.ResponseEntity;
+import com.cloud.control.expand.service.entity.RootStateEntity;
 import com.cloud.control.expand.service.entity.SwitchProxyTypeEntity;
 import com.cloud.control.expand.service.entity.TimeInfoEntity;
 import com.cloud.control.expand.service.entity.UpdatePhoneConfigEntity;
-import com.cloud.control.expand.service.entity.VirtualLocationEntity;
 import com.cloud.control.expand.service.entity.VirtualLocationInfoEntity;
 import com.cloud.control.expand.service.home.ExpandServiceApplication;
 import com.cloud.control.expand.service.log.KLog;
@@ -269,7 +269,7 @@ public class RetrofitServiceManager {
      * @param city
      * @return
      */
-    public static Observable<VirtualLocationEntity> setGps(String longitude, String latitude, String city) {
+    public static Observable<ResponseEntity> setGps(String longitude, String latitude, String city) {
         Map<String, Object> map = new HashMap<>();
         map.put("sn", ExpandServiceApplication.getInstance().getCardSn());
         map.put("longitude", longitude);
@@ -373,6 +373,39 @@ public class RetrofitServiceManager {
      */
     public static Observable<TimeInfoEntity> getCurrentTime() {
         return mRetrofitService.getCurrentTime()
+                .subscribeOn(Schedulers.io())
+                .unsubscribeOn(Schedulers.io())
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    /**
+     * 获取root状态
+     *
+     * @return
+     */
+    public static Observable<RootStateEntity> getRootStatusNoToken() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("sn", ExpandServiceApplication.getInstance().getCardSn());
+        RequestBody body = FormBody.create(MediaType.parse("application/json; charset=utf-8"), new Gson().toJson(map));
+        return mRetrofitService.getRootStatusNoToken(body)
+                .subscribeOn(Schedulers.io())
+                .unsubscribeOn(Schedulers.io())
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    /**
+     * 设置root状态
+     *
+     * @return
+     */
+    public static Observable<ResponseEntity> modifyRootStatusNoToken(boolean isOpen) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("sn", ExpandServiceApplication.getInstance().getCardSn());
+        map.put("isOpen", isOpen);
+        RequestBody body = FormBody.create(MediaType.parse("application/json; charset=utf-8"), new Gson().toJson(map));
+        return mRetrofitService.modifyRootStatusNoToken(body)
                 .subscribeOn(Schedulers.io())
                 .unsubscribeOn(Schedulers.io())
                 .subscribeOn(AndroidSchedulers.mainThread())

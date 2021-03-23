@@ -6,6 +6,7 @@ import com.cloud.control.expand.service.entity.ResponseEntity;
 import com.cloud.control.expand.service.entity.SwitchProxyTypeEntity;
 import com.cloud.control.expand.service.log.KLog;
 import com.cloud.control.expand.service.retrofit.manager.RetrofitServiceManager;
+import com.cloud.control.expand.service.utils.ConstantsUtils;
 
 import rx.Subscriber;
 import rx.functions.Action0;
@@ -130,7 +131,7 @@ public class SwitchProxyPresenter implements IBasePresenter, ISwitchProxy {
                     @Override
                     public void onNext(ResponseEntity responseEntity) {
                         KLog.e("changeCityIp onNext " + responseEntity.toString());
-                        if(responseEntity.getMsg().equals("未购买IP代理扩展服务")){
+                        if (responseEntity.getRetCode() == ConstantsUtils.SERVICE_EXPIRED_CODE) {
                             mView.dialog("提示", "该扩展服务已过期", "", "确认");
                             return;
                         }
@@ -141,7 +142,7 @@ public class SwitchProxyPresenter implements IBasePresenter, ISwitchProxy {
 
     @Override
     public void refreshCityList() {
-        if(mCityListEntity != null){
+        if (mCityListEntity != null) {
             mView.loadData(null, null, mCityListEntity);
             return;
         }

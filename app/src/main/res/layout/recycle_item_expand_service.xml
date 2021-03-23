@@ -45,6 +45,7 @@
             android:src="@drawable/ic_expand_service_detail" />
 
         <ImageView
+            android:id="@+id/iv_root"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignTop="@+id/tv_expand_service_title"

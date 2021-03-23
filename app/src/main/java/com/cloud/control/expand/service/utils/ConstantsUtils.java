@@ -9,11 +9,13 @@ public class ConstantsUtils {
 
     //图片中间拼接地址
     public static final String IMAGE_MIDDLE_URL = "api/upgrade/downlodFile/viewImage/?url=";
+    //服务过期
+    public static final int SERVICE_EXPIRED_CODE = 30011;
 
     /**
      * IP切换方式
      */
-    public interface IpChangeType{
+    public interface IpChangeType {
         int RANDOM_SWITCH_SHORT = 0; //短效全国随机
         int ASSIGN_SWITCH_SHORT = 1; //短效指定城市
         int RANDOM_SWITCH_LONG = 2; //长效全国随机

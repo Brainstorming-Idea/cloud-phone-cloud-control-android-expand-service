@@ -7,9 +7,9 @@ import com.cloud.control.expand.service.entity.ExpandServiceRecordEntity;
 import com.cloud.control.expand.service.entity.PhoneBrandModelEntity;
 import com.cloud.control.expand.service.entity.PhoneModelInfoEntity;
 import com.cloud.control.expand.service.entity.ResponseEntity;
+import com.cloud.control.expand.service.entity.RootStateEntity;
 import com.cloud.control.expand.service.entity.SwitchProxyTypeEntity;
 import com.cloud.control.expand.service.entity.TimeInfoEntity;
-import com.cloud.control.expand.service.entity.VirtualLocationEntity;
 import com.cloud.control.expand.service.entity.VirtualLocationInfoEntity;
 
 import okhttp3.RequestBody;
@@ -60,7 +60,7 @@ public interface IUrls {
 
     //设置经纬度
     @POST("api/wsi/v2.0/gps/setGpsAndroid")
-    Observable<VirtualLocationEntity> setGps(@Body RequestBody body);
+    Observable<ResponseEntity> setGps(@Body RequestBody body);
 
     //获取卡IP
     @GET("api/wsi/v1/cardChangeIp/getIPBySnAndroid")
@@ -85,5 +85,13 @@ public interface IUrls {
     //获取系统当前时间
     @GET("api/user/v2.3/time/list")
     Observable<TimeInfoEntity> getCurrentTime();
+
+    //获取手机root状态
+    @POST("api/wsi/v3.1/root/getRootStatusNoToken")
+    Observable<RootStateEntity> getRootStatusNoToken(@Body RequestBody body);
+
+    //设置手机root状态
+    @POST("api/wsi/v3.1/root/modifyRootStatusNoToken")
+    Observable<ResponseEntity> modifyRootStatusNoToken(@Body RequestBody body);
 
 }

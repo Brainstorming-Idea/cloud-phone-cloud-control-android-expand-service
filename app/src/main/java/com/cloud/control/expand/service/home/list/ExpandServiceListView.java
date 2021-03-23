@@ -30,4 +30,11 @@ public interface ExpandServiceListView extends IBaseView {
      */
     void jumpPage(ExpandServiceRecordEntity.DataBean dataBean);
 
+    /**
+     * 获取root按钮状态
+     *
+     * @param state
+     */
+    void getRootState(boolean state);
+
 }
