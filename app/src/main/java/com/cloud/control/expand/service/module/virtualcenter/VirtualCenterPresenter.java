@@ -85,7 +85,10 @@ public class VirtualCenterPresenter implements IBasePresenter {
                             mView.dialog("提示", "该扩展服务已过期", "", "确认");
                             return;
                         }
-                        mView.setResult();
+                        mView.toast(locationEntity.getMsg());
+                        if (locationEntity.getStatus() == 0) {
+                            mView.setResult();
+                        }
                     }
                 });
     }

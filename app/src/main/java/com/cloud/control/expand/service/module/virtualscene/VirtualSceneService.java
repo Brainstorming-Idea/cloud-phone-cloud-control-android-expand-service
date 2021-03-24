@@ -8,7 +8,10 @@ import android.os.SystemClock;
 import android.telecom.Call;
 import android.util.Log;
 
+import com.cloud.control.expand.service.R;
+import com.cloud.control.expand.service.entity.BaseResponse;
 import com.cloud.control.expand.service.entity.SceneType;
+import com.cloud.control.expand.service.entity.ServerErrorCode;
 import com.cloud.control.expand.service.entity.VsConfig;
 import com.cloud.control.expand.service.entity.baidumap.RoutePlan;
 import com.cloud.control.expand.service.entity.baidumap.Steps;
@@ -45,6 +48,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import rx.Subscriber;
+import rx.functions.Action0;
 
 /**
  * @author wangyou
@@ -589,6 +593,38 @@ public class VirtualSceneService extends Service {
         if (callBack != null) {
             callBack.onStop();
         }
+        //通知后台服务停止
+
+    }
+
+    /**
+     * 设置虚拟场景的状态
+     * @param typeId
+     * @param sn
+     * @param isOpen
+     */
+    public void setVsStatus(int typeId, String sn, int isOpen){
+        RetrofitServiceManager.setVSStatus(typeId, sn, isOpen)
+                .subscribe(new Subscriber<BaseResponse<Object>>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e(TAG, "setStatus:" + e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(BaseResponse<Object> base) {
+                        if (base != null){
+                            if (base.getStatus() == 0) {
+                            }else if (base.getRetCode() == ServerErrorCode.E_30011){
+                            }
+
+                        }
+                    }
+                });
     }
 
     @Override

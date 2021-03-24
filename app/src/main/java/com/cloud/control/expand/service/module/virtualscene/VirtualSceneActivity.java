@@ -35,6 +35,7 @@ import com.cloud.control.expand.service.interfaces.MenuCallback;
 import com.cloud.control.expand.service.module.virtualcenter.VirtualCenterActivity;
 import com.cloud.control.expand.service.utils.AnimalUtils;
 import com.cloud.control.expand.service.utils.ConstantsUtils;
+import com.cloud.control.expand.service.utils.ServerUtils;
 import com.cloud.control.expand.service.utils.SharePreferenceHelper;
 import com.cloud.control.expand.service.utils.bdmap.BdMapUtils;
 
@@ -235,7 +236,7 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
         if (!isRefresh) {
             return;
         }
-        if (isServiceRunning(ExpandServiceApplication.getInstance(), VirtualSceneService.class.getCanonicalName())) {
+        if (ServerUtils.isServiceRunning(ExpandServiceApplication.getInstance(), VirtualSceneService.class.getCanonicalName())) {
             SharePreferenceHelper helper = SharePreferenceHelper.getInstance(ExpandServiceApplication.getInstance());
             VsConfig vsConfig = helper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG, VsConfig.class);
             if (vsConfig != null) {
@@ -314,7 +315,7 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
             }
         } else {
             //停止路线规划
-            if (isBind && binder != null && isServiceRunning(ExpandServiceApplication.getInstance(), VirtualSceneService.class.getCanonicalName())){
+            if (isBind && binder != null && ServerUtils.isServiceRunning(ExpandServiceApplication.getInstance(), VirtualSceneService.class.getCanonicalName())){
                 binder.getService().stopRoute();
             }
         }
@@ -345,27 +346,6 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
 
         }
     };
-
-    /**
-     * 判断Service是否正在运行
-     *
-     * @param context     上下文
-     * @param serviceName Service 类全名
-     * @return true 表示正在运行，false 表示没有运行
-     */
-    public static boolean isServiceRunning(Context context, String serviceName) {
-        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
-        List<ActivityManager.RunningServiceInfo> serviceInfoList = manager.getRunningServices(200);
-        if (serviceInfoList.size() <= 0) {
-            return false;
-        }
-        for (ActivityManager.RunningServiceInfo info : serviceInfoList) {
-            if (info.service.getClassName().equals(serviceName)) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     /**
      * 服务的回调方法
@@ -580,7 +560,7 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (isBind && binder != null && isServiceRunning(ExpandServiceApplication.getInstance(), VirtualSceneService.class.getCanonicalName())) {
+        if (isBind && binder != null && ServerUtils.isServiceRunning(ExpandServiceApplication.getInstance(), VirtualSceneService.class.getCanonicalName())) {
             binder.getService().setCallBack(null);
             unbindService(vServiceConnection);
             isBind = false;
