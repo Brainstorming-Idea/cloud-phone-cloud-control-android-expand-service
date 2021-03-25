@@ -122,7 +122,7 @@ public class IpChangeService extends Service {
                                 vsIntent = new Intent(IpChangeService.this, VirtualSceneService.class);
                                 ExpandServiceApplication.getInstance().stopService(vsIntent);
                                 //重新配置参数并重启服务
-                                setAndRestart(city, city);
+                                setAndRestart(myIp.getProvince()+city, city);
                             }else {
                                 Log.e(TAG, "城市未发生改变:"+city+","+vsConfig.getCity());
                             }
@@ -227,6 +227,7 @@ public class IpChangeService extends Service {
                         vsConfig.setStart(true);
                         vsConfig.setCenterCoords(bdmCoord);
                         vsConfig.setCity(city);
+                        vsConfig.setAddress(address);
                         helper.putObject(ConstantsUtils.SpKey.SP_VS_CONFIG, vsConfig);
                         vsIntent.putExtra("scene_type", vsConfig.getSceneType());
                         vsIntent.putExtra("start_loc", bdmCoord);

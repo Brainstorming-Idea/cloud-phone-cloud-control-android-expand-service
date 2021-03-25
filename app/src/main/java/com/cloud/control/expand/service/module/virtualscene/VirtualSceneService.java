@@ -64,7 +64,6 @@ public class VirtualSceneService extends Service {
     private double[] startLoc;
     private double[] terminalLoc;
     private int radius;
-    private VirtualScenePresenter vp = new VirtualScenePresenter();
     private int reTryCount = 0;
     /**
      * 是否开启了路线规划，默认停止

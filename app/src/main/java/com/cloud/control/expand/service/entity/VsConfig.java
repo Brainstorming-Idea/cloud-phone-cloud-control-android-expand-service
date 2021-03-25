@@ -13,7 +13,8 @@ public class VsConfig implements Parcelable {
     private int sceneType;
     private double[] terminalLoc;
     private int radius;
-    private String city;
+    private String city;//省+市 防止出现城市名称相同情况
+    private String address;//详细地址
     private boolean isStart;//虚拟场景是否启动
 
     public VsConfig() {
@@ -25,6 +26,7 @@ public class VsConfig implements Parcelable {
         terminalLoc = in.createDoubleArray();
         radius = in.readInt();
         city = in.readString();
+        address = in.readString();
         isStart = in.readByte() != 0;
     }
 
@@ -35,6 +37,7 @@ public class VsConfig implements Parcelable {
         dest.writeDoubleArray(terminalLoc);
         dest.writeInt(radius);
         dest.writeString(city);
+        dest.writeString(address);
         dest.writeByte((byte) (isStart ? 1 : 0));
     }
 
@@ -93,6 +96,14 @@ public class VsConfig implements Parcelable {
 
     public void setCity(String city) {
         this.city = city;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 
     public boolean isStart() {

@@ -88,6 +88,7 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
     private int radius = 0;//输入的半径单位KM
     private double[] cCoord;//中心点坐标
     private String cLocation;//中心点位置
+    private String centerCity;//中心点所在城市
     private GridAdapter gridAdapter = null;
     private Intent vsIntent;
     private SharePreferenceHelper spHelper;
@@ -219,7 +220,8 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
                     if (vsConfig == null) {
                         vsConfig = new VsConfig();
                     }
-                    vsConfig.setCity(detailAdd);
+                    vsConfig.setCity(infoEntity.getCity());
+                    vsConfig.setAddress(detailAdd);
                     double[] newCenter = new double[]{Double.parseDouble(infoEntity.getLatitude()),Double.parseDouble(infoEntity.getLongitude())};
                     vsConfig.setCenterCoords(newCenter);
                     cCoord = newCenter;//更新中心点坐标
@@ -241,7 +243,7 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
             VsConfig vsConfig = helper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG, VsConfig.class);
             if (vsConfig != null) {
                 isStart = vsConfig.isStart();
-                location.setText(vsConfig.getCity());//显示存储的位置信息
+                location.setText(vsConfig.getAddress());//显示存储的位置信息
                 SceneType sceneType = SceneType.getVirtualScene(vsConfig.getSceneType());
                 if (gridAdapter != null && isStart) {
                     /*确认下路线规划是否在运行，防止出现在虚拟场景运行时重启安卓卡，界面显示在运行而实际没有运行*/
@@ -287,6 +289,12 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
     @Override
     public void loadCenterLocDes(String loc) {
         this.cLocation = loc;
+        location.setText(cLocation);
+    }
+
+    @Override
+    public void setCenterCity(String city) {
+        this.centerCity = city;
     }
 
     @Override
@@ -308,7 +316,8 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
                 vsConfig.setCenterCoords(cCoord);
                 vsConfig.setRadius(radius * 1000);
                 vsConfig.setSceneType(sceneIndex);
-                vsConfig.setCity(location.getText().toString());
+                vsConfig.setCity(centerCity);
+                vsConfig.setAddress(location.getText().toString());
                 vsConfig.setStart(true);
                 spHelper.putObject(ConstantsUtils.SpKey.SP_VS_CONFIG, vsConfig);
                 startVsService(vsConfig);

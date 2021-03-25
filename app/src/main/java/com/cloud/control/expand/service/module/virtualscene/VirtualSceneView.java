@@ -18,6 +18,12 @@ public interface VirtualSceneView extends IBaseView {
     void loadCenterLocDes(String loc);
 
     /**
+     * 设置当前城市
+     * @param city
+     */
+    void setCenterCity(String city);
+
+    /**
      * 中心坐标
      * @param cCoord
      */

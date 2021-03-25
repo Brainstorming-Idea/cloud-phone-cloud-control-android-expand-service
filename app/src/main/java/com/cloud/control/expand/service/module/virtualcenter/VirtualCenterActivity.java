@@ -184,11 +184,12 @@ public class VirtualCenterActivity extends BaseActivity<VirtualCenterPresenter> 
         }
 
         @JavascriptInterface
-        public void onClickWebViewDetail(String longitude, String latitude, String detail){
+        public void onClickWebViewDetail(String longitude, String latitude, String detail, String City){
             KLog.e("onClickWebViewDetail : " + "longitude : " + longitude + ", latitude : " + latitude + ", detail : " + detail);
             mInfoEntity.setLongitude(longitude);
             mInfoEntity.setLatitude(latitude);
             mInfoEntity.setDetail(detail);
+//            mInfoEntity.setCity(City);
         }
 
         /**

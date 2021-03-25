@@ -1,5 +1,6 @@
 package com.cloud.control.expand.service.module.virtualscene;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.cloud.control.expand.service.R;
@@ -9,6 +10,7 @@ import com.cloud.control.expand.service.entity.ExpandService;
 import com.cloud.control.expand.service.entity.ExpandServiceRecordEntity;
 import com.cloud.control.expand.service.entity.ServerErrorCode;
 import com.cloud.control.expand.service.entity.VirtualLocationEntity;
+import com.cloud.control.expand.service.entity.VsConfig;
 import com.cloud.control.expand.service.entity.baidumap.AddressParse;
 import com.cloud.control.expand.service.entity.baidumap.MyIp;
 import com.cloud.control.expand.service.home.ExpandServiceApplication;
@@ -19,6 +21,7 @@ import com.cloud.control.expand.service.utils.DateUtils;
 import com.cloud.control.expand.service.utils.GPSUtil;
 import com.cloud.control.expand.service.utils.MathUtils;
 import com.cloud.control.expand.service.utils.NetUtil;
+import com.cloud.control.expand.service.utils.SharePreferenceHelper;
 import com.cloud.control.expand.service.utils.bdmap.BdMapUtils;
 
 import java.text.DecimalFormat;
@@ -39,12 +42,14 @@ public class VirtualScenePresenter implements IBasePresenter, IVirtualScene {
     private int radius = 0;//半径，单位米
     private double[] centerCoord = new double[2];//中心点坐标（WGS84坐标系）0:维度：1：经度
     public static String currCity = "";
-
+    private SharePreferenceHelper helper = SharePreferenceHelper.getInstance(ExpandServiceApplication.getInstance());
+    private VsConfig vsConfig = null;
     public VirtualScenePresenter() {
     }
 
     public VirtualScenePresenter(VirtualSceneView mView) {
         this.mView = mView;
+        vsConfig = helper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG, VsConfig.class);
     }
 
     @Override
@@ -82,8 +87,16 @@ public class VirtualScenePresenter implements IBasePresenter, IVirtualScene {
                             String city = myIp.getCity();
                             currCity = city;
                             Log.d(TAG, city+"");
-                            mView.loadCenterLocDes(province+city);
-                            getTarLocation(province+city,city);
+                            if (vsConfig != null && !TextUtils.isEmpty(vsConfig.getAddress()) && !TextUtils.isEmpty(vsConfig.getCity())){
+                                mView.loadCenterLocDes(vsConfig.getAddress());
+                                mView.setCenterCity(vsConfig.getCity());
+                                getTarLocation(vsConfig.getAddress(),vsConfig.getCity());
+                            }else{
+                                mView.loadCenterLocDes(province+city);
+                                mView.setCenterCity(city);
+                                getTarLocation(province+city,city);
+                            }
+
                         }
                     }
                 });
@@ -151,6 +164,14 @@ public class VirtualScenePresenter implements IBasePresenter, IVirtualScene {
      */
     @Override
     public double[] getTerminalPoint(int radius){
+        if (centerCoord == null || centerCoord[0] == 0 || centerCoord[1] == 0){
+            VsConfig vsConfig = helper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG,VsConfig.class);
+            if(vsConfig != null){
+                centerCoord = vsConfig.getCenterCoords();
+            }else{
+                throw new RuntimeException("中心点坐标获取失败！");
+            }
+        }
         return BdMapUtils.getTerminalPoint(centerCoord, radius);
 //        GlobalCoordinates source = new GlobalCoordinates(29.490295, 106.486654);
 //        GlobalCoordinates target = new GlobalCoordinates(29.615467, 106.486654);
