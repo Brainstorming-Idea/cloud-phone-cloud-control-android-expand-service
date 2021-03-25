@@ -159,7 +159,7 @@ public class VirtualSceneService extends Service {
 
                             @Override
                             public void onError(Throwable e) {
-                                Log.e(TAG, "WALK:" + e.getMessage());
+                                Log.e(TAG, "WALK:ERROR:" + e.getMessage());
                                 if (callBack != null) {
                                     callBack.onError("WALK:" + e.getMessage());
                                 }
@@ -180,8 +180,8 @@ public class VirtualSceneService extends Service {
                                         }
                                     });
                                 }else {
-                                    if (routePlan != null && callBack != null){
-//                                        callBack.onError(routePlan.getMessage());
+                                    if (routePlan != null){
+                                        Log.e(TAG, "WALK:路线规划失败，status:"+routePlan.getStatus());
                                         reGetRoutePlan(SceneType.WALK);
                                     }
                                 }
@@ -198,7 +198,7 @@ public class VirtualSceneService extends Service {
 
                             @Override
                             public void onError(Throwable e) {
-                                Log.e(TAG, "RUN:" + e.getMessage());
+                                Log.e(TAG, "RUN:ERROR:" + e.getMessage());
                                 //路线获取失败
                                 if (callBack != null) {
                                     callBack.onError("RUN:" + e.getMessage());
@@ -222,7 +222,8 @@ public class VirtualSceneService extends Service {
                                     });
 
                                 }else {
-                                    if (routePlan != null && callBack != null){
+                                    if (routePlan != null){
+                                        Log.e(TAG, "RUN:路线规划失败，status:"+routePlan.getStatus());
                                         reGetRoutePlan(SceneType.RUN);
                                     }
                                 }
@@ -262,7 +263,8 @@ public class VirtualSceneService extends Service {
                                         }
                                     });
                                 }else {
-                                    if (routePlan != null && callBack != null){
+                                    if (routePlan != null){
+                                        Log.e(TAG, "DRIVE:路线规划失败，status:"+routePlan.getStatus());
                                         reGetRoutePlan(SceneType.DRIVE);
                                     }
                                 }
@@ -286,7 +288,7 @@ public class VirtualSceneService extends Service {
         long startTime = System.currentTimeMillis();
 //        float unitLat = ConstantsUtils.BaiDuMap.UNIT_LAT * 3600;//一维度对应的距离
         float unitLat = ConstantsUtils.BaiDuMap.ONE_DEGREE_LAT;
-        List<double[]> coords = getCoords(routePlan);//百度给的点集合
+        List<double[]> coords = getCoords(routePlan);//百度给的点集合，已转为GPS坐标
         Log.d(TAG, "百度点的个数：" + coords.size());
         List<double[]> supplyPoints = new ArrayList<>();//需要返回的点集合
         /*判断每两个坐标点是否需要补点，需要则计算出补出的坐标点，添加到坐标集合中*/
@@ -397,7 +399,7 @@ public class VirtualSceneService extends Service {
     /**
      * 设置经纬度坐标 子线程内调用
      *
-     * @param points
+     * @param points GPS坐标点集合
      */
     public void setGpsLocation(List<double[]> points, SceneType sceneType) {
         if (points != null && points.size() > 0) {
@@ -418,6 +420,8 @@ public class VirtualSceneService extends Service {
             }
             //继续获取下一个路线
             reGetRoutePlan(sceneType);
+        }else {
+            throw new RuntimeException("坐标集合为空！");
         }
     }
 
@@ -434,9 +438,19 @@ public class VirtualSceneService extends Service {
             if (reTryCount > ConstantsUtils.BaiDuMap.RE_TRY_MAX){
                 Log.e(TAG, "网络无法访问，虚拟场景服务停止");
                 stopSelf();
+                return;
             }
+        }else {
+            reTryCount = 0;//重置重试次数
         }
-        startLoc = terminalLoc;
+        /*把当前坐标作为下一次的起点*/
+        String currLoc = HardwareUtil.getInstance(ExpandServiceApplication.getInstance()).getGpsLocation();
+        double currLat = Double.parseDouble(currLoc.split(";")[0]);
+        double currLng = Double.parseDouble(currLoc.split(";")[1]);
+        DecimalFormat df = new DecimalFormat("0.000000");
+        currLat = Double.parseDouble(df.format(currLat));
+        currLng = Double.parseDouble(df.format(currLng));
+        startLoc = new double[]{currLat, currLng};
         terminalLoc = BdMapUtils.getTerminalPoint(centerCoord, radius);
         String origin = startLoc[0] + "," + startLoc[1];
         String destination = terminalLoc[0] + "," + terminalLoc[1];
@@ -543,24 +557,6 @@ public class VirtualSceneService extends Service {
             }
         }
         return distances;
-    }
-
-
-    /**
-     * TODO 广播服务运行状态
-     */
-    public void sendBroadCast() {
-
-    }
-
-    public void updateLoc(SceneType vs, double[][] points) {
-        //方案1： 获取两个相邻点的坐标，计算两个点间的距离，然后除以速度（根据不同的场景确定速度大小），得到设置GPS坐标的频率，根据频率设置坐标
-        //方案2：根据两个坐标点距离，在单位时间内设置坐标点，距离不同则速度不同（TODO:测试一下百度给的坐标点间距大小）
-
-//        /*设置GPS位置到安卓卡*/
-//        HardwareUtil.getInstance(ExpandServiceApplication.getInstance()).setGpsLocation(gpsCoord[0] +
-//                ";" + gpsCoord[1]);
-
     }
 
     /**
