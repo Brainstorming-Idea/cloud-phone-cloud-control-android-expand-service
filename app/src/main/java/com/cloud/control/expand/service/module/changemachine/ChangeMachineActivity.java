@@ -64,9 +64,9 @@ public class ChangeMachineActivity extends BaseActivity<ChangeMachinePresenter> 
     EditText etImei;
     @BindView(R.id.iv_imei_delete)
     ImageView ivImeiDelete;
-    @BindView(R.id.et_usable)
-    EditText etUsable;
-    @BindView(R.id.iv_usable_delete)
+//    @BindView(R.id.et_usable)
+//    EditText etUsable;
+//    @BindView(R.id.iv_usable_delete)
     ImageView ivUsableDelete;
     @BindView(R.id.et_bluetooth_mac)
     EditText etBluetoothMac;
@@ -92,8 +92,8 @@ public class ChangeMachineActivity extends BaseActivity<ChangeMachinePresenter> 
     private boolean usableFocus = false;
     private boolean bluetoothMacFocus = false;
     private boolean wifiMacFocus = false;
-    private BigDecimal romTotalSize;  //总空间
-    private BigDecimal romUsableSize; //可用空间
+//    private BigDecimal romTotalSize;  //总空间
+//    private BigDecimal romUsableSize; //可用空间
 
     @Override
     protected int attachLayoutRes() {
@@ -127,10 +127,10 @@ public class ChangeMachineActivity extends BaseActivity<ChangeMachinePresenter> 
         if (dataBean != null) {
             phoneModelInfoEntity = dataBean;
 
-            romTotalSize = BigDecimalUtil.decimalFormat(Float.parseFloat(dataBean.getDeviceRomTotalSize()) / (1024 * 1024 * 1024));
-            romUsableSize = BigDecimalUtil.decimalFormat(Float.parseFloat(dataBean.getDeviceRomUsableSize()) / (1024 * 1024 * 1024));
-
-            KLog.e("romTotalSize " + romTotalSize + ", romUsableSize " + romUsableSize);
+//            romTotalSize = BigDecimalUtil.decimalFormat(Float.parseFloat(dataBean.getDeviceRomTotalSize()) / (1024 * 1024 * 1024));
+//            romUsableSize = BigDecimalUtil.decimalFormat(Float.parseFloat(dataBean.getDeviceRomUsableSize()) / (1024 * 1024 * 1024));
+//
+//            KLog.e("romTotalSize " + romTotalSize + ", romUsableSize " + romUsableSize);
 
             //品牌
             if (!TextUtils.isEmpty(dataBean.getBrandName()))
@@ -150,10 +150,10 @@ public class ChangeMachineActivity extends BaseActivity<ChangeMachinePresenter> 
             if (!TextUtils.isEmpty(dataBean.getDeviceImei()))
                 etImei.setText(dataBean.getDeviceImei());
 
-            //可用空间
-            if (!TextUtils.isEmpty("" + romUsableSize)) {
-                etUsable.setText("" + romUsableSize);
-            }
+//            //可用空间
+//            if (!TextUtils.isEmpty("" + romUsableSize)) {
+//                etUsable.setText("" + romUsableSize);
+//            }
             //蓝牙MAC
             if (!TextUtils.isEmpty(dataBean.getDeviceBtMac()))
                 etBluetoothMac.setText(dataBean.getDeviceBtMac());
@@ -183,7 +183,7 @@ public class ChangeMachineActivity extends BaseActivity<ChangeMachinePresenter> 
         });
     }
 
-    @OnClick({R.id.tv_change_machine_start, R.id.rl_phone_brand, R.id.rl_phone_model, R.id.iv_change_machine_back, R.id.iv_device_name_delete, R.id.iv_imei_delete, R.id.iv_usable_delete, R.id.iv_bluetooth_mac_delete, R.id.iv_wifi_mac_delete, R.id.tv_change_machine_reset})
+    @OnClick({R.id.tv_change_machine_start, R.id.rl_phone_brand, R.id.rl_phone_model, R.id.iv_change_machine_back, R.id.iv_device_name_delete, R.id.iv_imei_delete, /*R.id.iv_usable_delete,*/ R.id.iv_bluetooth_mac_delete, R.id.iv_wifi_mac_delete, R.id.tv_change_machine_reset})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.tv_change_machine_start:
@@ -206,9 +206,9 @@ public class ChangeMachineActivity extends BaseActivity<ChangeMachinePresenter> 
             case R.id.iv_imei_delete:
                 etImei.setText("");
                 break;
-            case R.id.iv_usable_delete:
-                etUsable.setText("");
-                break;
+//            case R.id.iv_usable_delete:
+//                etUsable.setText("");
+//                break;
             case R.id.iv_bluetooth_mac_delete:
                 etBluetoothMac.setText("");
                 break;
@@ -320,30 +320,30 @@ public class ChangeMachineActivity extends BaseActivity<ChangeMachinePresenter> 
 //        });
         EditTextUtils.setEditTextNumberAndLetter(etImei);
 
-        //可用空间
-        etUsable.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                if (!TextUtils.isEmpty(etUsable.getText().toString())) {
-                    ivUsableDelete.setVisibility(View.VISIBLE);
-                } else {
-                    ivUsableDelete.setVisibility(View.GONE);
-                }
-                if (!usableFocus) {
-                    ivUsableDelete.setVisibility(View.GONE);
-                }
-            }
-        });
+//        //可用空间
+//        etUsable.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+//
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable editable) {
+//                if (!TextUtils.isEmpty(etUsable.getText().toString())) {
+//                    ivUsableDelete.setVisibility(View.VISIBLE);
+//                } else {
+//                    ivUsableDelete.setVisibility(View.GONE);
+//                }
+//                if (!usableFocus) {
+//                    ivUsableDelete.setVisibility(View.GONE);
+//                }
+//            }
+//        });
 //        etUsable.setOnFocusChangeListener(new android.view.View.OnFocusChangeListener() {
 //            @Override
 //            public void onFocusChange(View v, boolean hasFocus) {
@@ -538,10 +538,10 @@ public class ChangeMachineActivity extends BaseActivity<ChangeMachinePresenter> 
             toastMessage("请输入IMEI");
             return false;
         }
-        if (TextUtils.isEmpty(etUsable.getText().toString())) {
-            toastMessage("请输入可用空间");
-            return false;
-        }
+//        if (TextUtils.isEmpty(etUsable.getText().toString())) {
+//            toastMessage("请输入可用空间");
+//            return false;
+//        }
         if (!RegexUtils.checkMacFormat(etWifiMac.getText().toString())) {
             toastMessage("请输入正确的机器MAC地址");
             return false;
@@ -554,14 +554,14 @@ public class ChangeMachineActivity extends BaseActivity<ChangeMachinePresenter> 
             toastMessage("请输入正确的IMEI");
             return false;
         }
-        if (BigDecimalUtil.decimalFormat(Float.parseFloat(etUsable.getText().toString())).compareTo(romTotalSize) > -1) {
-            toastMessage("可用空间不能大于总空间" + romTotalSize + "GB");
-            return false;
-        }
-        if (BigDecimalUtil.decimalFormat(Float.parseFloat(etUsable.getText().toString())).compareTo(new BigDecimal(1)) < 0) {
-            toastMessage("可用空间不能小于1GB");
-            return false;
-        }
+//        if (BigDecimalUtil.decimalFormat(Float.parseFloat(etUsable.getText().toString())).compareTo(romTotalSize) > -1) {
+//            toastMessage("可用空间不能大于总空间" + romTotalSize + "GB");
+//            return false;
+//        }
+//        if (BigDecimalUtil.decimalFormat(Float.parseFloat(etUsable.getText().toString())).compareTo(new BigDecimal(1)) < 0) {
+//            toastMessage("可用空间不能小于1GB");
+//            return false;
+//        }
         return true;
     }
 
@@ -582,7 +582,7 @@ public class ChangeMachineActivity extends BaseActivity<ChangeMachinePresenter> 
         mobileVosBean.setDeviceImei(etImei.getText().toString());
         mobileVosBean.setDeviceBtMac(etBluetoothMac.getText().toString());
         mobileVosBean.setDeviceMac(etWifiMac.getText().toString());
-        mobileVosBean.setDeviceRomUsableSize(BigDecimalUtil.doubleConvertLong(BigDecimalUtil.mul(Double.parseDouble(etUsable.getText().toString()), 1024 * 1024 * 1024L)) + "");
+//        mobileVosBean.setDeviceRomUsableSize(BigDecimalUtil.doubleConvertLong(BigDecimalUtil.mul(Double.parseDouble(etUsable.getText().toString()), 1024 * 1024 * 1024L)) + "");
         mobileVosBeanList.add(mobileVosBean);
         configEntity.setMobileVos(mobileVosBeanList);
         mPresenter.startChangeMachine(configEntity);
