@@ -14,9 +14,7 @@ import android.support.annotation.NonNull;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.cloud.control.expand.service.aidl.IpChangeService;
 import com.cloud.control.expand.service.home.ExpandServiceApplication;
 
 import java.util.HashMap;

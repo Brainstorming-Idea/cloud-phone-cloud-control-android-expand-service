@@ -20,7 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/HomeTheme">
         <service
-            android:name=".aidl.IpChangeService"
+                android:name=".aidl.AidlService"
             android:enabled="true"
             android:exported="true"
             android:permission="com.cloud.control.expand.service.aidl.permission.AGENT_SERVICE"/>

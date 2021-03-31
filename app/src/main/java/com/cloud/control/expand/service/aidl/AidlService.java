@@ -2,20 +2,14 @@ package com.cloud.control.expand.service.aidl;
 
 import android.app.ActivityManager;
 import android.app.Service;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.Network;
-import android.net.NetworkCapabilities;
-import android.net.NetworkRequest;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.RemoteException;
-import android.os.UserHandle;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -24,12 +18,12 @@ import com.cloud.control.expand.service.entity.baidumap.AddressParse;
 import com.cloud.control.expand.service.entity.baidumap.MyIp;
 import com.cloud.control.expand.service.home.ExpandServiceApplication;
 import com.cloud.control.expand.service.module.virtualscene.HardwareUtil;
-import com.cloud.control.expand.service.module.virtualscene.VirtualScenePresenter;
 import com.cloud.control.expand.service.module.virtualscene.VirtualSceneService;
 import com.cloud.control.expand.service.retrofit.manager.RetrofitServiceManager;
 import com.cloud.control.expand.service.utils.ConstantsUtils;
 import com.cloud.control.expand.service.utils.GPSUtil;
 import com.cloud.control.expand.service.utils.NetUtil;
+import com.cloud.control.expand.service.utils.ServerUtils;
 import com.cloud.control.expand.service.utils.SharePreferenceHelper;
 import com.cloud.control.expand.service.utils.bdmap.BdMapUtils;
 
@@ -37,22 +31,22 @@ import java.util.Arrays;
 import java.util.List;
 
 import rx.Subscriber;
-import rx.functions.Action0;
 
 /**
  * @author wangyou
  * @desc:
  * @date :2021/3/16
  */
-public class IpChangeService extends Service {
-    private static final String TAG = "IpChangeService";
+public class AidlService extends Service {
+    private static final String TAG = "AidlService";
+    
 
     private Intent vsIntent;
     private VsConfig vsConfig;
     private String ip;
     private SharePreferenceHelper helper = SharePreferenceHelper.getInstance(ExpandServiceApplication.getInstance());
     private int reGetCount = 0;//重新获取IP次数
-    public IpChangeService() {
+    public AidlService() {
 
     }
 
@@ -119,7 +113,7 @@ public class IpChangeService extends Service {
                                     return;
                                 }
                                 Log.d(TAG, "正在停止服务");
-                                vsIntent = new Intent(IpChangeService.this, VirtualSceneService.class);
+                                vsIntent = new Intent(AidlService.this, VirtualSceneService.class);
                                 ExpandServiceApplication.getInstance().stopService(vsIntent);
                                 //重新配置参数并重启服务
                                 setAndRestart(myIp.getProvince()+city, city);
@@ -138,7 +132,7 @@ public class IpChangeService extends Service {
         return binder;
     }
 
-    private IIPChangeService.Stub binder = new IIPChangeService.Stub() {
+    private AEIPCService.Stub binder = new AEIPCService.Stub() {
         @Override
         public boolean onTransact(int code, Parcel data, Parcel reply, int flags) throws RemoteException {
             /*检查客户端是否申请了此权限*/
@@ -168,6 +162,21 @@ public class IpChangeService extends Service {
             ip = proxyIp;
             //监听下网络状态
             NetUtil.monitorNet(new NetworkCallback());
+        }
+
+        @Override
+        public int getVsStatus() throws RemoteException {
+            VsConfig vsConfig = helper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG, VsConfig.class);
+            if (vsConfig != null){
+                if (ServerUtils.isServiceRunning(ExpandServiceApplication.getInstance(), VirtualSceneService.class.getCanonicalName())
+                        && vsConfig.isStart()){
+                    return 1;
+                }else {
+                    vsConfig.setStart(false);
+                    helper.putObject(ConstantsUtils.SpKey.SP_VS_CONFIG, vsConfig);
+                }
+            }
+            return 0;
         }
     };
 
