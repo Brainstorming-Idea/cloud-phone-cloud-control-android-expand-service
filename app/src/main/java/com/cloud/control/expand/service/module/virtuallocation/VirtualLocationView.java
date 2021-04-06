@@ -17,4 +17,13 @@ public interface VirtualLocationView extends IBaseView {
      */
     void loadData(VirtualLocationInfoEntity virtualLocationInfoEntity);
 
+    /**
+     *
+     * @param title
+     * @param content
+     * @param leftStr
+     * @param rightStr
+     * @param isBack 是否返回上一级界面
+     */
+    void showDialog(String title, String content, String leftStr, String rightStr, boolean isBack);
 }

@@ -1,3 +1,5 @@
+import java.security.MessageDigest
+
 apply plugin: 'com.android.application'
 
 android {
@@ -22,6 +24,17 @@ android {
         versionName rootProject.ext.versionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.config
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++11 -frtti -fexceptions -Wno-format"
+                arguments '-DANDROID_PLATFORM=android-23', '-DANDROID_STL=c++_shared' ,"-DANDROID_ARM_NEON=TRUE"
+            }
+        }
+        ndk {
+            // abiFilters "arm64-v8a", "armeabi-v7a"
+            abiFilters   "arm64-v8a", "armeabi-v7a"
+            ldLibs "jnigraphics"
+        }
     }
 
     dataBinding {
@@ -48,14 +61,24 @@ android {
         }
     }
 
-    //自定义apk输出路径和文件名，as3.0需要修改为一下写法
-    applicationVariants.all { variant ->
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+            version "3.10.2"
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    //android studio 3.0
+    android.applicationVariants.all { variant ->
         variant.outputs.all {
-            // 自定义输出路径
-            variant.getPackageApplication().outputDirectory = new File(project.rootDir.absolutePath + "/app/" + variant.buildType.name)
-            // 自定义文件名{示例：AppName-Flavor-debug-v1.0.0_201807301409}
-            //outputFileName = "AppName-${variant.flavorName}-${variant.buildType.name}-v${variant.versionName}_${time()}.apk"
-            outputFileName = "AndroidExpandService.apk"
+            if (variant.buildType.name.equals('release')) {
+                outputFileName = "${APK_FILE_NAME}.apk"
+            } else if (variant.buildType.name.equals('debug')) {
+                outputFileName = "${APK_FILE_NAME}.apk"
+            }
         }
     }
 
@@ -63,6 +86,8 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation fileTree(include: ['*.aar'], dir: 'libs')
+    implementation 'com.android.support.constraint:constraint-layout:2.0.4'
     testImplementation 'junit:junit:4.12'
     implementation "com.android.support:appcompat-v7:${rootProject.ext.supportVersion}"
     implementation "com.android.support:recyclerview-v7:${rootProject.ext.supportVersion}"
@@ -90,6 +115,7 @@ dependencies {
     //network
     implementation 'com.squareup.okhttp3:okhttp:3.1.2'
     implementation 'com.github.bumptech.glide:okhttp3-integration:1.4.0@aar'
+    implementation 'com.squareup.okhttp3:logging-interceptor:3.1.2'
     //json解析
     implementation 'com.google.code.gson:gson:2.8.5'
     //eventbus
@@ -110,3 +136,49 @@ dependencies {
     implementation project(path: ':RecyclerViewHelper')
     implementation files('libs/SystemTime.jar')
 }
+def archives = [
+        [
+                'src' : 'https://paddlelite-demo.bj.bcebos.com/libs/android/paddle_lite_libs_v2_6_1.tar.gz',
+                'dest': 'PaddleLite'
+        ],
+        [
+                'src' : 'https://paddlelite-demo.bj.bcebos.com/libs/android/opencv-4.2.0-android-sdk.tar.gz',
+                'dest': 'OpenCV'
+        ],
+        [
+                'src' : 'https://paddleocr.bj.bcebos.com/deploy/lite/ocr_v1_for_cpu.tar.gz',
+                'dest' : 'src/main/assets/models'
+        ]
+]
+
+task downloadAndExtractArchives(type: DefaultTask) {
+    doFirst {
+        println "Downloading and extracting archives including libs and models"
+    }
+    doLast {
+        // Prepare cache folder for archives
+        String cachePath = "cache"
+        if (!file("${cachePath}").exists()) {
+            mkdir "${cachePath}"
+        }
+        archives.eachWithIndex { archive, index ->
+            MessageDigest messageDigest = MessageDigest.getInstance('MD5')
+            messageDigest.update(archive.src.bytes)
+            String cacheName = new BigInteger(1, messageDigest.digest()).toString(32)
+            // Download the target archive if not exists
+            boolean copyFiles = !file("${archive.dest}").exists()
+            if (!file("${cachePath}/${cacheName}.tar.gz").exists()) {
+                ant.get(src: archive.src, dest: file("${cachePath}/${cacheName}.tar.gz"))
+                copyFiles = true; // force to copy files from the latest archive files
+            }
+            // Extract the target archive if its dest path does not exists
+            if (copyFiles) {
+                copy {
+                    from tarTree("${cachePath}/${cacheName}.tar.gz")
+                    into "${archive.dest}"
+                }
+            }
+        }
+    }
+}
+preBuild.dependsOn downloadAndExtractArchives

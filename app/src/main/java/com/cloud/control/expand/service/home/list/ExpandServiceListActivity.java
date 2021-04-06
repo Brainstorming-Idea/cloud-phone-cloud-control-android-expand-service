@@ -8,6 +8,8 @@ import android.view.View;
 import com.cloud.control.expand.service.R;
 import com.cloud.control.expand.service.adapter.ExpandServiceListAdapter;
 import com.cloud.control.expand.service.base.BaseActivity;
+import com.cloud.control.expand.service.dialog.CommonHintDialog;
+import com.cloud.control.expand.service.entity.ExpandService;
 import com.cloud.control.expand.service.entity.ExpandServiceRecordEntity;
 import com.cloud.control.expand.service.injector.components.DaggerExpandServiceListComponent;
 import com.cloud.control.expand.service.injector.modules.ExpandServiceListModule;
@@ -15,7 +17,8 @@ import com.cloud.control.expand.service.interfaces.MenuCallback;
 import com.cloud.control.expand.service.module.changemachine.ChangeMachineActivity;
 import com.cloud.control.expand.service.module.switchproxy.SwitchProxyActivity;
 import com.cloud.control.expand.service.module.virtuallocation.VirtualLocationActivity;
-import com.cloud.control.expand.service.utils.ExtendedServicesType;
+import com.cloud.control.expand.service.module.virtualscene.VirtualSceneActivity;
+import com.cloud.control.expand.service.utils.DateUtils;
 import com.cloud.control.expand.service.utils.NoFastClickUtils;
 import com.dl7.recycler.helper.RecyclerViewHelper;
 import com.dl7.recycler.listener.OnRecyclerViewItemClickListener;
@@ -23,6 +26,7 @@ import com.dl7.recycler.listener.OnRecyclerViewItemClickListener;
 import java.util.List;
 
 import butterknife.BindView;
+import retrofit2.http.HEAD;
 
 /**
  * Author：abin
@@ -113,16 +117,34 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
 
     @Override
     public void jumpPage(ExpandServiceRecordEntity.DataBean dataBean) {
-        if (dataBean.getTypeId() == ExtendedServicesType.SWITCH_PROXY.getKey()) {
-            startActivity(new Intent(mContext, SwitchProxyActivity.class));
-        } else if (dataBean.getTypeId() == ExtendedServicesType.VIRTUAL_LOCATION.getKey()) {
-            startActivity(new Intent(mContext, VirtualLocationActivity.class));
-        } else if (dataBean.getTypeId() == ExtendedServicesType.CHANGE_MACHINE.getKey()) {
-            startActivity(new Intent(mContext, ChangeMachineActivity.class));
-        } else if (dataBean.getTypeId() == ExtendedServicesType.ROOT_PATTERN.getKey()) {
+        ExpandService targetService = ExpandService.getExpandService(dataBean.getTypeId());
+        switch (targetService){
+            case IP_PROXY:
+                startActivity(new Intent(mContext, SwitchProxyActivity.class));
+                break;
+            case VIRTUAL_LOCATION:
+                startActivity(new Intent(mContext, VirtualLocationActivity.class));
+                break;
+            case CHANGE_MACHINE:
+                startActivity(new Intent(mContext, ChangeMachineActivity.class));
+                break;
+            case VIRTUAL_SCENE:
+                startActivity(new Intent(mContext, VirtualSceneActivity.class));
+                break;
+            case OCR:
+                toastMessage(getString(R.string.ocr_desc));
+                break;
+            case MUL_WINDOW:
+                //TODO
+                break;
+            case LOG_DEBUG:
+                //TODO
+                break;
+            case ROOT_PATTERN:
 
-        } else {
-            toastMessage("暂未开放");
+                break;
+            default:
+                toastMessage("暂未开放");
         }
     }
 

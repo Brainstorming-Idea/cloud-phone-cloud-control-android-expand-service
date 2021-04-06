@@ -154,6 +154,7 @@
 					$("#suggestId").val(addComp);
 					$(".icon-close").hide();
 					android.onClickWebView(rs.point.lng,rs.point.lat,rs.addressComponents.city);
+					android.onClickWebViewDetail(rs.point.lng,rs.point.lat, addComp, rs.addressComponents.city);
 				});
 			}
 			mapFun();
@@ -216,6 +217,7 @@
 					icon: myIcon
 				}));
 				android.onClickWebView(posty.lng, posty.lat, posty.city);
+				android.onClickWebViewDetail(posty.lng,posty.lat, posty, posty.city);
 			}
 
 			// enter键搜索地址事件
@@ -321,6 +323,7 @@
 				geoc.getLocation(pt, function (rs) {
 					var addComp = rs.address;
 					android.onClickWebView(rs.point.lng, rs.point.lat, rs.addressComponents.city); // 传给安卓的参数:longitude, latitude, city
+					android.onClickWebViewDetail(rs.point.lng, rs.point.lat, addComp, rs.addressComponents.city);//传给Android的详细地址信息
 					$("#suggestId").val(addComp);
 					$('#searchResultAll') && $('#searchResultAll').css("display", "none");
 				});
@@ -498,6 +501,7 @@
 					$("#suggestId").val(addComp);
 					$(".icon-close").hide();
 					android.onClickWebView(rs.point.lng,rs.point.lat,rs.addressComponents.city);
+					android.onClickWebViewDetail(rs.point.lng,rs.point.lat, addComp, rs.addressComponents.city);
 				});
 			}
 			mapFun();
@@ -557,6 +561,7 @@
 					icon: myIcon
 				})); //添加标注
 				android.onClickWebView(posty.lng, posty.lat, posty.city);
+				android.onClickWebViewDetail(posty.lng,posty.lat, posty, posty.city);
 			}
 
 			// 回车查找
@@ -660,6 +665,7 @@
 				geoc.getLocation(pt, function (rs) {
 					var addComp = rs.address;
 					android.onClickWebView(rs.point.lng, rs.point.lat, rs.addressComponents.city); // 传给安卓的参数:longitude, latitude, city
+					android.onClickWebViewDetail(rs.point.lng,rs.point.lat, addComp, rs.addressComponents.city);
 					$("#suggestId").val(addComp)
 					$('#searchResultAll') && $('#searchResultAll').css("display", "none");
 				});

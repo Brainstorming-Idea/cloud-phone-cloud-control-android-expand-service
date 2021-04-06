@@ -1,5 +1,6 @@
 package com.cloud.control.expand.service.retrofit.api;
 
+import com.cloud.control.expand.service.entity.BaseResponse;
 import com.cloud.control.expand.service.entity.CityListEntity;
 import com.cloud.control.expand.service.entity.CloseProxyEntity;
 import com.cloud.control.expand.service.entity.ExpandServiceListEntity;
@@ -11,12 +12,18 @@ import com.cloud.control.expand.service.entity.RootStateEntity;
 import com.cloud.control.expand.service.entity.SwitchProxyTypeEntity;
 import com.cloud.control.expand.service.entity.TimeInfoEntity;
 import com.cloud.control.expand.service.entity.VirtualLocationInfoEntity;
+import com.cloud.control.expand.service.entity.baidumap.AddressParse;
+import com.cloud.control.expand.service.entity.baidumap.MyIp;
+import com.cloud.control.expand.service.entity.baidumap.RoutePlan;
+
+import java.util.Map;
 
 import okhttp3.RequestBody;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
+import retrofit2.http.QueryMap;
 import rx.Observable;
 
 /**
@@ -94,4 +101,55 @@ public interface IUrls {
     @POST("api/wsi/v3.1/root/modifyRootStatusNoToken")
     Observable<ResponseEntity> modifyRootStatusNoToken(@Body RequestBody body);
 
+    /*百度地图api*/
+
+    /**
+     * 地理编码(根据地址文本地址获取定位信息)
+     * {"status":0,"result":{"location":{"lng":116.3054340544974,"lat":39.96548984110075},"precise":0,"confidence":20,"comprehension":100,"level":"区县"}}
+     * 注意：当前为V3.0版本接口文档，V2.0及以前版本自2019.6.18起新用户无法使用。
+     * 老用户仍可继续使用V2.0及以前版本请求实现逆地理编码服务，为保障用户体验，建议您尽快迁移到V3.0版本。
+     * @param options 请求参数
+     * @return
+     */
+    @GET("http://api.map.baidu.com/geocoding/v3/")
+    Observable<AddressParse> parseAddress(@QueryMap Map<String, Object> options);
+
+    /**
+     * 芝麻代理IP地址查询接口
+     * @return
+     */
+    @GET("http://myip.top")
+    Observable<MyIp> getMyIp();
+
+    /**
+     * 驾车路线规划
+     * @param options
+     * @return
+     */
+    @GET("http://api.map.baidu.com/directionlite/v1/driving")
+    Observable<RoutePlan> getDriveRoute(@QueryMap Map<String, Object> options);
+
+    /**
+     * 步行路线规划
+     * @param options
+     * @return
+     */
+    @GET("http://api.map.baidu.com/directionlite/v1/walking")
+    Observable<RoutePlan> getWalkRoute(@QueryMap Map<String, Object> options);
+
+    /**
+     * 设置虚拟场景的启动状态
+     * @param requestBody
+     * @return
+     */
+    @POST("api/user/v2.0/extendServiceRecord/updateExtendServiceOpenStatus")
+    Observable<BaseResponse<Object>> setVSStatus(@Body RequestBody requestBody);
+
+    /**
+     * 获取虚拟场景的开启状态
+     * @param sn
+     * @return
+     */
+    @GET("api/user/v2.0/extendServiceRecord/getVirtualActionOpenStatusAndroid")
+    Observable<BaseResponse<Integer>> getVsStatus(@Query("sn") String sn);
 }

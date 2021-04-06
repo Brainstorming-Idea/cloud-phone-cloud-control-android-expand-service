@@ -97,6 +97,23 @@ public class VirtualLocationActivity extends BaseActivity<VirtualLocationPresent
     }
 
     @Override
+    public void showDialog(String title, String content, String leftStr, String rightStr, boolean isBack) {
+        showExpireDialog(title, content, leftStr, rightStr, new MenuCallback() {
+            @Override
+            public void onLeftButtonClick(Object value) {
+
+            }
+
+            @Override
+            public void onRightButtonClick(Object value) {
+                if (isBack){
+                    finish();
+                }
+            }
+        });
+    }
+
+    @Override
     public void toast(String message) {
         toastMessage(message);
     }

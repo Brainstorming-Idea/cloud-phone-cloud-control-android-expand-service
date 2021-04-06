@@ -41,7 +41,7 @@ public class ExpandServiceApplication extends Application {
         }
         //网络请求初始化
         RetrofitServiceManager.init(buildConfigHost);
-        sContext = getContext();
+//        sContext = getContext();
         sApplication = this;
         hookWebView();
     }
@@ -54,9 +54,9 @@ public class ExpandServiceApplication extends Application {
         return buildConfigHost;
     }
 
-    public static Context getContext() {
-        return sContext;
-    }
+//    public static Context getContext() {
+//        return sContext;
+//    }
 
     public static ExpandServiceApplication getInstance() {
         return sApplication;
@@ -69,7 +69,7 @@ public class ExpandServiceApplication extends Application {
      */
     public String getCardSn() {
         return system.getCardSN();
-//        return "RK3930C2301900163";
+//        return "RK3930C2301900168";
     }
 
     /**

@@ -122,7 +122,11 @@
     <color name="c_1677ff">#1677FF</color>
     <color name="c_506cf5">#506CF5</color>
     <color name="transparent">#00000000</color>
-    <color name="c_bbbbbb">#BBBBBB</color>
     <color name="c_323233">#323233</color>
     <color name="c_969799">#969799</color>
+    <color name="c_BBBBBB">#BBBBBB</color>
+    <color name="c_7388FF">#7388FF</color>
+    <color name="c_5360FE">#5360FE</color>
+    <color name="c_FFB345">#FFB345</color>
+>>>>>>> develop-v3.1.0-virtualScene
 </resources>
