@@ -96,10 +96,10 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
     @Override
     public void loadData(List<ExpandServiceRecordEntity.DataBean> listEntity) {
         mListEntity = listEntity;
-        mExpandServiceMainListAdapter.updateItems(listEntity);
         if (listEntity != null && listEntity.size() > 0) {
             if (mRvExpandServiceList != null) {
                 mRvExpandServiceList.setVisibility(View.VISIBLE);
+                mExpandServiceMainListAdapter.updateItems(listEntity);
             }
         } else {
             if (mRvExpandServiceList != null) {

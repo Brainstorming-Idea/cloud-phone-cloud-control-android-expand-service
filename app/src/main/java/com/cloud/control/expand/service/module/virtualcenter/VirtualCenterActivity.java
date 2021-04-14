@@ -26,11 +26,13 @@ import com.cloud.control.expand.service.entity.LocationInfoEntity;
 import com.cloud.control.expand.service.entity.VirtualLocationInfoEntity;
 import com.cloud.control.expand.service.injector.components.DaggerChooseVirtualCenterComponent;
 import com.cloud.control.expand.service.injector.modules.VirtualCenterModule;
+import com.cloud.control.expand.service.interfaces.MenuCallback;
 import com.cloud.control.expand.service.log.KLog;
 import com.cloud.control.expand.service.module.virtuallocation.VirtualLocationActivity;
 import com.cloud.control.expand.service.module.virtualscene.VirtualSceneActivity;
 import com.google.gson.Gson;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -105,8 +107,16 @@ public class VirtualCenterActivity extends BaseActivity<VirtualCenterPresenter> 
             mInfoEntity.setIp((String) virtualLocationInfoEntity.getData().getIp());
             HashMap<String, Object> map = new HashMap<>();
             Map<String, String> objectHashMap = new HashMap<>();
-            objectHashMap.put("longitude", TextUtils.isEmpty(virtualLocationInfoEntity.getData().getLongitude()) ? "" : virtualLocationInfoEntity.getData().getLongitude());
-            objectHashMap.put("latitude", TextUtils.isEmpty(virtualLocationInfoEntity.getData().getLatitude()) ? "" : virtualLocationInfoEntity.getData().getLatitude());
+            /*坐标保留4位小数*/
+            if (TextUtils.isEmpty(virtualLocationInfoEntity.getData().getLatitude()) || TextUtils.isEmpty(virtualLocationInfoEntity.getData().getLongitude())){
+                throw new RuntimeException("未获取到当前位置经纬度");
+            }
+            String latStr = virtualLocationInfoEntity.getData().getLatitude();
+            String lngStr = virtualLocationInfoEntity.getData().getLongitude();
+            BigDecimal bdLat = new BigDecimal(latStr);
+            BigDecimal bdLng = new BigDecimal(lngStr);
+            objectHashMap.put("longitude", bdLng.setScale(4, BigDecimal.ROUND_HALF_UP).toPlainString());
+            objectHashMap.put("latitude", bdLat.setScale(4, BigDecimal.ROUND_HALF_UP).toPlainString());
             objectHashMap.put("ip", TextUtils.isEmpty((String) virtualLocationInfoEntity.getData().getIp()) ? "" : (String) virtualLocationInfoEntity.getData().getIp());
             map.put("type", "setGps");
             map.put("data", objectHashMap);
@@ -241,6 +251,17 @@ public class VirtualCenterActivity extends BaseActivity<VirtualCenterPresenter> 
 
     @Override
     public void dialog(String title, String content, String leftStr, String rightStr) {
+        showExpireDialog(title, content, leftStr, rightStr, new MenuCallback() {
+            @Override
+            public void onLeftButtonClick(Object value) {
 
+            }
+
+            @Override
+            public void onRightButtonClick(Object value) {
+                //返回上级界面
+                finish();
+            }
+        });
     }
 }

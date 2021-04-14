@@ -217,7 +217,7 @@
 					icon: myIcon
 				}));
 				android.onClickWebView(posty.lng, posty.lat, posty.city);
-				android.onClickWebViewDetail(posty.lng,posty.lat, posty, posty.city);
+				android.onClickWebViewDetail(posty.lng,posty.lat, resultAddress[index], posty.city);
 			}
 
 			// enter键搜索地址事件
@@ -561,7 +561,7 @@
 					icon: myIcon
 				})); //添加标注
 				android.onClickWebView(posty.lng, posty.lat, posty.city);
-				android.onClickWebViewDetail(posty.lng,posty.lat, posty, posty.city);
+				android.onClickWebViewDetail(posty.lng,posty.lat, resultAddress[index], posty.city);
 			}
 
 			// 回车查找

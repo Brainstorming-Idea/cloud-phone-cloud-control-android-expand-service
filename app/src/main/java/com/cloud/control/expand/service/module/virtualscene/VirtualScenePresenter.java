@@ -6,25 +6,19 @@ import android.util.Log;
 import com.cloud.control.expand.service.R;
 import com.cloud.control.expand.service.base.IBasePresenter;
 import com.cloud.control.expand.service.entity.BaseResponse;
-import com.cloud.control.expand.service.entity.ExpandService;
-import com.cloud.control.expand.service.entity.ExpandServiceRecordEntity;
 import com.cloud.control.expand.service.entity.ServerErrorCode;
-import com.cloud.control.expand.service.entity.VirtualLocationEntity;
 import com.cloud.control.expand.service.entity.VsConfig;
 import com.cloud.control.expand.service.entity.baidumap.AddressParse;
+import com.cloud.control.expand.service.entity.baidumap.InverseGCInfo;
 import com.cloud.control.expand.service.entity.baidumap.MyIp;
 import com.cloud.control.expand.service.home.ExpandServiceApplication;
-import com.cloud.control.expand.service.log.KLog;
 import com.cloud.control.expand.service.retrofit.manager.RetrofitServiceManager;
 import com.cloud.control.expand.service.utils.ConstantsUtils;
-import com.cloud.control.expand.service.utils.DateUtils;
 import com.cloud.control.expand.service.utils.GPSUtil;
-import com.cloud.control.expand.service.utils.MathUtils;
-import com.cloud.control.expand.service.utils.NetUtil;
 import com.cloud.control.expand.service.utils.SharePreferenceHelper;
 import com.cloud.control.expand.service.utils.bdmap.BdMapUtils;
 
-import java.text.DecimalFormat;
+import java.math.BigDecimal;
 import java.util.Arrays;
 
 import rx.Subscriber;
@@ -59,49 +53,97 @@ public class VirtualScenePresenter implements IBasePresenter, IVirtualScene {
 
     @Override
     public void getCenterLoc() {
-        //先获取一下IP所在城市
-        RetrofitServiceManager.getMyIp()
+        String gpsLoc = HardwareUtil.getInstance(ExpandServiceApplication.getInstance()).getGpsLocation();
+        double lat = Double.parseDouble(gpsLoc.split(";")[0]);
+        double lng = Double.parseDouble(gpsLoc.split(";")[1]);
+        centerCoord = GPSUtil.gps84_To_bd09(lat, lng);
+        BigDecimal bdLat = new BigDecimal(Double.toString(centerCoord[0]));
+        BigDecimal bdLng = new BigDecimal(Double.toString(centerCoord[1]));
+        /*保留4位小数，与H5返回的坐标精度一致*/
+        String latStr = bdLat.setScale(4,BigDecimal.ROUND_HALF_UP).toPlainString();
+        String lngStr = bdLng.setScale(4, BigDecimal.ROUND_HALF_UP).toPlainString();
+        centerCoord[0] = Double.parseDouble(latStr);
+        centerCoord[1] = Double.parseDouble(lngStr);
+        mView.loadCenterLocation(centerCoord);
+        /*获取中心点坐标的逆地理编码*/
+        RetrofitServiceManager.reverseCoding(centerCoord)
                 .doOnSubscribe(new Action0() {
                     @Override
                     public void call() {
                         mView.showLoading();
                     }
                 })
-                .compose(mView.<MyIp>bindToLife())
-                .subscribe(new Subscriber<MyIp>() {
+                .compose(mView.<InverseGCInfo>bindToLife())
+                .subscribe(new Subscriber<InverseGCInfo>() {
                     @Override
                     public void onCompleted() {
-
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.e(TAG, "myIP:"+e.getMessage()+"");
                         mView.hideLoading();
                     }
 
                     @Override
-                    public void onNext(MyIp myIp) {
-                        if (myIp != null){
-                            String province = myIp.getProvince();
-                            String city = myIp.getCity();
-                            currCity = city;
-                            Log.d(TAG, city+"");
-                            if (vsConfig != null && !TextUtils.isEmpty(vsConfig.getAddress()) && !TextUtils.isEmpty(vsConfig.getCity())){
-                                mView.loadCenterLocDes(vsConfig.getAddress());
-                                mView.setCenterCity(vsConfig.getCity());
-                                getTarLocation(vsConfig.getAddress(),vsConfig.getCity());
-                            }else{
-                                mView.loadCenterLocDes(province+city);
-                                mView.setCenterCity(city);
-                                getTarLocation(province+city,city);
-                            }
+                    public void onError(Throwable e) {
+                        mView.hideLoading();
+                        Log.e(TAG, "reserveCoding error:" + e.getMessage());
+                    }
 
+                    @Override
+                    public void onNext(InverseGCInfo inverseGCInfo) {
+                        if (inverseGCInfo != null && inverseGCInfo.getStatus() == 0 && inverseGCInfo.getResult() != null){
+                            String address = inverseGCInfo.getResult().getFormatted_address();
+                            mView.loadCenterLocDes(address);
+                            mView.setCenterCity(inverseGCInfo.getResult().getAddressComponent().getCity());
+                        }else {
+                            if (centerCoord[1] > 0) {//不管南纬了:)
+                                mView.loadCenterLocDes(lngStr + "°E，" + latStr + "°N");
+                            }else {
+                                mView.loadCenterLocDes(lngStr + "°W，" + latStr + "°N");
+                            }
                         }
                     }
                 });
 
-//        getTarLocation("深圳市","深圳市");
+//        //先获取一下IP所在城市
+//        RetrofitServiceManager.getMyIp()
+//                .doOnSubscribe(new Action0() {
+//                    @Override
+//                    public void call() {
+//                        mView.showLoading();
+//                    }
+//                })
+//                .compose(mView.<MyIp>bindToLife())
+//                .subscribe(new Subscriber<MyIp>() {
+//                    @Override
+//                    public void onCompleted() {
+//
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        Log.e(TAG, "myIP:"+e.getMessage()+"");
+//                        mView.hideLoading();
+//                    }
+//
+//                    @Override
+//                    public void onNext(MyIp myIp) {
+//                        if (myIp != null){
+//                            String province = myIp.getProvince();
+//                            String city = myIp.getCity();
+//                            currCity = city;
+//                            Log.d(TAG, city+"");
+//                            if (vsConfig != null && !TextUtils.isEmpty(vsConfig.getAddress()) && !TextUtils.isEmpty(vsConfig.getCity())){
+//                                mView.loadCenterLocDes(vsConfig.getAddress());
+//                                mView.setCenterCity(vsConfig.getCity());
+//                                getTarLocation(vsConfig.getAddress(),vsConfig.getCity());
+//                            }else{
+//                                mView.loadCenterLocDes(province+city);
+//                                mView.setCenterCity(city);
+//                                getTarLocation(province+city,city);
+//                            }
+//
+//                        }
+//                    }
+//                });
+
     }
 
     public String getCurrCity(){
@@ -109,7 +151,7 @@ public class VirtualScenePresenter implements IBasePresenter, IVirtualScene {
     }
 
     private void getTarLocation(String address, String city){
-        RetrofitServiceManager.getTarLocation(address, city)
+        RetrofitServiceManager.geoCoding(address, city)
                 .doOnSubscribe(new Action0() {
                     @Override
                     public void call() {

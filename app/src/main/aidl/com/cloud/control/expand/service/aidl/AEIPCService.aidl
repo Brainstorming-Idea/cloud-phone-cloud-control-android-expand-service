@@ -10,6 +10,11 @@ interface AEIPCService {
     void ipChange(String proxyIp);
 
     /**
+     * 定位变化
+     */
+    void locChange(String loc);
+
+    /**
      * 获取虚拟场景状态
      */
     int getVsStatus();

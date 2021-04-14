@@ -15,6 +15,7 @@ import android.util.Log;
 
 import com.cloud.control.expand.service.entity.VsConfig;
 import com.cloud.control.expand.service.entity.baidumap.AddressParse;
+import com.cloud.control.expand.service.entity.baidumap.InverseGCInfo;
 import com.cloud.control.expand.service.entity.baidumap.MyIp;
 import com.cloud.control.expand.service.home.ExpandServiceApplication;
 import com.cloud.control.expand.service.module.virtualscene.HardwareUtil;
@@ -27,10 +28,12 @@ import com.cloud.control.expand.service.utils.ServerUtils;
 import com.cloud.control.expand.service.utils.SharePreferenceHelper;
 import com.cloud.control.expand.service.utils.bdmap.BdMapUtils;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 
 import rx.Subscriber;
+import rx.functions.Action0;
 
 /**
  * @author wangyou
@@ -44,8 +47,10 @@ public class AidlService extends Service {
     private Intent vsIntent;
     private VsConfig vsConfig;
     private String ip;
+    private String changeLoc;
+    private boolean isIpChange = false;
     private SharePreferenceHelper helper = SharePreferenceHelper.getInstance(ExpandServiceApplication.getInstance());
-    private int reGetCount = 0;//重新获取IP次数
+    private int reGetCount = 0;//重新获取当前位置信息的次数
     public AidlService() {
 
     }
@@ -61,11 +66,12 @@ public class AidlService extends Service {
         public void onAvailable(Network network) {
             super.onAvailable(network);
             Log.d(TAG, "网络已连接");
-            if (!TextUtils.isEmpty(ip)){
-                judgeChangeCity();
-            }else {
-                Log.e(TAG, "IP是空");
-            }
+            //解析出当前GPS坐标位置的逆地理编码
+            double[] currCoord = BdMapUtils.getCurrLoc();
+            getCurrReverseCoding(currCoord);
+
+//            double[] locArray = new double[]{Double.parseDouble(changeLoc.split(",")[0]),Double.parseDouble(changeLoc.split(",")[1])};
+//            getCurrReverseCoding(locArray);
         }
 
         @Override
@@ -75,56 +81,129 @@ public class AidlService extends Service {
         }
     }
 
-    private void judgeChangeCity() {
-        //获取IP所在城市，判断是否更换了城市
-        RetrofitServiceManager.getMyIp()
-                .subscribe(new Subscriber<MyIp>() {
+    /**
+     * 获取当前位置的编码
+     * @param currCoord
+     */
+    private void getCurrReverseCoding(double[] currCoord){
+        //先判断ip有没有变化
+        if (isIpChange) {
+            isIpChange = false;
+        }else {
+            Log.d(TAG, "定位切换了，没有切换ip");
+            return;
+        }
+        RetrofitServiceManager.reverseCoding(currCoord)
+                .subscribe(new Subscriber<InverseGCInfo>() {
                     @Override
                     public void onCompleted() {
-                        Log.d(TAG, "completed");
+
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.e(TAG, e.getMessage());
+                        reGetCount++;
                         if (reGetCount <= 10){
-                            judgeChangeCity();
+                            getCurrReverseCoding(currCoord);
                         }else {
-                            Log.e(TAG, "无法获取IP所在城市，虚拟场景中心位置切换失败");
+                            Log.e(TAG, "获取逆地理编码失败,虚拟场景中心位置切换失败:"+e.getMessage());
                         }
                     }
 
                     @Override
-                    public void onNext(MyIp myIp) {
-                        if (myIp != null){
-                            String city = myIp.getCity();
-                            Log.d(TAG, "当前城市："+city);
-                            //如果城市变化说明切换了IP，需要把虚拟行为场景的中心点切换一下
-                            vsConfig = helper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG, VsConfig.class);
-                            if (vsConfig == null){
-                                Log.e(TAG, "未获取到用户的虚拟场景配置信息");
-                                return;
-                            }
-                            if (!TextUtils.isEmpty(city) && !city.equals(vsConfig.getCity())) {
-                                Log.d(TAG, "切换到了："+city);
-                                //1.判断虚拟场景是否在运行 2.停止虚拟场景服务  3.设置新城市的中心点 4.重新启动虚拟场景服务(拿到停止之前的一些状态信息)
-                                if (!vsConfig.isStart()){
-                                    Log.d(TAG, "服务未启动！");
-                                    return;
-                                }
-                                Log.d(TAG, "正在停止服务");
-                                vsIntent = new Intent(AidlService.this, VirtualSceneService.class);
-                                ExpandServiceApplication.getInstance().stopService(vsIntent);
-                                //重新配置参数并重启服务
-                                setAndRestart(myIp.getProvince()+city, city);
-                            }else {
-                                Log.e(TAG, "城市未发生改变:"+city+","+vsConfig.getCity());
-                            }
+                    public void onNext(InverseGCInfo inverseGCInfo) {
+                        reGetCount = 0;
+                        if (inverseGCInfo != null && inverseGCInfo.getStatus() == 0 && inverseGCInfo.getResult() != null){
+                            String address = inverseGCInfo.getResult().getFormatted_address();
+                            judgeChangeCity(address, inverseGCInfo.getResult().getAddressComponent().getCity());
                         }else {
-                            Log.e(TAG, "myIP is NUll");
+                            if (currCoord[1] > 0) {
+                                judgeChangeCity(currCoord[1] + "°E，" + currCoord[0] + "°N", "");
+                            }else {
+                                judgeChangeCity(currCoord[1] + "°W，" + currCoord[0] + "°N", "");
+                            }
                         }
+
                     }
                 });
+    }
+
+    /**
+     * 判断城市是否不同
+     * @param address 根据gps坐标解析出来的详细地址
+     */
+    private void judgeChangeCity(String address, String city) {
+        Log.d(TAG, "当前城市："+city);
+        //如果城市变化说明切换了IP，需要把虚拟行为场景的中心点切换一下
+        vsConfig = helper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG, VsConfig.class);
+        if (vsConfig == null){
+            Log.e(TAG, "未获取到用户的虚拟场景配置信息");
+            return;
+        }
+        if (!TextUtils.isEmpty(city) && !city.equals(vsConfig.getCity())) {
+            Log.d(TAG, "切换到了："+city);
+            //1.判断虚拟场景是否在运行 2.停止虚拟场景服务  3.设置新城市的中心点 4.重新启动虚拟场景服务(拿到停止之前的一些状态信息)
+            if (!vsConfig.isStart()){
+                Log.d(TAG, "服务未启动！");
+                return;
+            }
+            Log.d(TAG, "正在停止服务");
+            vsIntent = new Intent(AidlService.this, VirtualSceneService.class);
+            ExpandServiceApplication.getInstance().stopService(vsIntent);
+            //重新配置参数并重启服务
+            setAndRestart(address, city);
+        }else {
+            Log.e(TAG, "城市未发生改变:"+city+","+vsConfig.getCity());
+        }
+//        //获取IP所在城市，判断是否更换了城市
+//        RetrofitServiceManager.getMyIp()
+//                .subscribe(new Subscriber<MyIp>() {
+//                    @Override
+//                    public void onCompleted() {
+//                        Log.d(TAG, "completed");
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        Log.e(TAG, e.getMessage());
+//                        if (reGetCount <= 10){
+//                            judgeChangeCity(address, city);
+//                        }else {
+//                            Log.e(TAG, "无法获取IP所在城市，虚拟场景中心位置切换失败");
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onNext(MyIp myIp) {
+//                        if (myIp != null){
+//                            String city = myIp.getCity();
+//                            Log.d(TAG, "当前城市："+city);
+//                            //如果城市变化说明切换了IP，需要把虚拟行为场景的中心点切换一下
+//                            vsConfig = helper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG, VsConfig.class);
+//                            if (vsConfig == null){
+//                                Log.e(TAG, "未获取到用户的虚拟场景配置信息");
+//                                return;
+//                            }
+//                            if (!TextUtils.isEmpty(city) && !city.equals(vsConfig.getCity())) {
+//                                Log.d(TAG, "切换到了："+city);
+//                                //1.判断虚拟场景是否在运行 2.停止虚拟场景服务  3.设置新城市的中心点 4.重新启动虚拟场景服务(拿到停止之前的一些状态信息)
+//                                if (!vsConfig.isStart()){
+//                                    Log.d(TAG, "服务未启动！");
+//                                    return;
+//                                }
+//                                Log.d(TAG, "正在停止服务");
+//                                vsIntent = new Intent(AidlService.this, VirtualSceneService.class);
+//                                ExpandServiceApplication.getInstance().stopService(vsIntent);
+//                                //重新配置参数并重启服务
+//                                setAndRestart(address, city);
+//                            }else {
+//                                Log.e(TAG, "城市未发生改变:"+city+","+vsConfig.getCity());
+//                            }
+//                        }else {
+//                            Log.e(TAG, "myIP is NUll");
+//                        }
+//                    }
+//                });
     }
 
     @Override
@@ -160,7 +239,20 @@ public class AidlService extends Service {
             //收到这个指令表示安卓卡的IP被切换了
             Log.d(TAG, "接收到的IP："+proxyIp);
             ip = proxyIp;
-            //监听下网络状态
+            isIpChange = true;
+//            //监听下网络状态
+//            NetUtil.monitorNet(new NetworkCallback());
+        }
+
+        @Override
+        public void locChange(String loc) throws RemoteException {
+            // 1.监听下网络状态
+            // 2.网络可以访问后开始获取当前定位的城市，
+            // 3.然后判断是否切换了ip,若为true ->
+            // 4.再判断城市是否发生变化，true:->同时把isIpChange置为false
+            // 5.若变化则重启虚拟场景
+            Log.d(TAG, "接收到的定位："+loc);
+            changeLoc = loc;
             NetUtil.monitorNet(new NetworkCallback());
         }
 
@@ -201,7 +293,7 @@ public class AidlService extends Service {
     }
 
     private void setAndRestart(String address, String city){
-        RetrofitServiceManager.getTarLocation(address, city)
+        RetrofitServiceManager.geoCoding(address, city)
                 .subscribe(new Subscriber<AddressParse>() {
                     @Override
                     public void onCompleted() {

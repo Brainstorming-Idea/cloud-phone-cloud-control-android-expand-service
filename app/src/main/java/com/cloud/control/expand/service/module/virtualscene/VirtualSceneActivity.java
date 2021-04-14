@@ -91,7 +91,7 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
     private String centerCity;//中心点所在城市
     private GridAdapter gridAdapter = null;
     private Intent vsIntent;
-    private SharePreferenceHelper spHelper;
+    private SharePreferenceHelper helper = SharePreferenceHelper.getInstance(ExpandServiceApplication.getInstance());
     @Override
     protected int attachLayoutRes() {
         return R.layout.activity_virtual_scene;
@@ -108,7 +108,6 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
     @Override
     protected void initViews() {
         initToolBar(toolbar, false, getString(R.string.virtual_scene));
-        spHelper = SharePreferenceHelper.getInstance(ExpandServiceApplication.getInstance());
         vsIntent = new Intent(this, VirtualSceneService.class);
 //        if (isServiceRunning(ExpandServiceApplication.getInstance(), VirtualSceneService.class.getCanonicalName())) {
             bindService(vsIntent, vServiceConnection, Service.BIND_AUTO_CREATE);
@@ -138,8 +137,8 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
 //            }
 //        });
 
-        /*获取中心位置*/
-        mPresenter.getCenterLoc();
+//        /*获取中心位置*/
+//        mPresenter.getCenterLoc();
     }
 
     @OnClick({R.id.iv_vs_back, R.id.vs_center_container, R.id.vs_start_btn})
@@ -239,13 +238,12 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
             return;
         }
         if (ServerUtils.isServiceRunning(ExpandServiceApplication.getInstance(), VirtualSceneService.class.getCanonicalName())) {
-            SharePreferenceHelper helper = SharePreferenceHelper.getInstance(ExpandServiceApplication.getInstance());
             VsConfig vsConfig = helper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG, VsConfig.class);
             if (vsConfig != null) {
                 isStart = vsConfig.isStart();
-                location.setText(vsConfig.getAddress());//显示存储的位置信息
                 SceneType sceneType = SceneType.getVirtualScene(vsConfig.getSceneType());
                 if (gridAdapter != null && isStart) {
+                    location.setText(vsConfig.getAddress());//显示存储的位置信息
                     /*确认下路线规划是否在运行，防止出现在虚拟场景运行时重启安卓卡，界面显示在运行而实际没有运行*/
                     if (binder != null && !binder.getService().getStatus()) {
                         Log.e(TAG, "服务运行状态与保存状态不一致，修改保存的状态");
@@ -263,12 +261,15 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
                             radiusContainer.setVisibility(View.GONE);
                         }
                     }
+                }else {
+                    mPresenter.getCenterLoc();
                 }
             }else {
-                location.setText(cLocation);
+                mPresenter.getCenterLoc();
             }
         } else {
             isStart = false;
+            mPresenter.getCenterLoc();
         }
         //设置GridView是否可点击
 //        vsGrid.setClickable(!isStart);
@@ -305,7 +306,6 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
     @Override
     public void updateStatus() {
         //更新按钮状态及启动状态
-        SharePreferenceHelper spHelper = SharePreferenceHelper.getInstance(ExpandServiceApplication.getInstance());
         if (!isStart) {
             //先获取一下终点坐标，初始起点为中心点
             double[] endPoint = mPresenter.getTerminalPoint(radius * 1000);
@@ -319,7 +319,7 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
                 vsConfig.setCity(centerCity);
                 vsConfig.setAddress(location.getText().toString());
                 vsConfig.setStart(true);
-                spHelper.putObject(ConstantsUtils.SpKey.SP_VS_CONFIG, vsConfig);
+                helper.putObject(ConstantsUtils.SpKey.SP_VS_CONFIG, vsConfig);
                 startVsService(vsConfig);
             }
         } else {
@@ -554,7 +554,8 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
 
             @Override
             public void onRightButtonClick(Object value) {
-
+                //返回上级界面
+                finish();
             }
         });
     }

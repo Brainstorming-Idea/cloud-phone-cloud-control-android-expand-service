@@ -159,9 +159,9 @@ public class VirtualSceneService extends Service {
                             @Override
                             public void onError(Throwable e) {
                                 Log.e(TAG, "WALK:ERROR:" + e.getMessage());
-                                if (callBack != null) {
-                                    callBack.onError("WALK:" + e.getMessage());
-                                }
+//                                if (callBack != null) {
+//                                    callBack.onError("WALK:" + e.getMessage());
+//                                }
                                 reGetRoutePlan(SceneType.WALK);
                             }
 
@@ -198,10 +198,7 @@ public class VirtualSceneService extends Service {
                             @Override
                             public void onError(Throwable e) {
                                 Log.e(TAG, "RUN:ERROR:" + e.getMessage());
-                                //路线获取失败
-                                if (callBack != null) {
-                                    callBack.onError("RUN:" + e.getMessage());
-                                }
+
                                 reGetRoutePlan(SceneType.RUN);
 
                             }
@@ -240,9 +237,9 @@ public class VirtualSceneService extends Service {
                             @Override
                             public void onError(Throwable e) {
                                 Log.e(TAG, "DRIVE:" + e.getMessage());
-                                if (callBack != null) {
-                                    callBack.onError("DRIVE:" + e.getMessage());
-                                }
+//                                if (callBack != null) {
+//                                    callBack.onError("DRIVE:" + e.getMessage());
+//                                }
                                 reGetRoutePlan(SceneType.DRIVE);
 
                             }
@@ -436,6 +433,10 @@ public class VirtualSceneService extends Service {
             reTryCount++;
             if (reTryCount > ConstantsUtils.BaiDuMap.RE_TRY_MAX){
                 Log.e(TAG, "网络无法访问，虚拟场景服务停止");
+                //路线获取失败
+                if (callBack != null) {
+                    callBack.onError(ExpandServiceApplication.getInstance().getString(R.string.vs_start_failed));
+                }
                 stopSelf();
                 return;
             }

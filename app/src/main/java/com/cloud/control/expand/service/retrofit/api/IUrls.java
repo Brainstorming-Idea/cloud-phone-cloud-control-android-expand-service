@@ -1,5 +1,7 @@
 package com.cloud.control.expand.service.retrofit.api;
 
+import android.databinding.ObservableField;
+
 import com.cloud.control.expand.service.entity.BaseResponse;
 import com.cloud.control.expand.service.entity.CityListEntity;
 import com.cloud.control.expand.service.entity.CloseProxyEntity;
@@ -13,6 +15,7 @@ import com.cloud.control.expand.service.entity.SwitchProxyTypeEntity;
 import com.cloud.control.expand.service.entity.TimeInfoEntity;
 import com.cloud.control.expand.service.entity.VirtualLocationInfoEntity;
 import com.cloud.control.expand.service.entity.baidumap.AddressParse;
+import com.cloud.control.expand.service.entity.baidumap.InverseGCInfo;
 import com.cloud.control.expand.service.entity.baidumap.MyIp;
 import com.cloud.control.expand.service.entity.baidumap.RoutePlan;
 
@@ -112,7 +115,15 @@ public interface IUrls {
      * @return
      */
     @GET("http://api.map.baidu.com/geocoding/v3/")
-    Observable<AddressParse> parseAddress(@QueryMap Map<String, Object> options);
+    Observable<AddressParse> geoCoding(@QueryMap Map<String, Object> options);
+
+    /**
+     * 逆地理编码
+     * @param options
+     * @return
+     */
+    @GET("http://api.map.baidu.com/reverse_geocoding/v3/")
+    Observable<InverseGCInfo> reverseGeoCoding(@QueryMap Map<String, Object> options);
 
     /**
      * 芝麻代理IP地址查询接口

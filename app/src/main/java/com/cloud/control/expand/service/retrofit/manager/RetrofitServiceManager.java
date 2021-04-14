@@ -16,6 +16,8 @@ import com.cloud.control.expand.service.entity.TimeInfoEntity;
 import com.cloud.control.expand.service.entity.UpdatePhoneConfigEntity;
 import com.cloud.control.expand.service.entity.VirtualLocationInfoEntity;
 import com.cloud.control.expand.service.entity.baidumap.AddressParse;
+import com.cloud.control.expand.service.entity.baidumap.InverseGCInfo;
+import com.cloud.control.expand.service.entity.baidumap.Location;
 import com.cloud.control.expand.service.entity.baidumap.MyIp;
 import com.cloud.control.expand.service.entity.baidumap.RoutePlan;
 import com.cloud.control.expand.service.home.ExpandServiceApplication;
@@ -429,7 +431,7 @@ public class RetrofitServiceManager {
                 .subscribeOn(AndroidSchedulers.mainThread());
     }
     /**/
-    public static Observable<AddressParse> getTarLocation(String address, String city) {
+    public static Observable<AddressParse> geoCoding(String address, String city) {
         Map<String, Object> options = new HashMap<>(10);
         options.put("address", address);
         options.put("city", city);
@@ -437,7 +439,23 @@ public class RetrofitServiceManager {
 //        options.put("ret_coordtype", ConstantsUtils.BaiDuMap.BD_COORD_TYPE);
         options.put("output", "json");
         return mRetrofitService
-                .parseAddress(options)
+                .geoCoding(options)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    /**
+     *
+     * @param location
+     * @return
+     */
+    public static Observable<InverseGCInfo> reverseCoding(double[] location){
+        Map<String, Object> options = new HashMap<>(10);
+        options.put("location",location[0] + ","+ location[1]);
+        options.put("ak", ConstantsUtils.BaiDuMap.AK);
+        options.put("output", "json");
+        return mRetrofitService
+                .reverseGeoCoding(options)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }

@@ -2,9 +2,13 @@ package com.cloud.control.expand.service.utils.bdmap;
 
 import android.util.Log;
 
+import com.cloud.control.expand.service.home.ExpandServiceApplication;
+import com.cloud.control.expand.service.module.virtualscene.HardwareUtil;
 import com.cloud.control.expand.service.utils.ConstantsUtils;
+import com.cloud.control.expand.service.utils.GPSUtil;
 import com.cloud.control.expand.service.utils.MathUtils;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
@@ -75,5 +79,24 @@ private static final String TAG = "BdMapUtils";
         endPointLng = lngMin + Math.random() * (lngMax - lngMin);
         endPointLng = Double.parseDouble(df.format(endPointLng));
         return new double[]{endPointLat,endPointLng};
+    }
+
+    /**
+     * 获取当前坐标，保留4位精度
+     * @return
+     */
+    public static double[] getCurrLoc() {
+        String gpsLoc = HardwareUtil.getInstance(ExpandServiceApplication.getInstance()).getGpsLocation();
+        double lat = Double.parseDouble(gpsLoc.split(";")[0]);
+        double lng = Double.parseDouble(gpsLoc.split(";")[1]);
+        double[] centerCoord = GPSUtil.gps84_To_bd09(lat, lng);
+        BigDecimal bdLat = new BigDecimal(Double.toString(centerCoord[0]));
+        BigDecimal bdLng = new BigDecimal(Double.toString(centerCoord[1]));
+        /*保留4位小数，与H5返回的坐标精度一致*/
+        String latStr = bdLat.setScale(4, BigDecimal.ROUND_HALF_UP).toPlainString();
+        String lngStr = bdLng.setScale(4, BigDecimal.ROUND_HALF_UP).toPlainString();
+        centerCoord[0] = Double.parseDouble(latStr);
+        centerCoord[1] = Double.parseDouble(lngStr);
+        return centerCoord;
     }
 } 

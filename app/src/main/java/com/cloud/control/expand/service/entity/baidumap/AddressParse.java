@@ -2,7 +2,7 @@ package com.cloud.control.expand.service.entity.baidumap;
 
 /**
  * @author wangyou
- * @desc:
+ * @desc: 地理编码
  * @date :2021/3/8
  */
 public class AddressParse {

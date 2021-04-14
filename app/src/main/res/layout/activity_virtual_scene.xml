@@ -204,6 +204,7 @@
                         android:layout_marginEnd="@dimen/dp_10"
                         android:background="@null"
                         android:hint="@string/vs_input_radius"
+                        android:maxLength="3"
                         android:inputType="number"
                         android:textColor="@drawable/selector_enable_tv_color"
                         android:textColorHint="@color/c_BBBBBB"
