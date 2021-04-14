@@ -137,8 +137,8 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
 //            }
 //        });
 
-//        /*获取中心位置*/
-//        mPresenter.getCenterLoc();
+        /*获取中心位置*/
+        mPresenter.getCenterLoc();
     }
 
     @OnClick({R.id.iv_vs_back, R.id.vs_center_container, R.id.vs_start_btn})
