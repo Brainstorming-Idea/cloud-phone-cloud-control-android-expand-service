@@ -124,9 +124,7 @@ public class OcrService extends Service {
         public void inputImg(TargetImg targetImg, OnResultListener onResultListener) throws RemoteException {
             setOnResultListener(onResultListener);
             setImage(targetImg);
-            //检查扩展服务到期时间
-            checkDeadline();
-//            runModel();
+            runModelPrelude();
         }
 
         @Override
@@ -274,9 +272,15 @@ public class OcrService extends Service {
     }
 
     /**
+     * 准备运行模型
+     */
+    private void runModelPrelude(){
+        checkDeadline();
+    }
+    /**
      * 开始运行模型，识别图片
      */
-    public void runModel() {
+    private void runModel() {
         isRecognizing = true;
         Log.d(TAG, "正在运行模型");
         if (targetImg != null && predictor.isLoaded()) {
@@ -341,7 +345,7 @@ public class OcrService extends Service {
         /*使用自定义配置后重新运行模型*/
         if (customSetting){
             customSetting = false;
-            runModel();
+            runModelPrelude();
         }
     }
 
