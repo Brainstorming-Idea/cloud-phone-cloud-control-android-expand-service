@@ -49,4 +49,9 @@ public class ConstantsUtils {
     public interface SpKey{
         String SP_VS_CONFIG = "vs_config";//虚拟场景的配置数据
     }
+
+    public interface BroadCast{
+        String KEY_SERVICE_STATUS = "service_status";
+        String SERVICE_CONNECTION_ACTION = "service_connection_action";
+    }
 }

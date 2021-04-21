@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.support.v4.content.LocalBroadcastManager;
 import android.telecom.Call;
 import android.util.Log;
 
@@ -69,12 +70,14 @@ public class VirtualSceneService extends Service {
      * 是否开启了路线规划，默认停止
      */
     private volatile AtomicBoolean isStart = new AtomicBoolean(false);
+    private volatile AtomicBoolean isRestart = new AtomicBoolean(false);//是否是重启扩展服务
     //cpu密集型计算，最大线程数为CPU核心数+1，
 //    private ThreadPoolExecutor executor = new ThreadPoolExecutor(1,
 //            Runtime.getRuntime().availableProcessors() + 1, 60, TimeUnit.SECONDS,
 //            new LinkedBlockingQueue<Runnable>(1024),
 //            new BasicThreadFactory.Builder().namingPattern("vs-thread-pool-%d").daemon(true).build());
     private ExecutorService executor = Executors.newSingleThreadExecutor();
+    private Intent broadIntent;
     public VirtualSceneService() {
     }
 
@@ -114,6 +117,7 @@ public class VirtualSceneService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        broadIntent = new Intent();
     }
 
     @Override
@@ -130,7 +134,8 @@ public class VirtualSceneService extends Service {
         //请求百度接口获取路线规划中的坐标点
         assert sceneType != null;
         getRoutePlan(sceneType, origin, destination);
-        Log.e(TAG, "虚拟场景服务已启动");
+        Log.d(TAG, "虚拟场景服务已启动");
+        sendServiceStatus(true);
         return super.onStartCommand(intent, flags, startId);//TODO 确定服务重启的策略
     }
 
@@ -173,9 +178,11 @@ public class VirtualSceneService extends Service {
                                         public void run() {
                                             if (!isStart.get()){
                                                 Log.d(TAG, "服务已停止");
+                                                sendServiceStatus(false);
                                                 return;
                                             }
                                             setGpsLocation(supplyPoints(routePlan, 10),SceneType.WALK);
+                                            sendServiceStatus(false);
                                         }
                                     });
                                 }else {
@@ -211,9 +218,11 @@ public class VirtualSceneService extends Service {
                                         public void run() {
                                             if (!isStart.get()){
                                                 Log.d(TAG, "服务已停止");
+                                                sendServiceStatus(false);
                                                 return;
                                             }
                                             setGpsLocation(supplyPoints(routePlan, 20),SceneType.RUN);
+                                            sendServiceStatus(false);
                                         }
                                     });
 
@@ -237,9 +246,6 @@ public class VirtualSceneService extends Service {
                             @Override
                             public void onError(Throwable e) {
                                 Log.e(TAG, "DRIVE:" + e.getMessage());
-//                                if (callBack != null) {
-//                                    callBack.onError("DRIVE:" + e.getMessage());
-//                                }
                                 reGetRoutePlan(SceneType.DRIVE);
 
                             }
@@ -253,9 +259,11 @@ public class VirtualSceneService extends Service {
                                         public void run() {
                                             if (!isStart.get()){
                                                 Log.d(TAG, "服务已停止");
+                                                sendServiceStatus(false);
                                                 return;
                                             }
                                             setGpsLocation(supplyPoints(routePlan, 50),SceneType.DRIVE);
+                                            sendServiceStatus(false);
                                         }
                                     });
                                 }else {
@@ -406,6 +414,7 @@ public class VirtualSceneService extends Service {
             for (int i = 0; i < points.size(); i++) {
                 if (!isStart.get()){
                     Log.d(TAG, "停止更新定位");
+//                    sendServiceStatus(false, isRestart.get());
                     return;
                 }
                 HardwareUtil.getInstance(ExpandServiceApplication.getInstance())
@@ -437,6 +446,7 @@ public class VirtualSceneService extends Service {
                 if (callBack != null) {
                     callBack.onError(ExpandServiceApplication.getInstance().getString(R.string.vs_start_failed));
                 }
+                sendServiceStatus(false);
                 stopSelf();
                 return;
             }
@@ -593,6 +603,11 @@ public class VirtualSceneService extends Service {
 
     }
 
+    public void restartRoute(){
+        isRestart.set(true);
+        stopRoute();
+    }
+
     /**
      * 设置虚拟场景的状态
      * @param typeId
@@ -628,5 +643,18 @@ public class VirtualSceneService extends Service {
         Log.e(TAG, "虚拟场景服务已停止！");
         stopRoute();
         super.onDestroy();
+    }
+
+    /**
+     * 发送虚拟场景运行状态广播
+     * @param status true：启动状态 false:停止状态
+     */
+    private void sendServiceStatus(boolean status){
+        if (!isRestart.get()) return;
+        isRestart.set(false);
+        broadIntent.setAction(ConstantsUtils.BroadCast.SERVICE_CONNECTION_ACTION);
+        broadIntent.putExtra(ConstantsUtils.BroadCast.KEY_SERVICE_STATUS, status);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(broadIntent);
+        Log.d(TAG, "发送服务状态广播");
     }
 }

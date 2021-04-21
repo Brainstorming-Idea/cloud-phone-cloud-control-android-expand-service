@@ -153,8 +153,8 @@
 					var addComp = rs.address;
 					$("#suggestId").val(addComp);
 					$(".icon-close").hide();
-					android.onClickWebView(rs.point.lng,rs.point.lat,rs.addressComponents.city);
-					android.onClickWebViewDetail(rs.point.lng,rs.point.lat, addComp, rs.addressComponents.city);
+					android.onClickWebView((rs.point.lng).toString(),(rs.point.lat).toString(),rs.addressComponents.city);
+					android.onClickWebViewDetail((rs.point.lng).toString(),(rs.point.lat).toString(), addComp, rs.addressComponents.city);
 				});
 			}
 			mapFun();
@@ -216,8 +216,8 @@
 				map.addOverlay(new BMap.Marker(posty, {
 					icon: myIcon
 				}));
-				android.onClickWebView(posty.lng, posty.lat, posty.city);
-				android.onClickWebViewDetail(posty.lng,posty.lat, resultAddress[index], posty.city);
+				android.onClickWebView((posty.lng).toString(), (posty.lat).toString(), posty.city);
+				android.onClickWebViewDetail((posty.lng).toString(),(posty.lat).toString(), resultAddress[index], posty.city);
 			}
 
 			// enter键搜索地址事件
@@ -322,8 +322,8 @@
 				var geoc = new BMap.Geocoder();
 				geoc.getLocation(pt, function (rs) {
 					var addComp = rs.address;
-					android.onClickWebView(rs.point.lng, rs.point.lat, rs.addressComponents.city); // 传给安卓的参数:longitude, latitude, city
-					android.onClickWebViewDetail(rs.point.lng, rs.point.lat, addComp, rs.addressComponents.city);//传给Android的详细地址信息
+					android.onClickWebView((rs.point.lng).toString(), (rs.point.lat).toString(), rs.addressComponents.city); // 传给安卓的参数:longitude, latitude, city
+					android.onClickWebViewDetail((rs.point.lng).toString(), (rs.point.lat).toString(), addComp, rs.addressComponents.city);//传给Android的详细地址信息
 					$("#suggestId").val(addComp);
 					$('#searchResultAll') && $('#searchResultAll').css("display", "none");
 				});
@@ -500,8 +500,8 @@
 					var addComp = rs.address;
 					$("#suggestId").val(addComp);
 					$(".icon-close").hide();
-					android.onClickWebView(rs.point.lng,rs.point.lat,rs.addressComponents.city);
-					android.onClickWebViewDetail(rs.point.lng,rs.point.lat, addComp, rs.addressComponents.city);
+					android.onClickWebView((rs.point.lng).toString(),(rs.point.lat).toString(),rs.addressComponents.city);
+					android.onClickWebViewDetail((rs.point.lng).toString(),(rs.point.lat).toString(), addComp, rs.addressComponents.city);
 				});
 			}
 			mapFun();
@@ -560,8 +560,8 @@
 				map.addOverlay(new BMap.Marker(posty, {
 					icon: myIcon
 				})); //添加标注
-				android.onClickWebView(posty.lng, posty.lat, posty.city);
-				android.onClickWebViewDetail(posty.lng,posty.lat, resultAddress[index], posty.city);
+				android.onClickWebView((posty.lng).toString(), (posty.lat).toString(), posty.city);
+				android.onClickWebViewDetail((posty.lng).toString(),(posty.lat).toString(), resultAddress[index], posty.city);
 			}
 
 			// 回车查找
@@ -664,8 +664,8 @@
 				var geoc = new BMap.Geocoder();
 				geoc.getLocation(pt, function (rs) {
 					var addComp = rs.address;
-					android.onClickWebView(rs.point.lng, rs.point.lat, rs.addressComponents.city); // 传给安卓的参数:longitude, latitude, city
-					android.onClickWebViewDetail(rs.point.lng,rs.point.lat, addComp, rs.addressComponents.city);
+					android.onClickWebView((rs.point.lng).toString(), (rs.point.lat).toString(), rs.addressComponents.city); // 传给安卓的参数:longitude, latitude, city
+					android.onClickWebViewDetail((rs.point.lng).toString(),(rs.point.lat).toString(), addComp, rs.addressComponents.city);
 					$("#suggestId").val(addComp)
 					$('#searchResultAll') && $('#searchResultAll').css("display", "none");
 				});
