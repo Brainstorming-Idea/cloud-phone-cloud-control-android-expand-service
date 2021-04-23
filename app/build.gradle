@@ -88,6 +88,8 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation fileTree(include: ['*.aar'], dir: 'libs')
     implementation 'com.android.support.constraint:constraint-layout:2.0.4'
+    //BigDecimalMath
+    implementation files('libs/big-math-2.3.0.jar')
     testImplementation 'junit:junit:4.12'
     implementation "com.android.support:appcompat-v7:${rootProject.ext.supportVersion}"
     implementation "com.android.support:recyclerview-v7:${rootProject.ext.supportVersion}"

@@ -32,6 +32,8 @@ import org.gavaghan.geodesy.GlobalCoordinates;
 
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -48,6 +50,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import ch.obermuhlner.math.big.BigDecimalMath;
 import rx.Subscriber;
 import rx.functions.Action0;
 
@@ -78,6 +81,8 @@ public class VirtualSceneService extends Service {
 //            new BasicThreadFactory.Builder().namingPattern("vs-thread-pool-%d").daemon(true).build());
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private Intent broadIntent;
+    private MathContext mathContext = new MathContext(6);//指定精度
+
     public VirtualSceneService() {
     }
 
@@ -181,7 +186,7 @@ public class VirtualSceneService extends Service {
                                                 sendServiceStatus(false);
                                                 return;
                                             }
-                                            setGpsLocation(supplyPoints(routePlan, 10),SceneType.WALK);
+                                            setGpsLocation(supplyPointsAccurate(routePlan, 10),SceneType.WALK);
                                             sendServiceStatus(false);
                                         }
                                     });
@@ -221,7 +226,7 @@ public class VirtualSceneService extends Service {
                                                 sendServiceStatus(false);
                                                 return;
                                             }
-                                            setGpsLocation(supplyPoints(routePlan, 20),SceneType.RUN);
+                                            setGpsLocation(supplyPointsAccurate(routePlan, 20),SceneType.RUN);
                                             sendServiceStatus(false);
                                         }
                                     });
@@ -262,7 +267,7 @@ public class VirtualSceneService extends Service {
                                                 sendServiceStatus(false);
                                                 return;
                                             }
-                                            setGpsLocation(supplyPoints(routePlan, 50),SceneType.DRIVE);
+                                            setGpsLocation(supplyPointsAccurate(routePlan, 50),SceneType.DRIVE);
                                             sendServiceStatus(false);
                                         }
                                     });
@@ -338,7 +343,7 @@ public class VirtualSceneService extends Service {
             sin = Double.parseDouble(sinBd.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString());
             DecimalFormat sixDf = new DecimalFormat("0.000000");
 //            sin = Double.parseDouble(sixDf.format(sin));
-            angle = Math.asin(sin);//正弦对应的角度值
+            angle = Math.asin(sin);//正弦对应的弧度值
             if (Double.isNaN(angle)){
                 angle = 0.0;
             }
@@ -385,6 +390,132 @@ public class VirtualSceneService extends Service {
                     default:
                         break;
                 }
+                eachCoord[0] = Double.parseDouble(sixDf.format(eachCoord[0]));
+                eachCoord[1] = Double.parseDouble(sixDf.format(eachCoord[1]));
+                eachPoints.add(eachCoord);//把补出的点添加进去
+            }
+            //把计算出来的点添加到起点之后
+            if (eachPoints.size() > 0) {
+                supplyPoints.addAll(eachPoints);
+            }
+        }
+        Log.e(TAG, "补点用时："+(System.currentTimeMillis() - startTime)+ "ms");
+        calDis(supplyPoints);
+        Log.d(TAG, "补点的个数" + supplyPoints.size());
+        return supplyPoints;
+    }
+    /**
+     * 精确的补点计算
+     * 第一种方案：根据两个坐标点距离，在单位时间内设置坐标点，距离不同则速度不同（TODO:测试一下百度给的坐标点间距大小）
+     * 两点距离太长则需要补点
+     *
+     * @param eachDistance 根据不同场景，确定补点后每段的距离
+     * @return 补点后的坐标点集合
+     */
+    public List<double[]> supplyPointsAccurate(RoutePlan routePlan, float eachDistance) {
+        BigDecimal eachDistanceBD = new BigDecimal(Float.toString(eachDistance));
+        long startTime = System.currentTimeMillis();
+//        float unitLat = ConstantsUtils.BaiDuMap.UNIT_LAT * 3600;//一维度对应的距离
+        float unitLat = ConstantsUtils.BaiDuMap.ONE_DEGREE_LAT;
+        List<double[]> coords = getCoords(routePlan);//百度给的点集合，已转为GPS坐标
+        Log.d(TAG, "百度点的个数：" + coords.size());
+        List<double[]> supplyPoints = new ArrayList<>();//需要返回的点集合
+        /*判断每两个坐标点是否需要补点，需要则计算出补出的坐标点，添加到坐标集合中*/
+        for (int i = 0; i < coords.size(); i++) {//遍历每一段路程
+            if (i == coords.size() - 1) {
+                supplyPoints.add(coords.get(i));//把最后一个点加进去
+                break;
+            }
+            double[] start = coords.get(i);//起点
+            double[] end = coords.get(i + 1);//终点
+            float distance;//百度给的每两点间的距离
+            GlobalCoordinates from = new GlobalCoordinates(start[0], start[1]);
+            GlobalCoordinates to = new GlobalCoordinates(end[0], end[1]);
+            DecimalFormat df = new DecimalFormat("0.0");
+            distance = Float.parseFloat(df.format(getDistanceMeter(from, to, Ellipsoid.WGS84)));
+            /*以起点为中心建立直角坐标系，计算行进方向与x轴夹角，开闭区间表示是否包含横纵坐标轴*/
+//            double angle = 0;//与x轴夹角
+            BigDecimal radianBD;//与x轴夹角的弧度值 0 ~ π/2
+//            double sin = 0;//与x轴夹角的正弦值
+            BigDecimal sinBD = null;//与x轴夹角的正弦值
+            int quadrant = 1;//象限
+            BigDecimal startLat = new BigDecimal(Double.toString(start[0]));
+            BigDecimal endLat = new BigDecimal(Double.toString(end[0]));
+            BigDecimal startLng = new BigDecimal(Double.toString(start[1]));
+            BigDecimal endLng = new BigDecimal(Double.toString(end[1]));
+            BigDecimal unitLatBD = new BigDecimal(Float.toString(unitLat));
+            BigDecimal distanceBD = new BigDecimal(Float.toString(unitLat));
+            BigDecimal sin1BD;//一二象限与x轴夹角
+            BigDecimal sin2BD;//三四象限与x轴夹角
+            sin1BD = (endLat.subtract(startLat)).multiply(unitLatBD).divide(distanceBD,6,BigDecimal.ROUND_HALF_UP);
+            sin2BD = (startLat.subtract(endLat)).multiply(unitLatBD).divide(distanceBD, 6, BigDecimal.ROUND_HALF_UP);
+            if (endLat.compareTo(startLat) > -1 && endLng.compareTo(startLng) > -1) {//第一象限，[x,y]
+                sinBD = sin1BD;
+                quadrant = 1;
+            } else if (endLat.compareTo(startLat) > -1 && endLng.compareTo(startLng) < 0) {//第二象限，[x,y)
+                sinBD = sin1BD;
+                quadrant = 2;
+            } else if (endLat.compareTo(startLat) < 0 && endLng.compareTo(startLng) < 1) {//第三象限，（x,y]
+                sinBD = sin2BD;
+                quadrant = 3;
+            } else if (endLat.compareTo(startLat) < 0 && endLng.compareTo(startLng) > 0) {//第四象限，(x,y)
+                sinBD = sin2BD;
+                quadrant = 4;
+            }
+            DecimalFormat sixDf = new DecimalFormat("0.000000");
+//            angle = Math.asin(sin);//正弦对应的弧度值
+            assert sinBD != null;
+            radianBD = BigDecimalMath.asin(sinBD,mathContext);//正弦对应的弧度值
+            //角度转为弧度
+            //需要补的点数，舍弃小数位取整
+            int supplyNum = (int) Math.floor(distance / eachDistance);
+            Log.d(TAG, "补点的个数：" + supplyNum);
+            /*根据夹角，计算补出的每个点的坐标*/
+            List<double[]> eachPoints = new ArrayList<>();//这一段距离补充的坐标点
+            supplyPoints.add(start);//先把这一段的起点添加进去
+            for (int j = 1; j <= supplyNum; j++) {
+                double[] eachCoord = new double[2];//补充的点
+                double radians = Math.toRadians(start[0]);//弧度值，需要把维度值转化为弧度值
+//                double unitLng = unitLat * Math.cos(radians);//这个点的维度对应的1经度的距离
+                BigDecimal unitLngBD = unitLatBD.multiply(BigDecimalMath.cos(new BigDecimal(Double.toString(radians)),mathContext));//这个点的维度对应的1经度的距离
+//                double y = eachDistance * j * sin / unitLat;//补点的纵坐标的绝对值
+                BigDecimal yBD = eachDistanceBD.multiply(new BigDecimal(j)).multiply(sinBD).divide(unitLatBD,6,BigDecimal.ROUND_HALF_UP);//补点的纵坐标的绝对值
+//                double x = eachDistance * j * Math.cos(angle) / unitLng;//补点的横坐标的绝对值
+                switch (quadrant) {//根据不同象限计算坐标
+                    case 1:
+//                        eachCoord[0] = y + start[0];//每个点的维度值
+                        eachCoord[0] = yBD.add(new BigDecimal(Double.toString(start[0]))).doubleValue();
+//                        eachCoord[1] = eachDistance * j * Math.cos(angle) / unitLng + start[1];//每个点计算经度值
+                        eachCoord[1] = eachDistanceBD.multiply(new BigDecimal(j)).multiply(BigDecimalMath.cos(radianBD,mathContext))
+                                .divide(unitLngBD,6,BigDecimal.ROUND_HALF_UP)
+                                .add(new BigDecimal(Double.toString(start[1]))).doubleValue();//每个点计算经度值
+                        break;
+                    case 2:
+                        eachCoord[0] = yBD.add(new BigDecimal(Double.toString(start[0]))).doubleValue();
+//                        eachCoord[1] = start[1] - eachDistance * j * Math.cos(angle) / unitLng;
+                        eachCoord[1] = new BigDecimal(Double.toString(start[1])).subtract(eachDistanceBD.multiply(new BigDecimal(j))
+                                .multiply(BigDecimalMath.cos(radianBD,mathContext)).divide(unitLngBD,6,BigDecimal.ROUND_HALF_UP)).doubleValue();
+                        break;
+                    case 3:
+//                        eachCoord[0] = start[0] - y;
+                        eachCoord[0] = new BigDecimal(Double.toString(start[0])).subtract(yBD).doubleValue();
+//                        eachCoord[1] = start[1] - eachDistance * j * Math.cos(angle) / unitLng;
+                        eachCoord[1] = new BigDecimal(Double.toString(start[1])).subtract(eachDistanceBD.multiply(new BigDecimal(j))
+                                .multiply(BigDecimalMath.cos(radianBD,mathContext)).divide(unitLngBD,6,BigDecimal.ROUND_HALF_UP)).doubleValue();
+                        break;
+                    case 4:
+//                        eachCoord[0] = start[0] - y;
+                        eachCoord[0] = new BigDecimal(Double.toString(start[0])).subtract(yBD).doubleValue();
+//                        radians = Math.toRadians(eachCoord[0]);//转为弧度值
+//                        unitLng = unitLat * Math.cos(radians);
+//                        eachCoord[1] = eachDistance * j * Math.cos(angle) / unitLng + start[1];
+                        eachCoord[1] = eachDistanceBD.multiply(new BigDecimal(j)).multiply(BigDecimalMath.cos(radianBD,mathContext))
+                                .divide(unitLngBD, 6, BigDecimal.ROUND_HALF_UP).add(new BigDecimal(Double.toString(start[1]))).doubleValue();
+                        break;
+                    default:
+                        break;
+                }
+                Log.d(TAG, "计算出的补点："+Arrays.toString(eachCoord));
                 eachCoord[0] = Double.parseDouble(sixDf.format(eachCoord[0]));
                 eachCoord[1] = Double.parseDouble(sixDf.format(eachCoord[1]));
                 eachPoints.add(eachCoord);//把补出的点添加进去
