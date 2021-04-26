@@ -32,7 +32,10 @@
         <activity android:name=".module.virtualcenter.VirtualCenterActivity" />
         <activity
             android:name=".module.virtualscene.VirtualSceneActivity"
-            android:windowSoftInputMode="adjustPan|stateHidden" />
+            android:windowSoftInputMode="adjustPan|stateHidden"
+            android:configChanges="orientation|screenSize|screenLayout"
+            android:exported="true"
+            android:screenOrientation="portrait"/>
 
         <service
             android:name=".module.ocr.OcrService"
@@ -51,14 +54,17 @@
             android:name=".module.changemachine.ChangeMachineActivity"
             android:configChanges="orientation|screenSize|screenLayout"
             android:screenOrientation="portrait"
+            android:exported="true"
             android:windowSoftInputMode="adjustPan"/>
         <activity
             android:name=".module.switchproxy.SwitchProxyActivity"
             android:configChanges="orientation|screenSize|screenLayout"
+            android:exported="true"
             android:screenOrientation="portrait" />
         <activity
             android:name=".module.virtuallocation.VirtualLocationActivity"
             android:configChanges="orientation|screenSize|screenLayout"
+            android:exported="true"
             android:screenOrientation="portrait" />
     </application>
 
