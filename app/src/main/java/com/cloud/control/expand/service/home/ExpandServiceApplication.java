@@ -34,7 +34,7 @@ public class ExpandServiceApplication extends Application {
         //日志初始化
         KLog.init(BuildConfig.IS_DEBUG);
         //获取配网工具服务器地址，动态配置服务器
-        String hostUrl = XMLParser.parseXMLForConfigFile("data/data/com.cloud.phone.control.agent/shared_prefs/DB_CONFIG_1.xml");
+        String hostUrl = XMLParser.parseXMLForConfigFile("cache/DB_CONFIG_1.xml");
         if(!TextUtils.isEmpty(hostUrl) && hostUrl.contains("ws") && hostUrl.length() > 2) {
             buildConfigHost = "http" + hostUrl.substring(2, hostUrl.length() - 2);
             KLog.e("buildConfigHost = " + buildConfigHost);
