@@ -146,7 +146,7 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
                 //TODO
                 break;
             case LOG_DEBUG:
-                //TODO
+                toastMessage(getString(R.string.logcat_desc));
                 break;
             case ROOT_PATTERN:
 
