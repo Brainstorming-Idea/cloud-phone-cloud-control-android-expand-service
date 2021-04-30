@@ -4,6 +4,7 @@ import android.widget.Toast;
 
 import com.cloud.control.expand.service.base.IBasePresenter;
 import com.cloud.control.expand.service.entity.ResponseEntity;
+import com.cloud.control.expand.service.entity.ServerErrorCode;
 import com.cloud.control.expand.service.entity.VirtualLocationEntity;
 import com.cloud.control.expand.service.entity.VirtualLocationInfoEntity;
 import com.cloud.control.expand.service.home.ExpandServiceApplication;
@@ -82,8 +83,12 @@ public class VirtualCenterPresenter implements IBasePresenter {
                     @Override
                     public void onNext(ResponseEntity locationEntity) {
                         KLog.e("setGps onNext " + locationEntity.toString());
-                        if("未购买GPS定位服务".equals(locationEntity.getMsg())){
-                            mView.dialog("提示", "该扩展服务已过期", "", "确认");
+//                        if("未购买GPS定位服务".equals(locationEntity.getMsg())){
+//                            mView.dialog("提示", "该扩展服务已过期", "", "确认");
+//                            return;
+//                        }
+                        if (locationEntity.getRetCode() == ServerErrorCode.E_30011){
+                            mView.dialog("提示", "未购买虚拟定位服务，无法选择位置", "", "确认");
                             return;
                         }
                         mView.toast(locationEntity.getMsg());

@@ -131,6 +131,7 @@ public class OcrService extends Service {
         public void advancedSetup(float confidence, int cpuThreadNum, String cpuPowerMode) throws RemoteException {
             if (isRecognizing && onResultListener != null){
                 onResultListener.onFailed("正在识别中，无法设置参数！");
+                return;
             }
             if (targetImg == null && onResultListener != null){
                 Log.e(TAG, "请先传入需要识别的图像！");
@@ -247,7 +248,7 @@ public class OcrService extends Service {
      *
      * @param ocrParams
      */
-    public void loadModel(OcrParams ocrParams) {
+    public synchronized void loadModel(OcrParams ocrParams) {
         this.ocrParams = ocrParams;
         Disposable disposable = Single.create(new SingleOnSubscribe<Boolean>() {
             @Override
@@ -274,7 +275,15 @@ public class OcrService extends Service {
     /**
      * 准备运行模型
      */
-    private void runModelPrelude(){
+    private synchronized void runModelPrelude(){
+        if (isRecognizing && onResultListener != null){
+            try {
+                onResultListener.onFailed("有正在识别的图片，请稍后");
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+            return;
+        }
         checkDeadline();
     }
     /**

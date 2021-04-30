@@ -205,7 +205,7 @@ public class VirtualScenePresenter implements IBasePresenter, IVirtualScene {
      * @param radius 半径 单位：米
      */
     @Override
-    public double[] getTerminalPoint(int radius){
+    public double[] getTerminalPoint(double[] centerCoord, int radius){
         if (centerCoord == null || centerCoord[0] == 0 || centerCoord[1] == 0){
             VsConfig vsConfig = helper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG,VsConfig.class);
             if(vsConfig != null){

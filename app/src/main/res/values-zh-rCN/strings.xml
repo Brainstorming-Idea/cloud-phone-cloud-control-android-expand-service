@@ -16,7 +16,7 @@
     <string name="vs_drive">驾驶</string>
     <string name="vs_choose_center">选择中心位置</string>
     <string name="vs_confirm">确定</string>
-    <string name="vs_start">开始</string>
+    <string name="vs_start">启动</string>
     <string name="vs_stop">停止</string>
     <string name="vs_input_right_radius">请输入正确的移动半径</string>
     <string name="vs_start_scene">启动模拟%s</string>

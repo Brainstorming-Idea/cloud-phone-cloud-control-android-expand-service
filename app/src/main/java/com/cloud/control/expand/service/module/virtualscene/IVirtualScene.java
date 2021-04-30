@@ -17,5 +17,5 @@ public interface IVirtualScene {
      * @param radius
      * @return
      */
-    double[] getTerminalPoint(int radius);
+    double[] getTerminalPoint(double[] centerCoord, int radius);
 } 

@@ -162,6 +162,8 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
                 String radiusStr = etRadius.getText().toString();
                 if (!TextUtils.isEmpty(radiusStr)) {
                     radius = Integer.parseInt(radiusStr);
+                }else {
+                    radius = 0;
                 }
                 assert sceneType != null;
                 switch (sceneType) {
@@ -242,8 +244,9 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
             if (vsConfig != null) {
                 isStart = vsConfig.isStart();
                 SceneType sceneType = SceneType.getVirtualScene(vsConfig.getSceneType());
+                location.setText(vsConfig.getAddress());//显示存储的位置信息
                 if (gridAdapter != null && isStart) {
-                    location.setText(vsConfig.getAddress());//显示存储的位置信息
+
                     /*确认下路线规划是否在运行，防止出现在虚拟场景运行时重启安卓卡，界面显示在运行而实际没有运行*/
                     if (binder != null && !binder.getService().getStatus()) {
                         Log.e(TAG, "服务运行状态与保存状态不一致，修改保存的状态");
@@ -262,7 +265,8 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
                         }
                     }
                 }else {
-                    mPresenter.getCenterLoc();
+//                    mPresenter.getCenterLoc();
+
                 }
             }else {
                 mPresenter.getCenterLoc();
@@ -307,16 +311,24 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
     public void updateStatus() {
         //更新按钮状态及启动状态
         if (!isStart) {
-            //先获取一下终点坐标，初始起点为中心点
-            double[] endPoint = mPresenter.getTerminalPoint(radius * 1000);
+            //获取一下是否有存储过的中心点信息
+            VsConfig vsConfig = helper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG,VsConfig.class);
+            double[] endPoint;
+            if (vsConfig == null) {
+                //先获取一下终点坐标，初始起点为中心点
+                endPoint = mPresenter.getTerminalPoint(cCoord, radius * 1000);
 //            double[] endPoint = new double[]{22.197938,114.698808};//测试：百度无法计算路线的终点坐标
+                vsConfig = new VsConfig();
+                vsConfig.setCenterCoords(cCoord);
+                vsConfig.setCity(centerCity);
+            }else {
+                endPoint = mPresenter.getTerminalPoint(vsConfig.getCenterCoords(), radius * 1000);
+            }
+
             if (endPoint[0] != 0 && endPoint[1] != 0) {
                 //存储用户数据
-                VsConfig vsConfig = new VsConfig();
-                vsConfig.setCenterCoords(cCoord);
                 vsConfig.setRadius(radius * 1000);
                 vsConfig.setSceneType(sceneIndex);
-                vsConfig.setCity(centerCity);
                 vsConfig.setAddress(location.getText().toString());
                 vsConfig.setStart(true);
                 helper.putObject(ConstantsUtils.SpKey.SP_VS_CONFIG, vsConfig);

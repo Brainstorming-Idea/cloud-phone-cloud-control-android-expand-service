@@ -3,6 +3,7 @@ package com.cloud.control.expand.service.home.list;
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 
 import com.cloud.control.expand.service.R;
@@ -96,16 +97,23 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
     @Override
     public void loadData(List<ExpandServiceRecordEntity.DataBean> listEntity) {
         mListEntity = listEntity;
-        if (listEntity != null && listEntity.size() > 0) {
-            if (mRvExpandServiceList != null) {
-                mRvExpandServiceList.setVisibility(View.VISIBLE);
-                mExpandServiceMainListAdapter.updateItems(listEntity);
-            }
-        } else {
-            if (mRvExpandServiceList != null) {
-                mRvExpandServiceList.setVisibility(View.GONE);
-            }
+        if (!mRvExpandServiceList.isShown()){
+            mRvExpandServiceList.setVisibility(View.VISIBLE);
         }
+//        mRvExpandServiceList.setVisibility(View.VISIBLE);
+        mExpandServiceMainListAdapter.updateItems(listEntity);
+//        if (listEntity != null && listEntity.size() > 0) {
+//            if (mRvExpandServiceList != null) {
+//                Log.e("wytest","list is shown:"+mRvExpandServiceList.isShown());
+//                mRvExpandServiceList.setVisibility(View.VISIBLE);
+//                mExpandServiceMainListAdapter.updateItems(listEntity);
+//            }
+//        } else {
+//            Log.e("wytest","data is null"+mRvExpandServiceList.isShown());
+//            if (mRvExpandServiceList != null) {
+//                mRvExpandServiceList.setVisibility(View.GONE);
+//            }
+//        }
     }
 
     @Override
