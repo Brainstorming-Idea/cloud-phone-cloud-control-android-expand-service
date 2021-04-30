@@ -250,6 +250,9 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * 服务绑定结果回调
+     */
     private ServiceConnection serviceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -271,6 +274,9 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    /**
+     * 模型初始化监听
+     */
     public InitModelListener initModelListener = new InitModelListener.Stub() {
         @Override
         public void onLoadSuccess() throws RemoteException {
