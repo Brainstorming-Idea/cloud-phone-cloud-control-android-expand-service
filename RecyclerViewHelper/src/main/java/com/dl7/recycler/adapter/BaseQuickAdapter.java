@@ -3,7 +3,9 @@ package com.dl7.recycler.adapter;
 import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.RequiresApi;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -432,7 +434,9 @@ public abstract class BaseQuickAdapter<T> extends RecyclerView.Adapter<RecyclerV
      * @param items
      */
     public void updateItems(List<T> items) {
-        mData = new ArrayList<>(items);
+//        mData = new ArrayList<>(items);
+        mData.clear();
+        mData.addAll(items);
         notifyDataSetChanged();
         mIsNoMoreData = false;
     }

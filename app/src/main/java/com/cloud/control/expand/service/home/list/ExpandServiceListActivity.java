@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 
 import com.cloud.control.expand.service.R;
 import com.cloud.control.expand.service.adapter.ExpandServiceListAdapter;
@@ -63,6 +64,7 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
         mExpandServiceMainListAdapter = new ExpandServiceListAdapter(mContext);
         mExpandServiceMainListAdapter.setIRootOnClickListener(this);
         RecyclerViewHelper.initRecyclerViewV(this, mRvExpandServiceList, mExpandServiceMainListAdapter);
+        Log.e("rv init hashcode","" + mRvExpandServiceList.hashCode());
         mExpandServiceMainListAdapter.setOnItemClickListener(new OnRecyclerViewItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
@@ -91,7 +93,9 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
 
     @Override
     protected void updateViews(boolean isRefresh) {
-        mPresenter.getData();
+        if (isRefresh) {
+            mPresenter.getData();
+        }
     }
 
     @Override
@@ -191,5 +195,10 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
     @Override
     public void onClick(boolean isOpen) {
         mPresenter.setRootState(isOpen);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }
