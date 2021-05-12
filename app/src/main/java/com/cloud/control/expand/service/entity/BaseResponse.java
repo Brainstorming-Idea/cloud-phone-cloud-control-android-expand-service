@@ -1,5 +1,7 @@
 package com.cloud.control.expand.service.entity;
 
+import java.io.Serializable;
+
 /**
  * @author wangyou
  * @desc: api返回的消息基类

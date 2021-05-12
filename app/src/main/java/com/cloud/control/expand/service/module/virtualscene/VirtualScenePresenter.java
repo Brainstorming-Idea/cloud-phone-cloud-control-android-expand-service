@@ -54,6 +54,10 @@ public class VirtualScenePresenter implements IBasePresenter, IVirtualScene {
     @Override
     public void getCenterLoc() {
         String gpsLoc = HardwareUtil.getInstance(ExpandServiceApplication.getInstance()).getGpsLocation();
+        if (gpsLoc.isEmpty()){
+            mView.toast("系统位置信息获取失败！");
+            return;
+        }
         double lat = Double.parseDouble(gpsLoc.split(";")[0]);
         double lng = Double.parseDouble(gpsLoc.split(";")[1]);
         centerCoord = GPSUtil.gps84_To_bd09(lat, lng);

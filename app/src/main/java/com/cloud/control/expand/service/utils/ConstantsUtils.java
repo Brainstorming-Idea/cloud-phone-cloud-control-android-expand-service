@@ -9,6 +9,7 @@ public class ConstantsUtils {
 
     //图片中间拼接地址
     public static final String IMAGE_MIDDLE_URL = "api/upgrade/downlodFile/viewImage/?url=";
+    public static final String GPS_FILE_PATH = "/data/system/gps/location";
     //服务过期
     public static final int SERVICE_EXPIRED_CODE = 30011;
 

@@ -42,6 +42,7 @@ import com.cloud.control.expand.service.utils.bdmap.BdMapUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -92,6 +93,7 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
     private GridAdapter gridAdapter = null;
     private Intent vsIntent;
     private SharePreferenceHelper helper = SharePreferenceHelper.getInstance(ExpandServiceApplication.getInstance());
+
     @Override
     protected int attachLayoutRes() {
         return R.layout.activity_virtual_scene;
@@ -110,7 +112,7 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
         initToolBar(toolbar, false, getString(R.string.virtual_scene));
         vsIntent = new Intent(this, VirtualSceneService.class);
 //        if (isServiceRunning(ExpandServiceApplication.getInstance(), VirtualSceneService.class.getCanonicalName())) {
-            bindService(vsIntent, vServiceConnection, Service.BIND_AUTO_CREATE);
+        bindService(vsIntent, vServiceConnection, Service.BIND_AUTO_CREATE);
 //        }
         final List<SceneType> sceneTypes = new ArrayList<>(Arrays.asList(SceneType.values()));
         gridAdapter = new GridAdapter(this, sceneTypes);
@@ -162,7 +164,7 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
                 String radiusStr = etRadius.getText().toString();
                 if (!TextUtils.isEmpty(radiusStr)) {
                     radius = Integer.parseInt(radiusStr);
-                }else {
+                } else {
                     radius = 0;
                 }
                 assert sceneType != null;
@@ -217,13 +219,13 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
                     location.setText(detailAdd);
                     /*存储坐标及位置描述*/
                     SharePreferenceHelper helper = SharePreferenceHelper.getInstance(ExpandServiceApplication.getInstance());
-                    VsConfig vsConfig = helper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG,VsConfig.class);
+                    VsConfig vsConfig = helper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG, VsConfig.class);
                     if (vsConfig == null) {
                         vsConfig = new VsConfig();
                     }
                     vsConfig.setCity(infoEntity.getCity());
                     vsConfig.setAddress(detailAdd);
-                    double[] newCenter = new double[]{Double.parseDouble(infoEntity.getLatitude()),Double.parseDouble(infoEntity.getLongitude())};
+                    double[] newCenter = new double[]{Double.parseDouble(infoEntity.getLatitude()), Double.parseDouble(infoEntity.getLongitude())};
                     vsConfig.setCenterCoords(newCenter);
                     cCoord = newCenter;//更新中心点坐标
                     helper.putObject(ConstantsUtils.SpKey.SP_VS_CONFIG, vsConfig);
@@ -264,11 +266,10 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
                             radiusContainer.setVisibility(View.GONE);
                         }
                     }
-                }else {
-//                    mPresenter.getCenterLoc();
-
+                } else {
+                    mPresenter.getCenterLoc();
                 }
-            }else {
+            } else {
                 mPresenter.getCenterLoc();
             }
         } else {
@@ -312,7 +313,7 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
         //更新按钮状态及启动状态
         if (!isStart) {
             //获取一下是否有存储过的中心点信息
-            VsConfig vsConfig = helper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG,VsConfig.class);
+            VsConfig vsConfig = helper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG, VsConfig.class);
             double[] endPoint;
             if (vsConfig == null) {
                 //先获取一下终点坐标，初始起点为中心点
@@ -321,7 +322,11 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
                 vsConfig = new VsConfig();
                 vsConfig.setCenterCoords(cCoord);
                 vsConfig.setCity(centerCity);
-            }else {
+            } else if (!Objects.equals(centerCity, vsConfig.getCity())) {//需要判断当前保存的地点和实际地点是否在一个城市
+                endPoint = mPresenter.getTerminalPoint(cCoord, radius * 1000);
+                vsConfig.setCenterCoords(cCoord);
+                vsConfig.setCity(centerCity);
+            } else {
                 endPoint = mPresenter.getTerminalPoint(vsConfig.getCenterCoords(), radius * 1000);
             }
 
@@ -336,13 +341,13 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
             }
         } else {
             //停止路线规划
-            if (isBind && binder != null && ServerUtils.isServiceRunning(ExpandServiceApplication.getInstance(), VirtualSceneService.class.getCanonicalName())){
+            if (isBind && binder != null && ServerUtils.isServiceRunning(ExpandServiceApplication.getInstance(), VirtualSceneService.class.getCanonicalName())) {
                 binder.getService().stopRoute();
             }
         }
     }
 
-    private void startVsService(VsConfig vsConfig){
+    private void startVsService(VsConfig vsConfig) {
         //启动服务
         vsIntent.putExtra("scene_type", vsConfig.getSceneType());
         vsIntent.putExtra("start_loc", vsConfig.getCenterCoords());
@@ -490,7 +495,7 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
             convertView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if (!isEnable){
+                    if (!isEnable) {
                         return;
                     }
                     setSelectedPos(position);

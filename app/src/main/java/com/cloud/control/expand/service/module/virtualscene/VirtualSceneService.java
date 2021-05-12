@@ -643,6 +643,7 @@ public class VirtualSceneService extends Service {
      */
     public List<double[]> getCoords(RoutePlan routePlan) {
         List<double[]> coords = new ArrayList<>();
+        DecimalFormat sixDf = new DecimalFormat("0.000000");
         //默认使用第一种路线方案
         if (routePlan.getResult().getRoutes().size() > 0) {
             ArrayList<Steps> paths = routePlan.getResult().getRoutes().get(0).getSteps();
@@ -652,6 +653,9 @@ public class VirtualSceneService extends Service {
                 for (int j = 0; j < points.length; j++) {
                     double pointLng = Double.parseDouble(points[j].split(",")[0]);
                     double pointLat = Double.parseDouble(points[j].split(",")[1]);
+                    //保留6位小数
+                    pointLat = Double.parseDouble(sixDf.format(pointLat));
+                    pointLng = Double.parseDouble(sixDf.format(pointLng));
                     double[] pointGps = GPSUtil.bd09_To_gps84(pointLat, pointLng);
                     if (j != points.length - 1) {//上个step结束的点和下个step开始点是重的
                         coords.add(pointGps);
@@ -725,6 +729,11 @@ public class VirtualSceneService extends Service {
         VsConfig vsConfig = spHelper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG,VsConfig.class);
         if (vsConfig != null) {
             vsConfig.setStart(false);
+            //恢复到启动时的位置
+            Log.d(TAG, "准备恢复的坐标："+Arrays.toString(vsConfig.getCenterCoords()));
+            HardwareUtil.getInstance(ExpandServiceApplication.getInstance())
+                    .setGpsLocation(vsConfig.getCenterCoords()[0] + ";" + vsConfig.getCenterCoords()[1]);
+            Log.d(TAG, "坐标已恢复："+HardwareUtil.getInstance(ExpandServiceApplication.getInstance()).getGpsLocation());
             spHelper.putObject(ConstantsUtils.SpKey.SP_VS_CONFIG, vsConfig);
         }
         if (callBack != null) {

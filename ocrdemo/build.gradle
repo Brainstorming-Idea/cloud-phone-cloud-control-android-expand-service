@@ -14,8 +14,18 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
 
+    signingConfigs {
+        config {
+            keyAlias 'key'
+            keyPassword '111111'
+            storeFile file('/demo.jks')
+            storePassword '111111'
+        }
+    }
+
     buildTypes {
         release {
+            signingConfigs.config
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }

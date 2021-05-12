@@ -67,6 +67,9 @@ public class VirtualLocationPresenter implements IBasePresenter, IVirtualLocatio
 
     @Override
     public void startLocation(String longitude, String latitude, String city) {
+        if (checkStatus()){
+            return;
+        }
         RetrofitServiceManager.setGps(longitude, latitude, city)
                 .doOnSubscribe(new Action0() {
                     @Override
@@ -95,9 +98,7 @@ public class VirtualLocationPresenter implements IBasePresenter, IVirtualLocatio
                             mView.dialog("提示", "该扩展服务已过期", "", "确认");
                             return;
                         }
-                        if (!checkStatus()){
-                            mView.toast(locationEntity.getMsg());
-                        }
+                        mView.toast(locationEntity.getMsg());
                     }
                 });
     }

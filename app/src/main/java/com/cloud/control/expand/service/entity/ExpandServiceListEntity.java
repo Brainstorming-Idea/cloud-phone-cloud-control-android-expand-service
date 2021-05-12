@@ -1,5 +1,6 @@
 package com.cloud.control.expand.service.entity;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**

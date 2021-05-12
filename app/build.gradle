@@ -53,11 +53,12 @@ android {
         }
         release {
             signingConfigs.config
-            debuggable true
-            minifyEnabled false
+            debuggable false
+            minifyEnabled true
             buildConfigField(STRING, APP_HOST, '"http://"')
-            buildConfigField "boolean", 'IS_DEBUG', 'true'
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            buildConfigField "boolean", 'IS_DEBUG', 'false'
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 
@@ -103,6 +104,7 @@ dependencies {
     implementation 'com.trello:rxlifecycle:1.0'
     implementation 'com.trello:rxlifecycle-components:1.0'
     implementation 'com.tbruyelle.rxpermissions:rxpermissions:0.9.1@aar'
+    implementation 'com.artemzin.rxjava:proguard-rules:1.1.9.0'//rxjava 混淆
     // retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.1.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.1.0'
