@@ -140,7 +140,7 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
 //        });
 
         /*获取中心位置*/
-        mPresenter.getCenterLoc();
+        mPresenter.getCenterLoc(false);
     }
 
     @OnClick({R.id.iv_vs_back, R.id.vs_center_container, R.id.vs_start_btn})
@@ -267,14 +267,14 @@ public class VirtualSceneActivity extends BaseActivity<VirtualScenePresenter> im
                         }
                     }
                 } else {
-                    mPresenter.getCenterLoc();
+                    mPresenter.getCenterLoc(false);
                 }
             } else {
-                mPresenter.getCenterLoc();
+                mPresenter.getCenterLoc(false);
             }
         } else {
             isStart = false;
-            mPresenter.getCenterLoc();
+            mPresenter.getCenterLoc(false);
         }
         //设置GridView是否可点击
 //        vsGrid.setClickable(!isStart);

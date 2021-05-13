@@ -9,8 +9,9 @@ public interface IVirtualScene {
 
     /**
      * 获取中心点位置
+     * @param isUpdateStatus 是否要更新启动状态
      */
-    void getCenterLoc();
+    void getCenterLoc(boolean isUpdateStatus);
 
     /**
      * 获取终点坐标

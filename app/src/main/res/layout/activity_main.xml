@@ -15,11 +15,17 @@
         android:background="@color/c_f5f6fa" />
 
     <!-- android:overScrollMode="never"就是不显示边界阴影效果 -->
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_expand_service_list"
+
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:overScrollMode="never" />
+        android:orientation="vertical">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_expand_service_list"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </LinearLayout>
 
     <include layout="@layout/layout_common_empty" />
 

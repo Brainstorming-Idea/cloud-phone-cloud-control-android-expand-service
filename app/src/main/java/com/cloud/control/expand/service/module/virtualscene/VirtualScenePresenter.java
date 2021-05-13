@@ -38,6 +38,7 @@ public class VirtualScenePresenter implements IBasePresenter, IVirtualScene {
     public static String currCity = "";
     private SharePreferenceHelper helper = SharePreferenceHelper.getInstance(ExpandServiceApplication.getInstance());
     private VsConfig vsConfig = null;
+
     public VirtualScenePresenter() {
     }
 
@@ -51,10 +52,11 @@ public class VirtualScenePresenter implements IBasePresenter, IVirtualScene {
 
     }
 
+
     @Override
-    public void getCenterLoc() {
+    public void getCenterLoc(boolean isUpdateStatus) {
         String gpsLoc = HardwareUtil.getInstance(ExpandServiceApplication.getInstance()).getGpsLocation();
-        if (gpsLoc.isEmpty()){
+        if (gpsLoc.isEmpty()) {
             mView.toast("系统位置信息获取失败！");
             return;
         }
@@ -64,7 +66,72 @@ public class VirtualScenePresenter implements IBasePresenter, IVirtualScene {
         BigDecimal bdLat = new BigDecimal(Double.toString(centerCoord[0]));
         BigDecimal bdLng = new BigDecimal(Double.toString(centerCoord[1]));
         /*保留4位小数，与H5返回的坐标精度一致*/
-        String latStr = bdLat.setScale(4,BigDecimal.ROUND_HALF_UP).toPlainString();
+        String latStr = bdLat.setScale(4, BigDecimal.ROUND_HALF_UP).toPlainString();
+        String lngStr = bdLng.setScale(4, BigDecimal.ROUND_HALF_UP).toPlainString();
+        centerCoord[0] = Double.parseDouble(latStr);
+        centerCoord[1] = Double.parseDouble(lngStr);
+        mView.loadCenterLocation(centerCoord);
+        /*获取中心点坐标的逆地理编码*/
+        RetrofitServiceManager.reverseCoding(centerCoord)
+                .doOnSubscribe(new Action0() {
+                    @Override
+                    public void call() {
+                        mView.showLoading();
+                    }
+                })
+                .compose(mView.<InverseGCInfo>bindToLife())
+                .subscribe(new Subscriber<InverseGCInfo>() {
+                    @Override
+                    public void onCompleted() {
+                        if (!isUpdateStatus) {
+                            mView.hideLoading();
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        mView.hideLoading();
+                        Log.e(TAG, "reserveCoding error:" + e.getMessage());
+                    }
+
+                    @Override
+                    public void onNext(InverseGCInfo inverseGCInfo) {
+                        if (inverseGCInfo != null && inverseGCInfo.getStatus() == 0 && inverseGCInfo.getResult() != null) {
+                            String address = inverseGCInfo.getResult().getFormatted_address();
+                            mView.loadCenterLocDes(address);
+                            mView.setCenterCity(inverseGCInfo.getResult().getAddressComponent().getCity());
+                        } else {
+                            if (centerCoord[1] > 0) {//不管南纬了:)
+                                mView.loadCenterLocDes(lngStr + "°E，" + latStr + "°N");
+                            } else {
+                                mView.loadCenterLocDes(lngStr + "°W，" + latStr + "°N");
+                            }
+                        }
+                        if (isUpdateStatus) {
+                            //更新启动状态
+                            mView.updateStatus();
+                        }
+                    }
+                });
+
+    }
+
+    /**
+     * 重新获取位置
+     */
+    public void reGetLoc() {
+        String gpsLoc = HardwareUtil.getInstance(ExpandServiceApplication.getInstance()).getGpsLocation();
+        if (gpsLoc.isEmpty()) {
+            mView.toast("系统位置信息获取失败！");
+            return;
+        }
+        double lat = Double.parseDouble(gpsLoc.split(";")[0]);
+        double lng = Double.parseDouble(gpsLoc.split(";")[1]);
+        centerCoord = GPSUtil.gps84_To_bd09(lat, lng);
+        BigDecimal bdLat = new BigDecimal(Double.toString(centerCoord[0]));
+        BigDecimal bdLng = new BigDecimal(Double.toString(centerCoord[1]));
+        /*保留4位小数，与H5返回的坐标精度一致*/
+        String latStr = bdLat.setScale(4, BigDecimal.ROUND_HALF_UP).toPlainString();
         String lngStr = bdLng.setScale(4, BigDecimal.ROUND_HALF_UP).toPlainString();
         centerCoord[0] = Double.parseDouble(latStr);
         centerCoord[1] = Double.parseDouble(lngStr);
@@ -92,69 +159,28 @@ public class VirtualScenePresenter implements IBasePresenter, IVirtualScene {
 
                     @Override
                     public void onNext(InverseGCInfo inverseGCInfo) {
-                        if (inverseGCInfo != null && inverseGCInfo.getStatus() == 0 && inverseGCInfo.getResult() != null){
+                        if (inverseGCInfo != null && inverseGCInfo.getStatus() == 0 && inverseGCInfo.getResult() != null) {
                             String address = inverseGCInfo.getResult().getFormatted_address();
                             mView.loadCenterLocDes(address);
                             mView.setCenterCity(inverseGCInfo.getResult().getAddressComponent().getCity());
-                        }else {
+                        } else {
                             if (centerCoord[1] > 0) {//不管南纬了:)
                                 mView.loadCenterLocDes(lngStr + "°E，" + latStr + "°N");
-                            }else {
+                            } else {
                                 mView.loadCenterLocDes(lngStr + "°W，" + latStr + "°N");
                             }
                         }
+                        //更新启动状态
+                        mView.updateStatus();
                     }
                 });
-
-//        //先获取一下IP所在城市
-//        RetrofitServiceManager.getMyIp()
-//                .doOnSubscribe(new Action0() {
-//                    @Override
-//                    public void call() {
-//                        mView.showLoading();
-//                    }
-//                })
-//                .compose(mView.<MyIp>bindToLife())
-//                .subscribe(new Subscriber<MyIp>() {
-//                    @Override
-//                    public void onCompleted() {
-//
-//                    }
-//
-//                    @Override
-//                    public void onError(Throwable e) {
-//                        Log.e(TAG, "myIP:"+e.getMessage()+"");
-//                        mView.hideLoading();
-//                    }
-//
-//                    @Override
-//                    public void onNext(MyIp myIp) {
-//                        if (myIp != null){
-//                            String province = myIp.getProvince();
-//                            String city = myIp.getCity();
-//                            currCity = city;
-//                            Log.d(TAG, city+"");
-//                            if (vsConfig != null && !TextUtils.isEmpty(vsConfig.getAddress()) && !TextUtils.isEmpty(vsConfig.getCity())){
-//                                mView.loadCenterLocDes(vsConfig.getAddress());
-//                                mView.setCenterCity(vsConfig.getCity());
-//                                getTarLocation(vsConfig.getAddress(),vsConfig.getCity());
-//                            }else{
-//                                mView.loadCenterLocDes(province+city);
-//                                mView.setCenterCity(city);
-//                                getTarLocation(province+city,city);
-//                            }
-//
-//                        }
-//                    }
-//                });
-
     }
 
-    public String getCurrCity(){
+    public String getCurrCity() {
         return currCity;
     }
 
-    private void getTarLocation(String address, String city){
+    private void getTarLocation(String address, String city) {
         RetrofitServiceManager.geoCoding(address, city)
                 .doOnSubscribe(new Action0() {
                     @Override
@@ -171,7 +197,7 @@ public class VirtualScenePresenter implements IBasePresenter, IVirtualScene {
 
                     @Override
                     public void onError(Throwable e) {
-                        Log.e(TAG, "baidu:"+e.getMessage() + "");
+                        Log.e(TAG, "baidu:" + e.getMessage() + "");
                         mView.hideLoading();
                     }
 
@@ -181,18 +207,18 @@ public class VirtualScenePresenter implements IBasePresenter, IVirtualScene {
                         if (addressParse == null) {
                             return;
                         }
-                        double[] bdmCoord = new double[]{addressParse.getResult().getLocation().getLat(),addressParse.getResult().getLocation().getLng()};
-                        Log.d(TAG, "百度坐标系：纬度值："+bdmCoord[0]
-                        + ",经度值："+bdmCoord[1]);
+                        double[] bdmCoord = new double[]{addressParse.getResult().getLocation().getLat(), addressParse.getResult().getLocation().getLng()};
+                        Log.d(TAG, "百度坐标系：纬度值：" + bdmCoord[0]
+                                + ",经度值：" + bdmCoord[1]);
 
                         //转换坐标系
-                        double[] gpsCoord = GPSUtil.bd09_To_gps84(addressParse.getResult().getLocation().getLat(),addressParse.getResult().getLocation().getLng());
-                        Log.d(TAG, "GPS坐标系：纬度值："+gpsCoord[0]
-                                + ",经度值："+gpsCoord[1]);
+                        double[] gpsCoord = GPSUtil.bd09_To_gps84(addressParse.getResult().getLocation().getLat(), addressParse.getResult().getLocation().getLng());
+                        Log.d(TAG, "GPS坐标系：纬度值：" + gpsCoord[0]
+                                + ",经度值：" + gpsCoord[1]);
 //                        /*设置GPS位置到安卓卡*/
                         HardwareUtil.getInstance(ExpandServiceApplication.getInstance()).setGpsLocation(gpsCoord[0] +
                                 ";" + gpsCoord[1]);
-                        Log.d(TAG, "安卓卡GPS："+HardwareUtil.getInstance(ExpandServiceApplication.getInstance()).getGpsLocation());
+                        Log.d(TAG, "安卓卡GPS：" + HardwareUtil.getInstance(ExpandServiceApplication.getInstance()).getGpsLocation());
                         centerCoord = bdmCoord;
                         mView.loadCenterLocation(centerCoord);
                     }
@@ -200,21 +226,21 @@ public class VirtualScenePresenter implements IBasePresenter, IVirtualScene {
     }
 
 
-
     /**
      * 计算运动区域
      * 一经度：30.9*3600 * cos(维度值)
      * 一秒维度：约30.9米 一维度的距离：30.9*3600
      * 一秒经纬度约33米
+     *
      * @param radius 半径 单位：米
      */
     @Override
-    public double[] getTerminalPoint(double[] centerCoord, int radius){
-        if (centerCoord == null || centerCoord[0] == 0 || centerCoord[1] == 0){
-            VsConfig vsConfig = helper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG,VsConfig.class);
-            if(vsConfig != null){
+    public double[] getTerminalPoint(double[] centerCoord, int radius) {
+        if (centerCoord == null || centerCoord[0] == 0 || centerCoord[1] == 0) {
+            VsConfig vsConfig = helper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG, VsConfig.class);
+            if (vsConfig != null) {
                 centerCoord = vsConfig.getCenterCoords();
-            }else{
+            } else {
                 throw new RuntimeException("中心点坐标获取失败！");
             }
         }
@@ -238,11 +264,12 @@ public class VirtualScenePresenter implements IBasePresenter, IVirtualScene {
 
     /**
      * 设置虚拟场景的状态
+     *
      * @param typeId
      * @param sn
      * @param isOpen
      */
-    public void setVsStatus(int typeId, String sn, int isOpen){
+    public void setVsStatus(int typeId, String sn, int isOpen) {
         RetrofitServiceManager.setVSStatus(typeId, sn, isOpen)
                 .doOnSubscribe(new Action0() {
                     @Override
@@ -267,10 +294,11 @@ public class VirtualScenePresenter implements IBasePresenter, IVirtualScene {
 
                     @Override
                     public void onNext(BaseResponse<Object> base) {
-                        if (base != null){
+                        if (base != null) {
                             if (base.getStatus() == 0) {
-                                mView.updateStatus();
-                            }else if (base.getRetCode() == ServerErrorCode.E_30011){
+                                //每次点击启动的时候重新获取下当前位置，因为有可能进行了ip切换等操作
+                                getCenterLoc(true);
+                            } else if (base.getRetCode() == ServerErrorCode.E_30011) {
                                 mView.hideLoading();
                                 mView.dialog("提示", ExpandServiceApplication.getInstance().getString(R.string.expand_service_deadline),
                                         "", "确认");
