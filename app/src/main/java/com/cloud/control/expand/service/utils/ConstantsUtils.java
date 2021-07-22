@@ -12,6 +12,8 @@ public class ConstantsUtils {
     public static final String GPS_FILE_PATH = "/data/system/gps/location";
     //服务过期
     public static final int SERVICE_EXPIRED_CODE = 30011;
+    //虚拟卡卡信息文件存储路径，此文件由虚拟机创建时生成
+    public static final String VIR_INFO_PATH = "/data/instance.json";
 
     /**
      * IP切换方式

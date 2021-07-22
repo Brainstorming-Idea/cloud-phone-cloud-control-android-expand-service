@@ -5,7 +5,9 @@ import android.util.Log;
 import android.util.VclustersCHardwareUtil;
 import android.util.vclusters.hardware.VclustersPHardware;
 
+import com.cloud.control.expand.service.home.ExpandServiceApplication;
 import com.cloud.control.expand.service.utils.ConstantsUtils;
+import com.cloud.control.expand.service.utils.SysProp;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -118,8 +120,19 @@ public class HardwareUtil {
         DecimalFormat sixDf = new DecimalFormat("0.000000");
         String latStr = sixDf.format(lat);
         String lngStr = sixDf.format(lng);
-        gpsLocation = latStr + ";" + lngStr;
-        return writeFileContent(ConstantsUtils.GPS_FILE_PATH, gpsLocation, true);
+        if (ExpandServiceApplication.isVirtual){
+            try {
+                SysProp.set("persist.vclusters.Latitude", latStr);
+                SysProp.set("persist.vclusters.Longitude", lngStr);
+                return true;
+            }catch (Exception e){
+                Log.e(TAG, "virtual set error:" + e.getMessage());
+                return false;
+            }
+        }else {
+            gpsLocation = latStr + ";" + lngStr;
+            return writeFileContent(ConstantsUtils.GPS_FILE_PATH, gpsLocation, true);
+        }
     }
 
 //    /**
@@ -249,32 +262,45 @@ public class HardwareUtil {
      * @return
      */
     public String getGpsLocation() {
-        StringBuilder gpsStr = new StringBuilder();
-        File file = new File(ConstantsUtils.GPS_FILE_PATH);
-        if (!file.exists()) {
+        if (ExpandServiceApplication.isVirtual){
+            try {
+//            String latitude = SysProp.get("persist.vclusters.Latitude","22.549054");//默认深圳市政府
+//            String longitude = SysProp.get("persist.vclusters.Longitude","114.064524");
+                String latitude = SysProp.get("persist.vclusters.Latitude","");
+                String longitude = SysProp.get("persist.vclusters.Longitude","");
+                return latitude + ";" + longitude;
+            }catch (Exception e){
+                Log.e(TAG, "virtual get gps error:" + e.getMessage());
+                return "";
+            }
+        }else {
+            StringBuilder gpsStr = new StringBuilder();
+            File file = new File(ConstantsUtils.GPS_FILE_PATH);
+            if (!file.exists()) {
+                return gpsStr.toString();
+            }
+            //文件是否有内容
+            if (file.length() > 0) {
+                try {
+                    InputStream inStream = new FileInputStream(file);
+                    InputStreamReader inputReader = new InputStreamReader(inStream);
+                    BufferedReader buffReader = new BufferedReader(inputReader);
+                    String line;
+                    //分行读取
+                    while ((line = buffReader.readLine()) != null) {
+                        gpsStr.append(line);
+                    }
+                    inStream.close();
+                } catch (java.io.FileNotFoundException e) {
+                    Log.e(TAG, "The File doesn't not exist.");
+                } catch (IOException e) {
+                    Log.e(TAG, "" + e.getMessage());
+                }
+            } else {
+                Log.e(TAG, "gps file is empty");
+            }
+            Log.d(TAG, "java 获取GPS:" + gpsStr);
             return gpsStr.toString();
         }
-        //文件是否有内容
-        if (file.length() > 0) {
-            try {
-                InputStream inStream = new FileInputStream(file);
-                InputStreamReader inputReader = new InputStreamReader(inStream);
-                BufferedReader buffReader = new BufferedReader(inputReader);
-                String line;
-                //分行读取
-                while ((line = buffReader.readLine()) != null) {
-                    gpsStr.append(line);
-                }
-                inStream.close();
-            } catch (java.io.FileNotFoundException e) {
-                Log.e(TAG, "The File doesn't not exist.");
-            } catch (IOException e) {
-                Log.e(TAG, "" + e.getMessage());
-            }
-        } else {
-            Log.e(TAG, "gps file is empty");
-        }
-        Log.d(TAG, "java 获取GPS:"+gpsStr);
-        return gpsStr.toString();
     }
 }

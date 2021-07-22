@@ -6,9 +6,13 @@ import android.os.Build;
 import android.text.TextUtils;
 
 import com.cloud.control.expand.service.BuildConfig;
+import com.cloud.control.expand.service.entity.HostBean;
 import com.cloud.control.expand.service.log.KLog;
 import com.cloud.control.expand.service.retrofit.manager.RetrofitServiceManager;
+import com.cloud.control.expand.service.utils.ConstantsUtils;
+import com.cloud.control.expand.service.utils.FileUtils;
 import com.cloud.control.expand.service.utils.XMLParser;
+import com.google.gson.Gson;
 import com.vclusters.system.VclustersPSystem;
 
 import java.lang.reflect.Constructor;
@@ -27,6 +31,10 @@ public class ExpandServiceApplication extends Application {
     private VclustersPSystem system = new VclustersPSystem();
     //默认服务器地址，没有配网时使用
     private String buildConfigHost = "http://14.215.128.98:8011/";
+    /**
+     * 是否为虚拟卡
+     */
+    public static final boolean isVirtual = Build.MODEL.equalsIgnoreCase("Anbox");
 
     @Override
     public void onCreate() {
@@ -68,7 +76,11 @@ public class ExpandServiceApplication extends Application {
      * @return
      */
     public String getCardSn() {
-        return system.getCardSN();
+        if (isVirtual){
+            return new Gson().fromJson(FileUtils.readFileContent(ConstantsUtils.VIR_INFO_PATH), HostBean.class).getVirtualSn();
+        }else {
+            return system.getCardSN();
+        }
 //        return "RK3930C2301900168";
     }
 
