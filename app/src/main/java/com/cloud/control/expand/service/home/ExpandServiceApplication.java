@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Build;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.cloud.control.expand.service.BuildConfig;
 import com.cloud.control.expand.service.entity.HostBean;
@@ -11,6 +12,7 @@ import com.cloud.control.expand.service.log.KLog;
 import com.cloud.control.expand.service.retrofit.manager.RetrofitServiceManager;
 import com.cloud.control.expand.service.utils.ConstantsUtils;
 import com.cloud.control.expand.service.utils.FileUtils;
+import com.cloud.control.expand.service.utils.SysProp;
 import com.cloud.control.expand.service.utils.XMLParser;
 import com.google.gson.Gson;
 import com.vclusters.system.VclustersPSystem;
@@ -34,11 +36,21 @@ public class ExpandServiceApplication extends Application {
     /**
      * 是否为虚拟卡
      */
-    public static final boolean isVirtual = Build.MODEL.equalsIgnoreCase("Anbox");
+//    public static final boolean isVirtual = Build.MODEL.equalsIgnoreCase("Anbox");
+    public static boolean isVirtual = false;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        //卡类型初始化
+        String flavor = SysProp.get("ro.build.flavor","");//卡类型
+        String versionInfo = SysProp.get("ro.build.description","");//卡版本
+        Log.i("ExpandService", "flavor:"+flavor + ";versionInfo:" + versionInfo);
+        if (flavor.startsWith("anbox")){//虚拟化，//todo 后面mtk如果有虚拟化再做区分
+            isVirtual = true;
+        }else if (flavor.startsWith("rk")){
+            isVirtual = false;
+        }
         //日志初始化
         KLog.init(BuildConfig.IS_DEBUG);
         //获取配网工具服务器地址，动态配置服务器
