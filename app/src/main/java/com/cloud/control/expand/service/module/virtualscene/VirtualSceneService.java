@@ -157,6 +157,14 @@ public class VirtualSceneService extends Service {
                 if (callBack != null){
                     callBack.onStart();
                 }
+                executor.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        //创造一个循环，服务停止时退出循环
+                        while (isStart.get()){ };
+                        sendServiceStatus(false);//发送状态广播以判定是否要重启服务
+                    }
+                });
                 break;
             case WALK:
                 RetrofitServiceManager.getWalkPlan(origin, destination)
@@ -790,7 +798,7 @@ public class VirtualSceneService extends Service {
      * @param status true：启动状态 false:停止状态
      */
     private void sendServiceStatus(boolean status){
-        if (!isRestart.get()) return;
+        if (!isRestart.get()) return;//重启虚拟场景时才发送广播
         isRestart.set(false);
         broadIntent.setAction(ConstantsUtils.BroadCast.SERVICE_CONNECTION_ACTION);
         broadIntent.putExtra(ConstantsUtils.BroadCast.KEY_SERVICE_STATUS, status);
