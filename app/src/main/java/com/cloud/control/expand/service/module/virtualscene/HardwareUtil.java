@@ -120,7 +120,7 @@ public class HardwareUtil {
         DecimalFormat sixDf = new DecimalFormat("0.000000");
         String latStr = sixDf.format(lat);
         String lngStr = sixDf.format(lng);
-        if (ExpandServiceApplication.isVirtual){
+        if (ExpandServiceApplication.isVirtual || ExpandServiceApplication.isRKAndroid10){
             try {
                 SysProp.set("persist.vclusters.Latitude", latStr);
                 SysProp.set("persist.vclusters.Longitude", lngStr);
@@ -262,7 +262,7 @@ public class HardwareUtil {
      * @return
      */
     public String getGpsLocation() {
-        if (ExpandServiceApplication.isVirtual){
+        if (ExpandServiceApplication.isVirtual || ExpandServiceApplication.isRKAndroid10){
             try {
 //            String latitude = SysProp.get("persist.vclusters.Latitude","22.549054");//默认深圳市政府
 //            String longitude = SysProp.get("persist.vclusters.Longitude","114.064524");
