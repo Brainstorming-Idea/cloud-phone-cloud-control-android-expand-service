@@ -6,7 +6,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
-import android.telecom.Call;
 import android.util.Log;
 
 import com.cloud.control.expand.service.R;
@@ -24,35 +23,23 @@ import com.cloud.control.expand.service.utils.NetUtil;
 import com.cloud.control.expand.service.utils.SharePreferenceHelper;
 import com.cloud.control.expand.service.utils.bdmap.BdMapUtils;
 
-import org.apache.commons.lang3.concurrent.BasicThreadFactory;
 import org.gavaghan.geodesy.Ellipsoid;
 import org.gavaghan.geodesy.GeodeticCalculator;
 import org.gavaghan.geodesy.GeodeticCurve;
 import org.gavaghan.geodesy.GlobalCoordinates;
 
-import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.MathContext;
-import java.math.RoundingMode;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import ch.obermuhlner.math.big.BigDecimalMath;
 import rx.Subscriber;
-import rx.functions.Action0;
 
 /**
  * @author wangyou
@@ -74,6 +61,7 @@ public class VirtualSceneService extends Service {
      */
     private volatile AtomicBoolean isStart = new AtomicBoolean(false);
     private volatile AtomicBoolean isRestart = new AtomicBoolean(false);//是否是重启扩展服务
+    private double[] newStartCoord;//切换ip重启服务后，新的启动坐标
     //cpu密集型计算，最大线程数为CPU核心数+1，
 //    private ThreadPoolExecutor executor = new ThreadPoolExecutor(1,
 //            Runtime.getRuntime().availableProcessors() + 1, 60, TimeUnit.SECONDS,
@@ -161,7 +149,9 @@ public class VirtualSceneService extends Service {
                     @Override
                     public void run() {
                         //创造一个循环，服务停止时退出循环
-                        while (isStart.get()){ };
+                        while (isStart.get()){
+                            SystemClock.sleep(100);
+                        };
                         sendServiceStatus(false);//发送状态广播以判定是否要重启服务
                     }
                 });
@@ -523,7 +513,7 @@ public class VirtualSceneService extends Service {
                     default:
                         break;
                 }
-                Log.d(TAG, "计算出的补点："+Arrays.toString(eachCoord));
+//                Log.d(TAG, "计算出的补点："+Arrays.toString(eachCoord));
                 eachCoord[0] = Double.parseDouble(sixDf.format(eachCoord[0]));
                 eachCoord[1] = Double.parseDouble(sixDf.format(eachCoord[1]));
                 eachPoints.add(eachCoord);//把补出的点添加进去
@@ -534,7 +524,7 @@ public class VirtualSceneService extends Service {
             }
         }
         Log.e(TAG, "补点用时："+(System.currentTimeMillis() - startTime)+ "ms");
-        calDis(supplyPoints);
+//        calDis(supplyPoints);
         Log.d(TAG, "补点的个数" + supplyPoints.size());
         return supplyPoints;
     }
@@ -615,7 +605,7 @@ public class VirtualSceneService extends Service {
      */
     public void calDis(List<double[]> points) {
         for (int i = 0; i < points.size(); i++) {
-            Log.d(TAG, "补点后的坐标：" + Arrays.toString(points.get(i)));
+//            Log.d(TAG, "补点后的坐标：" + Arrays.toString(points.get(i)));
             if (i == points.size() - 1) {
                 return;
             }
@@ -623,7 +613,7 @@ public class VirtualSceneService extends Service {
             GlobalCoordinates to = new GlobalCoordinates(points.get(i + 1)[0], points.get(i + 1)[1]);
             DecimalFormat df = new DecimalFormat("0.0");
             double distance = Double.parseDouble(df.format(getDistanceMeter(from, to, Ellipsoid.WGS84)));
-            Log.d(TAG, "补点后：" + distance + " m");
+//            Log.d(TAG, "补点后：" + distance + " m");
         }
     }
 
@@ -704,7 +694,7 @@ public class VirtualSceneService extends Service {
                     GlobalCoordinates to = new GlobalCoordinates(toGps[0], toGps[1]);
                     DecimalFormat df = new DecimalFormat("0.0");
                     double distance = Double.parseDouble(df.format(getDistanceMeter(from, to, Ellipsoid.WGS84)));
-                    Log.d(TAG, "补点前：" + distance + " m");
+//                    Log.d(TAG, "补点前：" + distance + " m");
                     distances.add(distance);
                 }
             }
@@ -737,11 +727,18 @@ public class VirtualSceneService extends Service {
         VsConfig vsConfig = spHelper.getObject(ConstantsUtils.SpKey.SP_VS_CONFIG,VsConfig.class);
         if (vsConfig != null) {
             vsConfig.setStart(false);
-            //恢复到启动时的位置
-            Log.d(TAG, "准备恢复的坐标："+Arrays.toString(vsConfig.getCenterCoords()));
-            HardwareUtil.getInstance(ExpandServiceApplication.getInstance())
-                    .setGpsLocation(vsConfig.getCenterCoords()[0] + ";" + vsConfig.getCenterCoords()[1]);
-            Log.d(TAG, "坐标已恢复："+HardwareUtil.getInstance(ExpandServiceApplication.getInstance()).getGpsLocation());
+            //根据是否要重启来判断准备恢复的坐标
+            if (isRestart.get()){
+                //先把坐标设置到新的城市,防止虚拟场景重启失败影响虚拟定位
+                Log.d(TAG, "坐标预先设置到新城市："+Arrays.toString(newStartCoord));
+                HardwareUtil.getInstance(ExpandServiceApplication.getInstance())
+                        .setGpsLocation(newStartCoord[0] + ";" + newStartCoord[1]);
+            }else {
+                //恢复到启动时的位置
+                Log.d(TAG, "准备恢复的坐标：" + Arrays.toString(vsConfig.getCenterCoords()));
+                HardwareUtil.getInstance(ExpandServiceApplication.getInstance())
+                        .setGpsLocation(vsConfig.getCenterCoords()[0] + ";" + vsConfig.getCenterCoords()[1]);
+            }
             spHelper.putObject(ConstantsUtils.SpKey.SP_VS_CONFIG, vsConfig);
         }
         if (callBack != null) {
@@ -751,8 +748,13 @@ public class VirtualSceneService extends Service {
 
     }
 
-    public void restartRoute(){
+    /**
+     * 重启路线规划
+     * @param newStartCoord 新的起点坐标
+     */
+    public void restartRoute(double[] newStartCoord){
         isRestart.set(true);
+        this.newStartCoord = newStartCoord;
         stopRoute();
     }
 

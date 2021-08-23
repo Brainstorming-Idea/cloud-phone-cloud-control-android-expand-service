@@ -54,8 +54,8 @@ public class AidlService extends Service {
     private Intent vsIntent;
     private VsConfig vsConfig;
     private String ip = "";
-    private String changeLoc = "";
-    private double[] locArray;
+    private String changeLoc = "";//代理传递过来的坐标
+    private double[] locArray;//代理传递过来的坐标
     private boolean isIpChange = false;
     private SharePreferenceHelper helper = SharePreferenceHelper.getInstance(ExpandServiceApplication.getInstance());
     private int reGetCount = 0;//重新获取当前位置信息的次数
@@ -241,7 +241,7 @@ public class AidlService extends Service {
 //            stopService(vsIntent);
             if (isBindService && vsBinder != null && ServerUtils.isServiceRunning(ExpandServiceApplication.getInstance(), VirtualSceneService.class.getCanonicalName())){
                 Log.d(TAG, "正在停止服务");
-                vsBinder.getService().restartRoute();
+                vsBinder.getService().restartRoute(locArray);
             }else {
                 Log.e(TAG, "未绑定服务，无法停止虚拟场景");
             }
