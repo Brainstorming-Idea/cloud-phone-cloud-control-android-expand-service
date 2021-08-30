@@ -1,5 +1,6 @@
 package com.cloud.control.expand.service.module.virtuallocation;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.cloud.control.expand.service.R;
@@ -12,9 +13,11 @@ import com.cloud.control.expand.service.entity.VirtualLocationInfoEntity;
 import com.cloud.control.expand.service.entity.VsConfig;
 import com.cloud.control.expand.service.home.ExpandServiceApplication;
 import com.cloud.control.expand.service.log.KLog;
+import com.cloud.control.expand.service.module.virtualscene.HardwareUtil;
 import com.cloud.control.expand.service.module.virtualscene.VirtualSceneService;
 import com.cloud.control.expand.service.retrofit.manager.RetrofitServiceManager;
 import com.cloud.control.expand.service.utils.ConstantsUtils;
+import com.cloud.control.expand.service.utils.GPSUtil;
 import com.cloud.control.expand.service.utils.ServerUtils;
 import com.cloud.control.expand.service.utils.SharePreferenceHelper;
 
@@ -36,33 +39,46 @@ public class VirtualLocationPresenter implements IBasePresenter, IVirtualLocatio
 
     @Override
     public void getData() {
-        RetrofitServiceManager.getGps()
-                .doOnSubscribe(new Action0() {
-                    @Override
-                    public void call() {
-                        mView.showLoading();
-                    }
-                })
-                .compose(mView.<VirtualLocationInfoEntity>bindToLife())
-                .subscribe(new Subscriber<VirtualLocationInfoEntity>() {
-                    @Override
-                    public void onCompleted() {
-                        mView.hideLoading();
-                        KLog.e("getGps onCompleted");
-                    }
+//        RetrofitServiceManager.getGps()
+//                .doOnSubscribe(new Action0() {
+//                    @Override
+//                    public void call() {
+//                        mView.showLoading();
+//                    }
+//                })
+//                .compose(mView.<VirtualLocationInfoEntity>bindToLife())
+//                .subscribe(new Subscriber<VirtualLocationInfoEntity>() {
+//                    @Override
+//                    public void onCompleted() {
+//                        mView.hideLoading();
+//                        KLog.e("getGps onCompleted");
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//                        mView.hideLoading();
+//                        KLog.e("getGps onError");
+//                    }
+//
+//                    @Override
+//                    public void onNext(VirtualLocationInfoEntity virtualLocationInfoEntity) {
+//                        KLog.e("getGps onNext " + virtualLocationInfoEntity.toString());
+//                        mView.loadData(virtualLocationInfoEntity);
+//                    }
+//                });
 
-                    @Override
-                    public void onError(Throwable e) {
-                        mView.hideLoading();
-                        KLog.e("getGps onError");
-                    }
-
-                    @Override
-                    public void onNext(VirtualLocationInfoEntity virtualLocationInfoEntity) {
-                        KLog.e("getGps onNext " + virtualLocationInfoEntity.toString());
-                        mView.loadData(virtualLocationInfoEntity);
-                    }
-                });
+        //从本地获取坐标
+        String location = HardwareUtil.getInstance(ExpandServiceApplication.getInstance())
+                .getGpsLocation();
+        if (!TextUtils.isEmpty(location)) {
+            double[] bd09 = GPSUtil.gps84_To_bd09(Double.parseDouble(location.split(";")[0]), Double.parseDouble(location.split(";")[1]));
+            VirtualLocationInfoEntity entity = new VirtualLocationInfoEntity();
+            VirtualLocationInfoEntity.DataBean dataBean = new VirtualLocationInfoEntity.DataBean();
+            dataBean.setLatitude(bd09[0] + "");
+            dataBean.setLongitude(bd09[1] + "");
+            entity.setData(dataBean);
+            mView.loadData(entity);
+        }
     }
 
     @Override
