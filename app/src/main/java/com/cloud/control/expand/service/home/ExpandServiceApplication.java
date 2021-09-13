@@ -95,53 +95,60 @@ public class ExpandServiceApplication extends Application {
      * 解决系统应用调用webView异常问题
      * Caused by: java.lang.UnsupportedOperationException: For security reasons, WebView is not allowed in privileged processes
      */
-    private void hookWebView() {
-        Class<?> factoryClass = null;
+    public static void hookWebView(){
+        int sdkInt = Build.VERSION.SDK_INT;
         try {
-            factoryClass = Class.forName("android.webkit.WebViewFactory");
-            Method getProviderClassMethod = null;
-            Object sProviderInstance = null;
-
-            if (Build.VERSION.SDK_INT == 25) { //Android 7.1
-                getProviderClassMethod = factoryClass.getDeclaredMethod("getProviderClass");
-                getProviderClassMethod.setAccessible(true);
-                Class<?> providerClass = (Class<?>) getProviderClassMethod.invoke(factoryClass);
-                Class<?> delegateClass = Class.forName("android.webkit.WebViewDelegate");
-                Constructor<?> constructor = providerClass.getConstructor(delegateClass);
-                if (constructor != null) {
-                    constructor.setAccessible(true);
-                    Constructor<?> constructor2 = delegateClass.getDeclaredConstructor();
-                    constructor2.setAccessible(true);
-                    sProviderInstance = constructor.newInstance(constructor2.newInstance());
-                }
-            } else if (Build.VERSION.SDK_INT == 25) {
-                getProviderClassMethod = factoryClass.getDeclaredMethod("getFactoryClass");
-                getProviderClassMethod.setAccessible(true);
-                Class<?> providerClass = (Class<?>) getProviderClassMethod.invoke(factoryClass);
-                Class<?> delegateClass = Class.forName("android.webkit.WebViewDelegate");
-                Constructor<?> constructor = providerClass.getConstructor(delegateClass);
-                if (constructor != null) {
-                    constructor.setAccessible(true);
-                    Constructor<?> constructor2 = delegateClass.getDeclaredConstructor();
-                    constructor2.setAccessible(true);
-                    sProviderInstance = constructor.newInstance(constructor2.newInstance());
-                }
-            } else if (Build.VERSION.SDK_INT == 21) {//Android 21无WebView安全限制
-                getProviderClassMethod = factoryClass.getDeclaredMethod("getFactoryClass");
-                getProviderClassMethod.setAccessible(true);
-                Class<?> providerClass = (Class<?>) getProviderClassMethod.invoke(factoryClass);
-                sProviderInstance = providerClass.newInstance();
-            }
+            Class<?> factoryClass = Class.forName("android.webkit.WebViewFactory");
+            Field field = factoryClass.getDeclaredField("sProviderInstance");
+            field.setAccessible(true);
+            Object sProviderInstance = field.get(null);
             if (sProviderInstance != null) {
-                KLog.e("hookWebView " + sProviderInstance.toString());
-                Field field = factoryClass.getDeclaredField("sProviderInstance");
-                field.setAccessible(true);
-                field.set("sProviderInstance", sProviderInstance);
+                KLog.e("hookWebView:sProviderInstance isn't null");
+                return;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
+            Method getProviderClassMethod;
+            if (sdkInt > 22) {
+                getProviderClassMethod = factoryClass.getDeclaredMethod("getProviderClass");
+            } else if (sdkInt == 22) {
+                getProviderClassMethod = factoryClass.getDeclaredMethod("getFactoryClass");
+            } else {
+                KLog.e("hookWebView:Don't need to Hook WebView");
+                return;
+            }
+            getProviderClassMethod.setAccessible(true);
+            Class<?> factoryProviderClass = (Class<?>) getProviderClassMethod.invoke(factoryClass);
+            Class<?> delegateClass = Class.forName("android.webkit.WebViewDelegate");
+            Constructor<?> delegateConstructor = delegateClass.getDeclaredConstructor();
+            delegateConstructor.setAccessible(true);
+            if(sdkInt < 26){//低于Android O版本
+                Constructor<?> providerConstructor = factoryProviderClass.getConstructor(delegateClass);
+                if (providerConstructor != null) {
+                    providerConstructor.setAccessible(true);
+                    sProviderInstance = providerConstructor.newInstance(delegateConstructor.newInstance());
+                }
+            } else {
+                Field chromiumMethodName = factoryClass.getDeclaredField("CHROMIUM_WEBVIEW_FACTORY_METHOD");
+                chromiumMethodName.setAccessible(true);
+                String chromiumMethodNameStr = (String)chromiumMethodName.get(null);
+                if (chromiumMethodNameStr == null) {
+                    chromiumMethodNameStr = "create";
+                }
+                Method staticFactory = factoryProviderClass.getMethod(chromiumMethodNameStr, delegateClass);
+                if (staticFactory!=null){
+                    sProviderInstance = staticFactory.invoke(null, delegateConstructor.newInstance());
+                }
+            }
+
+            if (sProviderInstance != null){
+                field.set("sProviderInstance", sProviderInstance);
+                KLog.e("hookWebView:Hook success!");
+            } else {
+                KLog.e("hookWebView:Hook failed!");
+            }
+        } catch (Throwable e) {
+            KLog.e("hookWebView:" + e.getMessage());
+        }
     }
 
 }
