@@ -6,11 +6,17 @@ android {
 
     //系统签名文件
     signingConfigs {
-        config {
+        rk7 {
             keyAlias 'key0'
             keyPassword '123456'
-            storeFile file('/demo.jks')
+            storeFile file('rk7.jks')
             storePassword '123456'
+        }
+        rk10 {
+            keyAlias 'android'
+            keyPassword 'android'
+            storeFile file('rk10.keystore')
+            storePassword 'android'
         }
     }
 
@@ -23,7 +29,7 @@ android {
         versionCode rootProject.ext.versionCode
         versionName rootProject.ext.versionName
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        signingConfig signingConfigs.config
+//        signingConfig signingConfigs.rk7
         externalNativeBuild {
             cmake {
                 cppFlags "-std=c++11 -frtti -fexceptions -Wno-format"
@@ -45,21 +51,27 @@ android {
     def APP_HOST = "APP_HOST"
 
     buildTypes {
-        debug {
-            signingConfigs.config
+        rk7 {
+            signingConfig signingConfigs.rk7
             debuggable true
             buildConfigField(STRING, APP_HOST, '"http://14.215.128.98:8011/"')
             buildConfigField "boolean", 'IS_DEBUG', 'true'
         }
-        release {
-            signingConfigs.config
-            debuggable false
-            minifyEnabled true
-            buildConfigField(STRING, APP_HOST, '"http://"')
-            buildConfigField "boolean", 'IS_DEBUG', 'false'
-//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        rk10 {
+            signingConfig signingConfigs.rk10
+            debuggable true
+            buildConfigField(STRING, APP_HOST, '"http://14.215.128.98:8011/"')
+            buildConfigField "boolean", 'IS_DEBUG', 'true'
         }
+//        release {
+//            signingConfigs.config
+//            debuggable false
+//            minifyEnabled true
+//            buildConfigField(STRING, APP_HOST, '"http://"')
+//            buildConfigField "boolean", 'IS_DEBUG', 'false'
+////            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+//        }
     }
 
     externalNativeBuild {
@@ -72,14 +84,14 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    //android studio 3.0
+    //自定义apk输出路径和文件名，as3.0需要修改为一下写法
     android.applicationVariants.all { variant ->
         variant.outputs.all {
-            if (variant.buildType.name.equals('release')) {
-                outputFileName = "${APK_FILE_NAME}.apk"
-            } else if (variant.buildType.name.equals('debug')) {
-                outputFileName = "${APK_FILE_NAME}.apk"
-            }
+            // 自定义输出路径
+            variant.getPackageApplication().outputDirectory = new File(project.rootDir.absolutePath + "/app/" + variant.buildType.name)
+            // 自定义文件名{示例：AppName-Flavor-debug-v1.0.0_201807301409}
+            //outputFileName = "AppName-${variant.flavorName}-${variant.buildType.name}-v${variant.versionName}_${time()}.apk"
+            outputFileName = "AndroidExpandService.apk"
         }
     }
 
