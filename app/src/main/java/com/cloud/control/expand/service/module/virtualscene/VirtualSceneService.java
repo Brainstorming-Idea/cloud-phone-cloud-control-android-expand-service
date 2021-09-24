@@ -16,6 +16,7 @@ import com.cloud.control.expand.service.entity.VsConfig;
 import com.cloud.control.expand.service.entity.baidumap.RoutePlan;
 import com.cloud.control.expand.service.entity.baidumap.Steps;
 import com.cloud.control.expand.service.home.ExpandServiceApplication;
+import com.cloud.control.expand.service.log.KLog;
 import com.cloud.control.expand.service.retrofit.manager.RetrofitServiceManager;
 import com.cloud.control.expand.service.utils.ConstantsUtils;
 import com.cloud.control.expand.service.utils.GPSUtil;
@@ -115,20 +116,24 @@ public class VirtualSceneService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        startLoc = intent.getDoubleArrayExtra("start_loc");
-        centerCoord = startLoc;
-        terminalLoc = intent.getDoubleArrayExtra("terminal_loc");
-        radius = intent.getIntExtra("radius", 0);
-        int type = intent.getIntExtra("scene_type", 0);
-        SceneType sceneType = SceneType.getVirtualScene(type);
-        String origin = startLoc[0] + "," + startLoc[1];
-        String destination = terminalLoc[0] + "," + terminalLoc[1];
-        isStart.set(true);
-        //请求百度接口获取路线规划中的坐标点
-        assert sceneType != null;
-        getRoutePlan(sceneType, origin, destination);
-        Log.d(TAG, "虚拟场景服务已启动");
-        sendServiceStatus(true);
+        try {
+            startLoc = intent.getDoubleArrayExtra("start_loc");
+            centerCoord = startLoc;
+            terminalLoc = intent.getDoubleArrayExtra("terminal_loc");
+            radius = intent.getIntExtra("radius", 0);
+            int type = intent.getIntExtra("scene_type", 0);
+            SceneType sceneType = SceneType.getVirtualScene(type);
+            String origin = startLoc[0] + "," + startLoc[1];
+            String destination = terminalLoc[0] + "," + terminalLoc[1];
+            isStart.set(true);
+            //请求百度接口获取路线规划中的坐标点
+            assert sceneType != null;
+            getRoutePlan(sceneType, origin, destination);
+            Log.d(TAG, "虚拟场景服务已启动");
+            sendServiceStatus(true);
+        } catch (NullPointerException e){
+            KLog.e("NullPointerException e : " + e.getMessage());
+        }
         return super.onStartCommand(intent, flags, startId);//TODO 确定服务重启的策略
     }
 
