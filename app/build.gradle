@@ -63,15 +63,15 @@ android {
             buildConfigField(STRING, APP_HOST, '"http://14.215.128.98:8011/"')
             buildConfigField "boolean", 'IS_DEBUG', 'true'
         }
-//        release {
-//            signingConfigs.config
-//            debuggable false
-//            minifyEnabled true
-//            buildConfigField(STRING, APP_HOST, '"http://"')
-//            buildConfigField "boolean", 'IS_DEBUG', 'false'
-////            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-//        }
+        release_rk7 {
+            signingConfig signingConfigs.rk7
+            debuggable false
+            minifyEnabled true
+            buildConfigField(STRING, APP_HOST, '"http://"')
+            buildConfigField "boolean", 'IS_DEBUG', 'false'
+//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
     }
 
     externalNativeBuild {
