@@ -18,6 +18,12 @@ android {
             storeFile file('rk10.keystore')
             storePassword 'android'
         }
+        virtual {
+            keyAlias 'androiddebugkey'
+            keyPassword 'android'
+            storeFile file('/virtual.keystore')
+            storePassword 'android'
+        }
     }
 
     compileSdkVersion 28
@@ -62,6 +68,15 @@ android {
             debuggable true
             buildConfigField(STRING, APP_HOST, '"http://14.215.128.98:8011/"')
             buildConfigField "boolean", 'IS_DEBUG', 'true'
+        }
+
+        virtual {
+            signingConfig signingConfigs.virtual
+            debuggable true
+//            matchingFallbacks = ['debug', 'release']
+            buildConfigField(STRING, APP_HOST, '"http://14.215.128.98:8011/"')
+            buildConfigField "boolean", 'IS_DEBUG', 'true'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
         release_rk7 {
             signingConfig signingConfigs.rk7
