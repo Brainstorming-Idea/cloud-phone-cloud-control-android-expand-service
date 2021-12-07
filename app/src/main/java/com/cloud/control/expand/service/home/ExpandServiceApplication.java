@@ -31,8 +31,8 @@ public class ExpandServiceApplication extends Application {
     private static ExpandServiceApplication sApplication;
     private static Context sContext;
     private VclustersPSystem system = new VclustersPSystem();
-    //默认服务器地址，没有配网时使用
-    private String buildConfigHost = "http://14.215.128.98:8011/";
+    //默认服务器地址
+    private String buildConfigHost = "";
     /**
      * 是否为虚拟卡
      */
@@ -48,7 +48,7 @@ public class ExpandServiceApplication extends Application {
         //日志初始化
         KLog.init(BuildConfig.IS_DEBUG);
         //获取配网工具服务器地址，动态配置服务器
-        String hostUrl = XMLParser.parseXMLForConfigFile("cache/DB_CONFIG_1.xml");
+        String hostUrl = XMLParser.parseXMLForConfigFile("data/data/com.cloud.phone.control.agent/shared_prefs/DB_CONFIG_1.xml");
         if(!TextUtils.isEmpty(hostUrl) && hostUrl.contains("ws") && hostUrl.length() > 2) {
             buildConfigHost = "http" + hostUrl.substring(2, hostUrl.length() - 2);
             KLog.e("buildConfigHost = " + buildConfigHost);
