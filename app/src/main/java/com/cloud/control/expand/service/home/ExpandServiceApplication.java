@@ -32,7 +32,7 @@ public class ExpandServiceApplication extends Application {
     private static Context sContext;
     private VclustersPSystem system = new VclustersPSystem();
     //默认服务器地址
-    private String buildConfigHost = "";
+    private String buildConfigHost = "http://14.18.190.139";
     /**
      * 是否为虚拟卡
      */
