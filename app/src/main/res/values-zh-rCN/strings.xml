@@ -27,5 +27,5 @@
     <string name="vs_stop_failed">停止失败，请稍后再试</string>
     <string name="vs_center_tips">选择在景区、河流、湖泊可能导致虚拟场景启动后不生效</string>
     <string name="vl_vs_conflict">该设备已启动虚拟场景，请先停止虚拟场景。</string>
-    <string name="logcat_desc">请在云手机页的“更多”模块查看</string>
+    <string name="common_desc">请在云手机页的“更多”模块查看</string>
 </resources>

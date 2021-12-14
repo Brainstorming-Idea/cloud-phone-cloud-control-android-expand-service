@@ -150,7 +150,12 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
                 //TODO
                 break;
             case LOG_DEBUG:
-                toastMessage(getString(R.string.logcat_desc));
+            case MULTI_CHANNEL_LIVE:
+            case SENIOR_ADB:
+            case BACKUP_RESTORE:
+            case SCREEN_INTERACTION:
+            case CLONED:
+                toastMessage(getString(R.string.common_desc));
                 break;
             case ROOT_PATTERN:
 
