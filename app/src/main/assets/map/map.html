@@ -322,10 +322,10 @@
 				var geoc = new BMap.Geocoder();
 				geoc.getLocation(pt, function (rs) {
 					var addComp = rs.address;
-					android.onClickWebView((rs.point.lng).toString(), (rs.point.lat).toString(), rs.addressComponents.city); // 传给安卓的参数:longitude, latitude, city
-					android.onClickWebViewDetail((rs.point.lng).toString(), (rs.point.lat).toString(), addComp, rs.addressComponents.city);//传给Android的详细地址信息
 					$("#suggestId").val(addComp);
 					$('#searchResultAll') && $('#searchResultAll').css("display", "none");
+					android.onClickWebView((rs.point.lng).toString(), (rs.point.lat).toString(), rs.addressComponents.city); // 传给安卓的参数:longitude, latitude, city
+					android.onClickWebViewDetail((rs.point.lng).toString(), (rs.point.lat).toString(), addComp, rs.addressComponents.city);//传给Android的详细地址信息
 				});
 			});
 
