@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.cloud.control.expand.service.R;
+import com.cloud.control.expand.service.adapter.ExpandServiceAdapter;
 import com.cloud.control.expand.service.adapter.ExpandServiceListAdapter;
 import com.cloud.control.expand.service.base.BaseActivity;
 import com.cloud.control.expand.service.dialog.CommonHintDialog;
@@ -41,7 +42,8 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
     Toolbar mToolbar;
     @BindView(R.id.rv_expand_service_list)
     RecyclerView mRvExpandServiceList;
-    ExpandServiceListAdapter mExpandServiceMainListAdapter;
+//    ExpandServiceListAdapter mExpandServiceMainListAdapter;
+    ExpandServiceAdapter mExpandServiceMainListAdapter;
     List<ExpandServiceRecordEntity.DataBean> mListEntity;
     private long firstPressedTime; //退出应用按下时间
 
@@ -61,19 +63,20 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
     @Override
     protected void initViews() {
         initToolBar(mToolbar, false, "扩展服务");
-        mExpandServiceMainListAdapter = new ExpandServiceListAdapter(mContext);
-        mExpandServiceMainListAdapter.setIRootOnClickListener(this);
+//        mExpandServiceMainListAdapter = new ExpandServiceListAdapter(mContext);
+        mExpandServiceMainListAdapter = new ExpandServiceAdapter(mContext,mPresenter);
+//        mExpandServiceMainListAdapter.setIRootOnClickListener(this);
         RecyclerViewHelper.initRecyclerViewV(this, mRvExpandServiceList, mExpandServiceMainListAdapter);
         Log.e("rv init hashcode","" + mRvExpandServiceList.hashCode());
-        mExpandServiceMainListAdapter.setOnItemClickListener(new OnRecyclerViewItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                if (NoFastClickUtils.isFastClick()) {
-                    return;
-                }
-                mPresenter.examineServiceStatus(mListEntity.get(position));
-            }
-        });
+//        mExpandServiceMainListAdapter.setOnItemClickListener(new OnRecyclerViewItemClickListener() {
+//            @Override
+//            public void onItemClick(View view, int position) {
+//                if (NoFastClickUtils.isFastClick()) {
+//                    return;
+//                }
+//                mPresenter.examineServiceStatus(mListEntity.get(position));
+//            }
+//        });
     }
 
     @Override
@@ -85,9 +88,14 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
     }
 
     @Override
-    public void getRootState(boolean state) {
+    public void getRootState(boolean state, int position) {
         if (mExpandServiceMainListAdapter != null) {
-            mExpandServiceMainListAdapter.setRootState(state);
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mExpandServiceMainListAdapter.setRootState(state,position);
+                }
+            });
         }
     }
 
@@ -105,7 +113,8 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
             mRvExpandServiceList.setVisibility(View.VISIBLE);
         }
 //        mRvExpandServiceList.setVisibility(View.VISIBLE);
-        mExpandServiceMainListAdapter.updateItems(listEntity);
+//        mExpandServiceMainListAdapter.updateItems(listEntity);
+        mExpandServiceMainListAdapter.notifyDataSetChanged();
 //        if (listEntity != null && listEntity.size() > 0) {
 //            if (mRvExpandServiceList != null) {
 //                Log.e("wytest","list is shown:"+mRvExpandServiceList.isShown());
@@ -161,7 +170,7 @@ public class ExpandServiceListActivity extends BaseActivity<ExpandServiceListPre
 
                 break;
             default:
-                toastMessage("暂未开放");
+                toastMessage(getString(R.string.common_desc));
         }
     }
 

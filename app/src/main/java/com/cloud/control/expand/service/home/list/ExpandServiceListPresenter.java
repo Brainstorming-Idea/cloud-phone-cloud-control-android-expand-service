@@ -1,6 +1,7 @@
 package com.cloud.control.expand.service.home.list;
 
 import com.cloud.control.expand.service.base.IBasePresenter;
+import com.cloud.control.expand.service.entity.ExpandService;
 import com.cloud.control.expand.service.entity.ExpandServiceRecordEntity;
 import com.cloud.control.expand.service.entity.ResponseEntity;
 import com.cloud.control.expand.service.entity.RootStateEntity;
@@ -24,7 +25,9 @@ public class ExpandServiceListPresenter implements IBasePresenter, IExpandServic
 
     private final ExpandServiceListView mView;
     private boolean isExpire; //是否到期
-
+    public List<ExpandServiceRecordEntity.DataBean> exListData = new ArrayList<>();
+    public boolean isRootOpen = false;
+    public int rootPosition = -1;//root在列表中的位置
     public ExpandServiceListPresenter(ExpandServiceListView view) {
         mView = view;
     }
@@ -58,6 +61,10 @@ public class ExpandServiceListPresenter implements IBasePresenter, IExpandServic
                         KLog.e("getExtendServiceRecord onNext " + recordEntity.toString());
                         if (recordEntity.getData() != null && recordEntity.getData().size() > 0) {
                             mView.loadData(recordEntity.getData());
+                            exListData = recordEntity.getData();
+                            rootPosition = getExPosition(exListData,ExpandService.ROOT_PATTERN.getTypeId());
+                            //root状态的显示需要依赖列表数据，所以要获取到列表数据后再获取Root状态
+                            getRootStatus();
                         } else {
                             /*REMIND --------test---------*/
                             mView.hideListView();
@@ -69,6 +76,11 @@ public class ExpandServiceListPresenter implements IBasePresenter, IExpandServic
                     }
                 });
 
+
+
+    }
+
+    private void getRootStatus(){
         RetrofitServiceManager.getRootStatusNoToken()
                 .doOnSubscribe(new Action0() {
                     @Override
@@ -79,23 +91,39 @@ public class ExpandServiceListPresenter implements IBasePresenter, IExpandServic
                 .subscribe(new Subscriber<RootStateEntity>() {
                     @Override
                     public void onCompleted() {
-                        KLog.e("getRootStatusNoToken onCompleted");
+                        KLog.d("getRootStatusNoToken onCompleted");
                     }
 
                     @Override
                     public void onError(Throwable e) {
-                        KLog.e("getRootStatusNoToken onError");
+                        KLog.e("getRootStatusNoToken onError: "+e.getMessage());
                     }
 
                     @Override
                     public void onNext(RootStateEntity rootStateEntity) {
-                        KLog.e("getRootStatusNoToken onNext " + rootStateEntity.toString());
+                        KLog.d("getRootStatusNoToken onNext " + rootStateEntity.toString());
                         if (rootStateEntity != null && rootStateEntity.getData().getData() != null) {
-                            mView.getRootState(rootStateEntity.getData().getData().isIsOpen());
+                            if (rootPosition >= 0) {
+                                mView.getRootState(rootStateEntity.getData().getData().isIsOpen(), rootPosition);
+                                isRootOpen = rootStateEntity.getData().getData().isIsOpen();
+                            }else {
+                                KLog.e("root position error");
+                            }
                         }
                     }
                 });
+    }
 
+    /*获取指定服务在列表中的position*/
+    private int getExPosition(List<ExpandServiceRecordEntity.DataBean> exListData, int typeId) {
+        if (exListData != null && exListData.size() > 0) {
+            for (int i = 0; i < exListData.size(); i++) {
+                if (exListData.get(i).getTypeId() == typeId){
+                    return i;
+                }
+            }
+        }
+        return -1;
     }
 
     /**

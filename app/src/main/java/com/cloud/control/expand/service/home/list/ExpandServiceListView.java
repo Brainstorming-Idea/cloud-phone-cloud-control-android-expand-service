@@ -35,6 +35,6 @@ public interface ExpandServiceListView extends IBaseView {
      *
      * @param state
      */
-    void getRootState(boolean state);
+    void getRootState(boolean state, int position);
 
 }
